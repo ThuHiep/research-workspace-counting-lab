@@ -25,6 +25,7 @@ def main():
     ap.add_argument("--coco", required=True, help="thư mục chứa fold1/ fold2/ fold3/")
     ap.add_argument("--out", default="/kaggle/working/coco")
     ap.add_argument("--folds", default="1,2")
+    ap.add_argument("--link_folds", default="3", help="fold test symlink sang out (val/eval đọc cùng root)")
     args = ap.parse_args()
 
     out = Path(args.out) / "fold12"
@@ -63,6 +64,17 @@ def main():
         json.dump(merged, f)
     print(f"\nfold12: {len(merged['images'])} ảnh, {len(merged['annotations'])} ann, "
           f"{len(merged['categories'])} category -> {out}")
+
+    # Cho fold test (mặc định fold3) cũng truy cập được từ cùng root out (config đọc train=fold12, val=fold3)
+    for tf in args.link_folds.split(","):
+        tf = tf.strip()
+        if not tf:
+            continue
+        link = Path(args.out) / f"fold{tf}"
+        src = Path(args.coco) / f"fold{tf}"
+        if not link.exists() and src.exists():
+            os.symlink(src.resolve(), link)
+            print(f"[link] fold{tf}: {src} -> {link}")
 
 
 if __name__ == "__main__":
