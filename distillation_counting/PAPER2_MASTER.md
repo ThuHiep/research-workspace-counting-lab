@@ -166,7 +166,37 @@ Ablation cô lập locality (5 seed, mới có mean — CHỜ 8-seed+Wilcoxon):
 
 **❌ 8-seed + Wilcoxon LẬT NGƯỢC (2026-07-24):** local vs baseline **ΔR² −0.034 (p=0.148, 2/8), ΔMAE-dày +5.61 (p=0.46, 4/8)** — NGHIÊNG ÂM, không sig; ablation hết đơn điệu (baseline 0.907 > local 0.873 > global 0.869). **5-seed win = dương-tính-giả mẫu-nhỏ (lần thứ 3: funnel/pseudo/superpos).** Nguyên nhân chung = **bức tường variance NuInsSeg** (R² ±0.05–0.13, dày-MAE ±13–29) nuốt mọi effect ≤0.05 → NuInsSeg KHÔNG đủ power phân xử method modest.
 
-**⏳ PanNuke ADJUDICATION (đang chạy):** dụng cụ DUY NHẤT đủ power (nhiều ảnh/mô → variance nhỏ). fold_3 no-colon, `--dataset pannuke`. p<0.05 dương → method thật; null/âm → **đóng dứt hướng method**, cam kết không chase thêm. Gate cổng-crowding = ablation phụ (chưa chạy).
+**❌ PanNuke ADJUDICATION (2026-07-24, high-power): SUPERPOS CHẾT.** fold_3 no-colon, local vs baseline **ΔR² −0.048 (0/5, p=0.06 SAI HƯỚNG)**, MAE-dày +1.57; đơn điệu NGƯỢC (baseline 0.891 > global 0.873 > local 0.843). Power đủ (worst-org +0.66±0.17). → **Superposition-consistency đóng dứt.**
+
+---
+
+### 0.9 ★★ CHỐT hướng accuracy-method (2026-07-25) — FRONTIER là cái THẬT, method novelty KHÔNG có
+
+**❌ Spatial-grounding premise CHẾT (`premise_spatial_grounding.py`, PanNuke fold_3):** oracle GT-shape (magnitude-decoupled CE, trần trên của "spatial distill từ FM") → R² **0.905 → 0.617** (−0.29, 0/3). → *Với ĐẾM, tự do không-gian của count-only là ƯU điểm; ép shape (dù hoàn hảo) xung đột count-loss → hại.* Xác nhận count-only ≥ gt-density. **Ý magnitude-decoupled spatial distillation đóng trước khi đụng FM.**
+
+**Tổng kết: 6 hướng accuracy-method đều ÂM** — density-distill (PACT 0.512), feature-funnel (p=0.74), pseudo-label (p=0.38), composite-global (biased), superposition (hại PanNuke), spatial-grounding (oracle hại). **Không phải thiếu cố gắng — đếm-count-only + backbone tí hon ĐÃ gần trần tự nhiên; mọi cấu trúc thêm đều xung đột/vô ích.** → **DỪNG săn accuracy-method** (cam kết, không #7 mù).
+
+**★ CÁI THẬT — FRONTIER params–accuracy (`method_frontier.py`, PanNuke fold_1+2 train / fold_3 test, count-only, 3-seed):**
+
+| backbone | params | R² ↑ | MAE ↓ | |
+|---|---|---|---|---|
+| TinyUNet | 1.94M | 0.775 | 5.14 | quá nhỏ → cách xa |
+| **EfficientNet-lite0 = PACT** | **3.62M** | **0.908±0.019** | **3.78** | ★ **sweet-spot** |
+| EfficientNet-b1 | 6.76M | 0.884 | 3.82 | to hơn KHÔNG giúp |
+| ~~ResNet18~~ | 14.4M | (sập, loại) | — | train collapse |
+
+Scaling **bão hoà ở 3.6M** (lớn hơn tệ đi) = lập luận **efficiency thuần**. ⚠️ efflite0 = **backbone STOCK (ImageNet)** → accuracy KHÔNG novel; novelty thật = **đầu UQ (Poisson-σ, N2/N3) + count-only + efficiency curve**. Distill BỎ khỏi accuracy (efflite0 distill 0.512 << count-only 0.908); distill chỉ còn ở nhánh σ/UQ.
+
+**★ BẢNG CHÍNH accuracy công bằng (in-domain PanNuke fold_3, ĐANG hoàn tất):**
+
+| Method | Params | Nhãn | R² | MAE | trạng thái |
+|---|---|---|---|---|---|
+| **PACT (ours)** | **3.6M** | **count-only** | **0.908** | **3.78** | ✅ có |
+| DualU-Net (retrain fold_1+2) | ~35M (resnext50) | mask | ? | ? | ⏳ đang train Kaggle (leak-free) |
+| NuLite-T (2024) | 12M | mask | ? | ? | cite / tuỳ chạy |
+| KongNet (2026) SOTA | — | mask | — | — | **cite related-work** |
+
+**Định vị honest:** *"bộ đếm nhân 3.6M, count-only (không mask), R² 0.908 headline leak-free; bám SOTA lightweight với 3–10× ít params + nhãn rẻ hơn 1 bậc; kèm UQ calibrated (worst-organ robust, transfer 3 dataset)."* = **applied efficiency + UQ**, honest, mid-Q1-applied khả thi — KHÔNG phải novel-accuracy-method. Xem [[paper2-main-is-new-method]] (mâu thuẫn: cần method mới nhưng accuracy đã bão hoà → UQ là novelty thật duy nhất).
 
 ---
 
