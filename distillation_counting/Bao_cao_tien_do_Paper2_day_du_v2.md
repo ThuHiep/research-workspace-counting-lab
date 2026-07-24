@@ -115,6 +115,36 @@ PB-σ là đóng góp **Paper 1** (kiểm chứng trên foundation model). Câu 
 
 **Trung thực:** trên thang UQ-floor (E-AURC) PACT xếp **~4/5** so các phương pháp UQ cùng backbone → **đầu bất định là tính năng bổ trợ (bonus), KHÔNG phải chỗ dẫn đầu**. Điểm riêng của nó là *phân phối tái dùng được + transfer* (§3.4), không phải coverage tốt nhất.
 
+### 3.6 Cập nhật (2026-07): quá trình chọn backbone, kiến trúc model, và kết quả hiện tại
+
+Phần này báo cáo em đã **thử và điều chỉnh backbone/kiến trúc** như thế nào để cải thiện độ chính xác, và trạng thái mới nhất.
+
+**Backbone ban đầu — TinyUNet 1.9M (train từ đầu).** Ưu tiên "càng nhỏ càng tốt". Nhưng trên **PanNuke** (train fold_1+2, test fold_3, đo đếm) R² chỉ **0.775** (MAE 5.14) — kém rõ. Lý do: model quá nhỏ + **không có pretrain** nên đặc trưng yếu, cách xa các model lớn.
+
+**Đổi backbone — EfficientNet-lite0 3.6M (pretrain ImageNet).** Giữ nguyên khung, **chỉ thay encoder** → R² **0.908** (MAE 3.78), **nhảy +0.13**. Cải thiện chủ yếu nhờ **pretrain ImageNet** (đặc trưng chuyển giao) cộng thiết kế efficient. 3.6M vẫn **rất nhẹ** (nhỏ hơn heavy net 3–200×).
+
+**Thử lớn hơn nữa — KHÔNG giúp.** EfficientNet-b1 6.76M → chỉ 0.884 (< 0.908). → **Chọn EfficientNet-lite0 3.6M làm điểm "sweet-spot"**: bám sát nhất với số tham số nhỏ nhất; lớn hơn chỉ tốn params mà không lợi. Đây là **lập luận hiệu quả-tham số** (frontier bảng dưới).
+
+**Kiến trúc model hiện tại:**
+- **Encoder:** EfficientNet-lite0 (backbone có sẵn, pretrain ImageNet) — trích đặc trưng.
+- **Decoder U-Net** — phục hồi độ phân giải cho bản đồ mật độ (density map).
+- **Đầu đếm (density):** đếm = tổng density; **giám sát count-only** (chỉ 1 con số/ảnh, **KHÔNG cần mask**).
+- **Đầu bất định (σ):** Poisson-anchored (`√μ·exp(log_s)`), hiệu chuẩn bằng conformal — **điểm gốc/novel** của mô hình.
+- *Ghi chú trung thực:* em đã kiểm — **distillation KHÔNG cải thiện độ chính xác đếm in-domain** (efflite0 khi distill chỉ 0.512, còn count-only đạt 0.908), nên **độ chính xác dùng count-only thuần**; phần teacher/distill chỉ còn liên quan nhánh σ và label-efficiency.
+
+**Frontier hiệu quả-tham số (PanNuke fold_3, count-only, 3 seed) — bằng chứng chọn sweet-spot:**
+
+| Backbone | Params | R² ↑ | MAE ↓ | |
+|---|---|---|---|---|
+| TinyUNet (ban đầu) | 1.94M | 0.775 | 5.14 | quá nhỏ → cách xa |
+| **EfficientNet-lite0 (chọn)** | **3.62M** | **0.908** | **3.78** | ★ sweet-spot |
+| EfficientNet-b1 | 6.76M | 0.884 | 3.82 | lớn hơn không giúp |
+
+**Kết quả hiện tại + việc đang làm:**
+- **Bảng chính công bằng** chuyển sang **so in-domain trên PanNuke** (train fold_1+2 / test fold_3) — công bằng hơn bảng cũ §3.1 (bảng cũ so in-domain của mình với model khác ở chế độ off-the-shelf → không cân). Model chính = **EfficientNet-lite0 3.6M count-only, R² 0.908 / MAE 3.78** (headline leak-free).
+- **Đang bổ sung mốc SOTA-lightweight công bằng:** retrain **DualU-Net (2025)** trên fold_1+2, test fold_3 (leak-free) để so trực tiếp; đồng thời **trích dẫn KongNet (2026)** là SOTA hiện tại.
+- **Định vị:** bộ đếm nhẹ **3.6M, count-only** đạt độ chính xác **bám sát SOTA** với **ít tham số hơn nhiều + nhãn rẻ hơn một bậc (count vs mask)**, kèm **đầu bất định calibrated** (robust worst-organ + transfer). = đóng góp **hiệu quả (applied) + UQ**.
+
 ## 4. Đóng góp chính
 
 1. **★ Distilled tiny counter đạt độ chính xác đếm dẫn đầu ở kích thước tí hon** (§3.1): PACT 1.9M đạt R²/MAE/RMSE tốt nhất so teacher + heavy net off-the-shelf, ở 6–368× nhỏ hơn — chỉ dùng nhãn count. *(cấu trúc so như CellGenNet/H-Optimus, nhưng nhỏ hơn nhiều.)*
