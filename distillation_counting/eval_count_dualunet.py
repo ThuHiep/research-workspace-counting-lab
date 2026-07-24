@@ -51,7 +51,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config-file", required=True)
     ap.add_argument("--checkpoint", required=True)
-    ap.add_argument("--pannuke_root", required=True, help="dataset PanNuke gốc (chứa types.npy)")
+    ap.add_argument("--pannuke_root", default="", help="dataset PanNuke gốc (chứa types.npy) — chỉ cần khi --exclude != ''")
     ap.add_argument("--exclude", default="colon", help="tissue loại khỏi test (khớp efflite0)")
     ap.add_argument("--out_csv", default="/kaggle/working/dualunet_fold3_counts.csv")
     args = ap.parse_args()
@@ -61,8 +61,15 @@ def main():
     cfg["gpu"] = 0
     cfg["distributed"] = False
 
-    types3 = find_types_fold3(args.pannuke_root)
-    print(f"[types] fold3: {len(types3)} ảnh | ví dụ {types3[:3]}")
+    do_exclude = bool(args.exclude and args.exclude.strip())
+    if do_exclude:
+        if not args.pannuke_root:
+            sys.exit("--exclude != '' cần --pannuke_root (để lấy types.npy lọc tissue)")
+        types3 = find_types_fold3(args.pannuke_root)
+        print(f"[types] fold3: {len(types3)} ảnh | ví dụ {types3[:3]}")
+    else:
+        types3 = None
+        print("[types] full fold3 (không loại tissue) — bỏ qua types.npy")
 
     test_ds = build_dataset(cfg, split="test")
     loader = build_loader(cfg, test_ds, split="test")
@@ -82,9 +89,12 @@ def main():
     rows = []
     for idx, (images, _target) in enumerate(loader):
         image_id = ids[idx]
-        tissue = str(types3[image_id]) if image_id < len(types3) else "?"
-        if args.exclude and args.exclude.lower() in tissue.lower():
-            continue
+        if do_exclude:
+            tissue = str(types3[image_id]) if image_id < len(types3) else "?"
+            if args.exclude.lower() in tissue.lower():
+                continue
+        else:
+            tissue = "all"
         gt = len(coco.getAnnIds(imgIds=[image_id]))          # số nhân thật
         if isinstance(images, (list, tuple)):
             x = torch.stack([im.to(dev) for im in images])
