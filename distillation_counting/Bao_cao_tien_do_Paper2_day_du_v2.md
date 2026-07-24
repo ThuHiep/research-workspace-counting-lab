@@ -140,10 +140,19 @@ Phần này báo cáo em đã **thử và điều chỉnh backbone/kiến trúc*
 | **EfficientNet-lite0 (chọn)** | **3.62M** | **0.908** | **3.78** | ★ sweet-spot |
 | EfficientNet-b1 | 6.76M | 0.884 | 3.82 | lớn hơn không giúp |
 
-**Kết quả hiện tại + việc đang làm:**
-- **Bảng chính công bằng** chuyển sang **so in-domain trên PanNuke** (train fold_1+2 / test fold_3) — công bằng hơn bảng cũ §3.1 (bảng cũ so in-domain của mình với model khác ở chế độ off-the-shelf → không cân). Model chính = **EfficientNet-lite0 3.6M count-only, R² 0.908 / MAE 3.78** (headline leak-free).
-- **Đang bổ sung mốc SOTA-lightweight công bằng:** retrain **DualU-Net (2025)** trên fold_1+2, test fold_3 (leak-free) để so trực tiếp; đồng thời **trích dẫn KongNet (2026)** là SOTA hiện tại.
-- **Định vị:** bộ đếm nhẹ **3.6M, count-only** đạt độ chính xác **bám sát SOTA** với **ít tham số hơn nhiều + nhãn rẻ hơn một bậc (count vs mask)**, kèm **đầu bất định calibrated** (robust worst-organ + transfer). = đóng góp **hiệu quả (applied) + UQ**.
+**★ BẢNG CHÍNH MỚI (công bằng, leak-free) — PanNuke, train fold_1+2 / test fold_3, cùng một test set (full fold3):**
+
+| Model | Params | Nhãn | R² ↑ | MAE ↓ | Ghi chú |
+|---|---|---|---|---|---|
+| DualU-Net (2025) | ~35M | mask (đầy đủ) | ⏳ đang retrain | ⏳ | SOTA-lightweight, retrain leak-free để so trực tiếp |
+| **PACT — EfficientNet-lite0 (ours)** | **3.62M** | **count-only** | ⏳ đang chạy full fold3 | ⏳ | ~**10× nhỏ hơn**, nhãn rẻ hơn một bậc |
+| KongNet (2026) | — | mask | *trích dẫn* | *trích dẫn* | SOTA hiện tại (không retrain, chỉ dẫn) |
+
+> **Trạng thái số liệu:** hai ô R²/MAE của DualU-Net và efflite0 **đang chạy trên full fold3** (train full fold12 có colon, test full fold3 — colon không leak vì cả hai train from-scratch, không dính PathoSAM). Số tham chiếu đã có: efflite0 trên **fold3-no-colon** = **R² 0.908 / MAE 3.78** (3 seed); sẽ thay bằng số **full fold3** để khớp DualU-Net cùng test set. Nguồn: `eval_count_dualunet.py` (đếm-từ-centroid, dùng `find_local_maxima` của repo DualU-Net) + `method_frontier.py` (efflite0 count-only).
+
+**Định vị:** bộ đếm nhẹ **3.6M, count-only** đạt độ chính xác **bám sát SOTA-lightweight (DualU-Net ~35M, nhãn mask)** với **~10× ít tham số + nhãn rẻ hơn một bậc (count vs mask)**, kèm **đầu bất định calibrated** (robust worst-organ + transfer). = đóng góp **hiệu quả (applied) + UQ**.
+
+> ⚠️ **Còn tồn đọng nhất quán (chờ số về để sửa gọn):** §3.1 vẫn là bảng cũ NuInsSeg off-the-shelf (không-fair), §4.1 và §5 vẫn ghi "distilled 1.9M dẫn đầu accuracy". Khung này **mâu thuẫn** với định vị mới (model chính = **lightweight count-only 3.6M**, distill KHÔNG dẫn accuracy). Sẽ viết lại §3.1/§4/§5 quanh trục lightweight+UQ khi có số full-fold3.
 
 ## 4. Đóng góp chính
 
