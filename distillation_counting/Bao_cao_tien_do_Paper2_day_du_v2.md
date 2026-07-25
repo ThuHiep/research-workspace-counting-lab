@@ -27,9 +27,11 @@ Dùng PathoSAM (~640M) làm teacher, distill sang student **1.9M** đặt tên *
 
 ## 3. Bằng chứng thực nghiệm
 
-### 3.1 ★ Kết quả chính — Độ chính xác đếm so với các model có tên
+### 3.1 (PHỤ — reference OOD) Đếm zero-shot/off-the-shelf trên NuInsSeg
 
-So PACT với foundation/heavy net áp **off-the-shelf** (train PanNuke → dùng thẳng trên NuInsSeg) trên **cùng 665 ảnh, cùng một thước đếm** (`dump_counts.py`). Đây là bảng theo đúng cấu trúc CellGenNet (proposed so nhiều baseline có tên) nhưng bằng **metric đếm**:
+> ⚠️ **KHÔNG phải bảng chính.** Bảng chính công bằng (leak-free, cùng test set) là **§3.6** (efflite0 3.6M count-only vs DualU-Net, PanNuke fold_3). Bảng dưới đây là **so KHÔNG cân** (PACT in-domain-adapted vs các net khác off-the-shelf/zero-shot trên OOD NuInsSeg) → **chỉ để tham khảo mức transfer OOD**, không dùng làm luận điểm "PACT thắng SOTA". Giữ lại vì số thật + cho thấy foundation nặng off-the-shelf transfer kém.
+
+So PACT với foundation/heavy net áp **off-the-shelf** (train PanNuke → dùng thẳng trên NuInsSeg) trên **cùng 665 ảnh, cùng một thước đếm** (`dump_counts.py`):
 
 | Method | Params | Thích nghi NuInsSeg | R² ↑ | MAE ↓ | RMSE ↓ | MAPE ↓ |
 |---|---|---|---|---|---|---|
@@ -41,7 +43,7 @@ So PACT với foundation/heavy net áp **off-the-shelf** (train PanNuke → dùn
 
 Cột "Thích nghi NuInsSeg" = nhãn **thực tế đã dùng** để thích nghi: chỉ **PACT** được thích nghi (bằng **count rẻ**); mọi net kia + teacher đều dùng **off-the-shelf** (không thích nghi).
 
-**Đọc:** PACT đạt **R² + MAE + RMSE tốt nhất bảng**, ở **6–368× nhỏ hơn**, chỉ dùng **nhãn đếm**. Đáng chú ý: **LKCell (164M) còn thua NuLite (12M)** trên OOD, và không model dùng-sẵn nào (kể cả CellViT 699M) tiến gần PACT → foundation nặng áp off-the-shelf transfer không tốt hơn tương ứng kích thước. *(CellViT chạy ở native 1024; ở 256 R² chỉ 0.444 → đã dùng số 1024 cho fair.)*
+**Đọc (nhớ caveat không-cân):** trên OOD NuInsSeg, PACT (in-domain-adapted) có R²/MAE/RMSE cao hơn các net off-the-shelf — **nhưng đây KHÔNG phải so công bằng** (PACT được thích nghi bằng count, các net kia không thích nghi) nên **không kết luận "PACT > SOTA"**. Điểm rút ra hợp lệ: **foundation nặng áp off-the-shelf transfer OOD kém** (LKCell 164M thua NuLite 12M; CellViT 699M không vượt) → ủng hộ hướng **model nhẹ thích nghi rẻ**. *(CellViT native 1024; ở 256 R² 0.444 → dùng số 1024.)*
 
 **Ý nghĩa thống kê (so PACT vs teacher):** trên **665 ảnh** (đơn vị lặp = ảnh, không phải seed), PACT (5-seed ensemble) đạt MAE 12.28 so teacher 15.80 → **ΔMAE = −3.52** (95% CI [−4.85, −2.24]), **kiểm định Wilcoxon bắt cặp p = 3.5×10⁻⁴ (\*\*\*)**. Cải thiện **không do ngẫu nhiên**. (Model đơn 14.74 cũng thấp hơn teacher, cách nhỏ hơn.)
 
