@@ -46,9 +46,13 @@ def load_fold(root, fold, exclude, want_label):
     types = np.load(tp, allow_pickle=True) if tp.exists() else np.array(["na"] * len(imgs))
     masks = np.load(base / "masks" / f"fold{fold}" / "masks.npy", mmap_mode="r")
     X, Y, C = [], [], []
+    n_colon, n_drop = 0, 0
     for i in range(len(imgs)):
         t = str(types[i])
+        if "colon" in t.lower():
+            n_colon += 1
         if exclude and exclude.lower() in t.lower():
+            n_drop += 1
             continue
         im = np.asarray(imgs[i])
         if im.max() <= 1.5:
@@ -60,6 +64,9 @@ def load_fold(root, fold, exclude, want_label):
             Y.append(inst)
         if (i + 1) % 800 == 0:
             print(f"  [fold{fold}] {i+1}/{len(imgs)}")
+    kept = len(imgs) - n_drop
+    print(f"  [fold{fold}] tổng {len(imgs)} | giữ {kept} | bỏ {n_drop} (exclude='{exclude or 'NONE'}') "
+          f"| colon trong fold: {n_colon} -> {'GIỮ colon ✓' if n_drop == 0 else 'ĐÃ LOẠI'}")
     return X, (Y if want_label else None), np.array(C, np.float32)
 
 
