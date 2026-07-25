@@ -146,13 +146,19 @@ Phần này báo cáo em đã **thử và điều chỉnh backbone/kiến trúc*
 
 | Model | Params | Nhãn | R² ↑ | MAE ↓ | Ghi chú |
 |---|---|---|---|---|---|
-| DualU-Net (2025) | ~35M | mask (đầy đủ) | ⏳ đang retrain | ⏳ | SOTA-lightweight, retrain leak-free để so trực tiếp |
-| **PACT — EfficientNet-lite0 (ours)** | **3.62M** | **count-only** | **0.920 ± 0.005** | **3.61 ± 0.07** | ~**10× nhỏ hơn**, nhãn rẻ hơn một bậc |
+| DualU-Net (2025) | ~35M | mask (đầy đủ) | 0.804 | 5.33 | SOTA-lightweight instance-seg, retrain leak-free; đếm từ đầu centroid |
+| StarDist | ~few-M | mask (instance) | ⏳ đang retrain | ⏳ | baseline instance-seg kinh điển; đếm = số instance |
+| **PACT — EfficientNet-lite0 (ours)** | **3.62M** | **count-only** | **0.920 ± 0.005** | **3.61 ± 0.07** | ~**10× nhỏ hơn DualU-Net**, nhãn rẻ hơn một bậc, **thắng cả 2 trục** |
 | KongNet (2026) | — | mask | *trích dẫn* | *trích dẫn* | SOTA hiện tại (không retrain, chỉ dẫn) |
 
-> **Trạng thái số liệu:** efflite0 **đã có số full fold3** = **R² 0.920 ± 0.005 / MAE 3.61 ± 0.07** (3 seed, train full fold12 có colon / test full fold3 — colon không leak vì train from-scratch, không dính PathoSAM; thực ra cao hơn no-colon 0.908 một chút). Còn **DualU-Net đang retrain** (cùng full fold12/fold3, cùng test set → so trực tiếp). Nguồn: `method_frontier.py` (efflite0 count-only) + `eval_count_dualunet.py` (đếm-từ-centroid, dùng `find_local_maxima` của repo DualU-Net).
+> **Trạng thái số liệu (cùng nền: train full fold12 5179 ảnh / test full fold3 2722 ảnh, colon GIỮ khắp nơi, leak-free):**
+> - **efflite0 (ours):** R² **0.920 ± 0.005** / MAE **3.61 ± 0.07** (3 seed) — `method_frontier.py`.
+> - **DualU-Net (~35M, mask):** R² **0.804** / MAE **5.33** (GT mean 24.5 / pred 26.2) — `eval_count_dualunet.py`, đếm-từ-centroid bằng `find_local_maxima` của repo họ.
+> - **StarDist:** ⏳ đang retrain (`stardist_baseline.py`, đếm = số instance).
+>
+> **Đọc:** bộ đếm nhẹ **3.6M count-only** đạt R²/MAE **tốt hơn** DualU-Net **~35M mask-supervised** trên chính bài **đếm**, ở **~10× ít tham số** và **nhãn rẻ hơn một bậc**. *(Caveat trung thực: DualU-Net tối ưu cho instance-segmentation, đếm ở đây là readout từ đầu centroid của nó — nên đây là so ở cấp-độ-tác-vụ-đếm leak-free cùng test set, không phải nói model họ kém segmentation.)*
 
-**Định vị:** bộ đếm nhẹ **3.6M, count-only** đạt độ chính xác **bám sát SOTA-lightweight (DualU-Net ~35M, nhãn mask)** với **~10× ít tham số + nhãn rẻ hơn một bậc (count vs mask)**, kèm **đầu bất định calibrated** (robust worst-organ + transfer). = đóng góp **hiệu quả (applied) + UQ**.
+**Định vị:** bộ đếm nhẹ **3.6M, count-only** đạt độ chính xác đếm **vượt SOTA-lightweight mask-supervised (DualU-Net ~35M)** — R² 0.920 vs 0.804, MAE 3.61 vs 5.33 — ở **~10× ít tham số + nhãn rẻ hơn một bậc (count vs mask)**, kèm **đầu bất định calibrated** (robust worst-organ + transfer). = đóng góp **hiệu quả (applied) + UQ**. *(so ở cấp tác-vụ-đếm, leak-free cùng test set; DualU-Net vốn tối ưu segmentation.)*
 
 **Khảo sát baseline lightweight 2024–2026 (đã tra, chốt chiến lược so sánh):**
 
