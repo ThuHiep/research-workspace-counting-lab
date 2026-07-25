@@ -145,10 +145,10 @@ Phần này báo cáo em đã **thử và điều chỉnh backbone/kiến trúc*
 | Model | Params | Nhãn | R² ↑ | MAE ↓ | Ghi chú |
 |---|---|---|---|---|---|
 | DualU-Net (2025) | ~35M | mask (đầy đủ) | ⏳ đang retrain | ⏳ | SOTA-lightweight, retrain leak-free để so trực tiếp |
-| **PACT — EfficientNet-lite0 (ours)** | **3.62M** | **count-only** | ⏳ đang chạy full fold3 | ⏳ | ~**10× nhỏ hơn**, nhãn rẻ hơn một bậc |
+| **PACT — EfficientNet-lite0 (ours)** | **3.62M** | **count-only** | **0.920 ± 0.005** | **3.61 ± 0.07** | ~**10× nhỏ hơn**, nhãn rẻ hơn một bậc |
 | KongNet (2026) | — | mask | *trích dẫn* | *trích dẫn* | SOTA hiện tại (không retrain, chỉ dẫn) |
 
-> **Trạng thái số liệu:** hai ô R²/MAE của DualU-Net và efflite0 **đang chạy trên full fold3** (train full fold12 có colon, test full fold3 — colon không leak vì cả hai train from-scratch, không dính PathoSAM). Số tham chiếu đã có: efflite0 trên **fold3-no-colon** = **R² 0.908 / MAE 3.78** (3 seed); sẽ thay bằng số **full fold3** để khớp DualU-Net cùng test set. Nguồn: `eval_count_dualunet.py` (đếm-từ-centroid, dùng `find_local_maxima` của repo DualU-Net) + `method_frontier.py` (efflite0 count-only).
+> **Trạng thái số liệu:** efflite0 **đã có số full fold3** = **R² 0.920 ± 0.005 / MAE 3.61 ± 0.07** (3 seed, train full fold12 có colon / test full fold3 — colon không leak vì train from-scratch, không dính PathoSAM; thực ra cao hơn no-colon 0.908 một chút). Còn **DualU-Net đang retrain** (cùng full fold12/fold3, cùng test set → so trực tiếp). Nguồn: `method_frontier.py` (efflite0 count-only) + `eval_count_dualunet.py` (đếm-từ-centroid, dùng `find_local_maxima` của repo DualU-Net).
 
 **Định vị:** bộ đếm nhẹ **3.6M, count-only** đạt độ chính xác **bám sát SOTA-lightweight (DualU-Net ~35M, nhãn mask)** với **~10× ít tham số + nhãn rẻ hơn một bậc (count vs mask)**, kèm **đầu bất định calibrated** (robust worst-organ + transfer). = đóng góp **hiệu quả (applied) + UQ**.
 
