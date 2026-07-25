@@ -66,7 +66,7 @@ class DensitySigmaUNet(nn.Module):
     sigma_mode:
       'poisson' (mặc định) — σ = √(max(μ,1)) · exp(log_s); anchor Poisson + head học dispersion.
       'nb' — σ = √(μ+α·μ²) Negative-Binomial (ablation A2). 'raw' — σ = exp(log_s) (ablation A2)."""
-    def __init__(self, ch=32, sigma_mode="poisson", backbone="tinyunet"):
+    def __init__(self, ch=32, sigma_mode="poisson", backbone="tinyunet", head_k=1, head_d=1):
         super().__init__()
         self.sigma_mode = sigma_mode
         self.backbone = backbone
@@ -90,7 +90,8 @@ class DensitySigmaUNet(nn.Module):
                 self.ups.append(_UpBlock(prev, skip, skip)); prev = skip
             self.dec_out = nn.Sequential(nn.Conv2d(prev, ch, 3, padding=1), nn.ReLU(inplace=True))
             sig_in = chs[-1]
-        self.dens = nn.Conv2d(ch, 1, 1)            # -> ReLU = density >=0 (nền=0 chính xác, như CSRNet)
+        _pad = head_d * (head_k // 2)              # head_k=1 -> 1x1 (mặc định, như CSRNet); >1 -> gộp cục bộ lúc readout
+        self.dens = nn.Conv2d(ch, 1, head_k, padding=_pad, dilation=head_d)   # -> ReLU = density >=0
         # head log_s: pool feature sâu nhất -> MLP -> scalar (dispersion/ảnh)
         self.sig = nn.Sequential(
             nn.AdaptiveAvgPool2d(1), nn.Flatten(),
@@ -242,8 +243,8 @@ def build_teacher_density(samples, device, cache, use_gt=False):
 
 # ===================== Phase B: train =====================
 def train(data, device, epochs, ch, lr, train_idx, w_density, w_count, w_nll, beta, bs,
-          detach_mu=False, sigma_mode="poisson", backbone="tinyunet"):
-    model = DensitySigmaUNet(ch, sigma_mode=sigma_mode, backbone=backbone).to(device)
+          detach_mu=False, sigma_mode="poisson", backbone="tinyunet", head_k=1, head_d=1):
+    model = DensitySigmaUNet(ch, sigma_mode=sigma_mode, backbone=backbone, head_k=head_k, head_d=head_d).to(device)
     print(f"[B] DensitySigmaUNet backbone={backbone} ch={ch} params={sum(p.numel() for p in model.parameters())/1e6:.3f}M "
           f"w=(dens {w_density}, count {w_count}, nll {w_nll}) beta={beta} detach_mu={detach_mu} sigma_mode={sigma_mode}")
     opt = torch.optim.Adam(model.parameters(), lr=lr)
