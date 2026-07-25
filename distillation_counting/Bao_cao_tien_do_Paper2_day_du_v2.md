@@ -146,17 +146,17 @@ Phần này báo cáo em đã **thử và điều chỉnh backbone/kiến trúc*
 
 | Model | Params | Nhãn | R² ↑ | MAE ↓ | Ghi chú |
 |---|---|---|---|---|---|
-| DualU-Net (2025) | ~35M | mask (đầy đủ) | 0.804 | 5.33 | SOTA-lightweight instance-seg, retrain leak-free; đếm từ đầu centroid |
-| StarDist | ~few-M | mask (instance) | ⏳ đang retrain | ⏳ | baseline instance-seg kinh điển; đếm = số instance |
-| **PACT — EfficientNet-lite0 (ours)** | **3.62M** | **count-only** | **0.920 ± 0.005** | **3.61 ± 0.07** | ~**10× nhỏ hơn DualU-Net**, nhãn rẻ hơn một bậc, **thắng cả 2 trục** |
+| DualU-Net (2025) | ~35M | mask (đầy đủ) | 0.804 | 5.33 | SOTA-lightweight instance-seg, retrain leak-free; đếm từ đầu centroid; **over-count** (pred 26.2) |
+| StarDist | ~1–2M (U-Net) | mask (instance) | 0.841 | 4.64 | instance-seg kinh điển, retrain leak-free; đếm = số instance; **under-count** (pred 20.8) |
+| **PACT — EfficientNet-lite0 (ours)** | **3.62M** | **count-only** | **0.920 ± 0.005** | **3.61 ± 0.07** | **thắng CẢ HAI baseline mask**; sát GT nhất; nhãn rẻ hơn một bậc |
 | KongNet (2026) | — | mask | *trích dẫn* | *trích dẫn* | SOTA hiện tại (không retrain, chỉ dẫn) |
 
-> **Trạng thái số liệu (cùng nền: train full fold12 5179 ảnh / test full fold3 2722 ảnh, colon GIỮ khắp nơi, leak-free):**
+> **Trạng thái số liệu (cùng nền leak-free: train full fold12 5179 ảnh / test full fold3 2722 ảnh, colon GIỮ khắp nơi, GT mean 24.5):**
 > - **efflite0 (ours):** R² **0.920 ± 0.005** / MAE **3.61 ± 0.07** (3 seed) — `method_frontier.py`.
-> - **DualU-Net (~35M, mask):** R² **0.804** / MAE **5.33** (GT mean 24.5 / pred 26.2) — `eval_count_dualunet.py`, đếm-từ-centroid bằng `find_local_maxima` của repo họ.
-> - **StarDist:** ⏳ đang retrain (`stardist_baseline.py`, đếm = số instance).
+> - **DualU-Net (~35M, mask):** R² **0.804** / MAE **5.33** (pred 26.2, over-count) — `eval_count_dualunet.py`, đếm-từ-centroid `find_local_maxima`.
+> - **StarDist (~1–2M U-Net, mask):** R² **0.841** / MAE **4.64** (pred 20.8, under-count) — `stardist_baseline.py`, đếm = số instance. *(Param chính xác lấy từ `model.keras_model.count_params()` — đang là ước lượng.)*
 >
-> **Đọc:** bộ đếm nhẹ **3.6M count-only** đạt R²/MAE **tốt hơn** DualU-Net **~35M mask-supervised** trên chính bài **đếm**, ở **~10× ít tham số** và **nhãn rẻ hơn một bậc**. *(Caveat trung thực: DualU-Net tối ưu cho instance-segmentation, đếm ở đây là readout từ đầu centroid của nó — nên đây là so ở cấp-độ-tác-vụ-đếm leak-free cùng test set, không phải nói model họ kém segmentation.)*
+> **Đọc:** bộ đếm nhẹ **3.6M count-only** đạt R²/MAE **tốt hơn CẢ HAI** baseline mask-supervised (DualU-Net ~35M **và** StarDist) trên chính bài **đếm**, với **nhãn rẻ hơn một bậc** (count vs mask). Hai baseline mask lệch hai phía (DualU-Net dư, StarDist thiếu) còn efflite0 sát GT nhất. *(Caveat trung thực: DualU-Net/StarDist tối ưu cho instance-segmentation, đếm ở đây là readout — đây là so ở cấp-độ-tác-vụ-đếm leak-free cùng test set, không nói model họ kém segmentation.)*
 
 **Định vị:** bộ đếm nhẹ **3.6M, count-only** đạt độ chính xác đếm **vượt SOTA-lightweight mask-supervised (DualU-Net ~35M)** — R² 0.920 vs 0.804, MAE 3.61 vs 5.33 — ở **~10× ít tham số + nhãn rẻ hơn một bậc (count vs mask)**, kèm **đầu bất định calibrated** (robust worst-organ + transfer). = đóng góp **hiệu quả (applied) + UQ**. *(so ở cấp tác-vụ-đếm, leak-free cùng test set; DualU-Net vốn tối ưu segmentation.)*
 
