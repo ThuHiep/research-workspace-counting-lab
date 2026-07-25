@@ -50,7 +50,7 @@ def find_types_fold3(root, fold=3):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config-file", required=True)
-    ap.add_argument("--checkpoint", required=True)
+    ap.add_argument("--checkpoint", default="", help="đường dẫn .pth; bỏ trống -> tự lấy .pth MỚI NHẤT trong output_dir của config")
     ap.add_argument("--pannuke_root", default="", help="dataset PanNuke gốc (chứa types.npy) — chỉ cần khi --exclude != ''")
     ap.add_argument("--exclude", default="colon", help="tissue loại khỏi test (khớp efflite0)")
     ap.add_argument("--out_csv", default="/kaggle/working/dualunet_fold3_counts.csv")
@@ -77,14 +77,25 @@ def main():
     ids = list(test_ds.ids)
     print(f"[data] test fold3: {len(test_ds)} ảnh (COCO)")
 
+    ckpt_path = args.checkpoint
+    if not ckpt_path or osp.isdir(ckpt_path):
+        ckpt_dir = ckpt_path if ckpt_path else cfg["experiment"]["output_dir"]
+        pths = sorted(Path(ckpt_dir).glob("*.pth"), key=lambda p: p.stat().st_mtime)
+        if not pths:
+            sys.exit(f"Không thấy .pth nào trong {ckpt_dir}")
+        ckpt_path = str(pths[-1])
+        print(f"[auto] chọn checkpoint mới nhất: {ckpt_path}")
+        if len(pths) > 1:
+            print(f"[auto] (có {len(pths)} file .pth; lấy mtime lớn nhất)")
+
     model = build_model(cfg).to(dev)
-    ckpt = torch.load(args.checkpoint, map_location="cpu")
+    ckpt = torch.load(ckpt_path, map_location="cpu")
     if isinstance(ckpt, dict) and "model" in ckpt:
         ckpt = ckpt["model"]
     model.load_state_dict(ckpt, strict=True)
     model.eval()
     th = float(cfg["training"]["th"])
-    print(f"[model] loaded {args.checkpoint} | h(th)={th}")
+    print(f"[model] loaded {ckpt_path} | h(th)={th}")
 
     rows = []
     for idx, (images, _target) in enumerate(loader):
