@@ -152,6 +152,18 @@ Phần này báo cáo em đã **thử và điều chỉnh backbone/kiến trúc*
 
 **Định vị:** bộ đếm nhẹ **3.6M, count-only** đạt độ chính xác **bám sát SOTA-lightweight (DualU-Net ~35M, nhãn mask)** với **~10× ít tham số + nhãn rẻ hơn một bậc (count vs mask)**, kèm **đầu bất định calibrated** (robust worst-organ + transfer). = đóng góp **hiệu quả (applied) + UQ**.
 
+**Khảo sát baseline lightweight 2024–2026 (đã tra, chốt chiến lược so sánh):**
+
+| Model | Năm | Params/Size | Vai trò | Ghi chú |
+|---|---|---|---|---|
+| **DualU-Net** ([repo](https://github.com/davidanglada/DualU-Net)) | 2025 | ~35M, mask | **retrain leak-free (baseline chính)** | đầu centroid density → đếm được; đang retrain fold_1+2/fold_3 |
+| **KongNet** ([2510.23559](https://arxiv.org/abs/2510.23559)) | 10/2025 | multi-head; bản nhẹ KongNet-Det | **cite SOTA** | SOTA mới nhất PanNuke+CoNIC, **có đầu centroid**, thắng MIDOG-2025; weights có nhưng retrain nặng → chỉ cite |
+| **Distill-H-Optimus** ([2502.19217](https://arxiv.org/abs/2502.19217)) | 02/2025 | ~24M (48× nhỏ hơn H-Optimus) | **cite peer TRỰC TIẾP** | distill từ FM, **báo cáo R² đếm 0.575→0.871, KHÔNG có UQ** → đúng mẫu "distilled counter with R²" của mình; efflite0 **0.920/3.6M** vs **0.871/~24M** (khác setup, không so tuyệt đối) — nhấn "**họ không UQ, mình có**" |
+| **NuLite** ([2408.01797](https://arxiv.org/abs/2408.01797)) | 2024 (BSPC 2026) | S/M/T FastViT-UNet (T≈12M) | reference off-the-shelf | pretrained **train CẢ 3 fold → KHÔNG leak-free** với fold3; muốn fair phải retrain fold1+2 (HoVer-Net-style, 130 ep, 1024px → rất nặng) |
+| Attention-enhanced lightweight ([MDPI Info 2025](https://www.mdpi.com/2078-2489/16/4/295)) · SAM cooperative-refine ([2603.28027](https://arxiv.org/pdf/2603.28027)) | 2025/2026 | nhẹ / SAM-based | cite related | dày phần related-work nếu cần |
+
+> **Chốt:** chỉ retrain leak-free **DualU-Net** (đủ head-to-head công bằng); **KongNet + 2502.19217 cite** làm SOTA + peer. Peer sát nhất = **2502.19217** (distilled, R², no-UQ) → luận điểm bán: nhỏ hơn ~7× mà R² không kém + **thêm UQ calibrated** (điều không peer distilled nào có).
+
 > ⚠️ **Còn tồn đọng nhất quán (chờ số về để sửa gọn):** §3.1 vẫn là bảng cũ NuInsSeg off-the-shelf (không-fair), §4.1 và §5 vẫn ghi "distilled 1.9M dẫn đầu accuracy". Khung này **mâu thuẫn** với định vị mới (model chính = **lightweight count-only 3.6M**, distill KHÔNG dẫn accuracy). Sẽ viết lại §3.1/§4/§5 quanh trục lightweight+UQ khi có số full-fold3.
 
 ## 4. Đóng góp chính
