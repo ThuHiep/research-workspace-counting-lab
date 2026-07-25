@@ -112,7 +112,7 @@ def main():
 
     n_rays = 32
     grid = (2, 2)
-    conf = Config2D(n_rays=n_rays, grid=grid, use_gpu=True, n_channel_in=3,
+    conf = Config2D(n_rays=n_rays, grid=grid, use_gpu=False, n_channel_in=3,   # use_gpu=gputools/OpenCL; tắt -> CPU cho NMS, mạng vẫn GPU qua TF
                     train_epochs=args.epochs, train_steps_per_epoch=args.steps,
                     train_patch_size=(256, 256), train_batch_size=8)
     model = StarDist2D(conf, name="stardist_pannuke_f12", basedir="/kaggle/working/stardist_models")
