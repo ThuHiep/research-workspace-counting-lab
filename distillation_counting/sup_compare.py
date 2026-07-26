@@ -12,7 +12,13 @@ SUPERVISION chứ KHÔNG phải kiến trúc (vì kiến trúc y hệt). Đây l
 Chạy Kaggle (GPU; cần masks.npy để build GT-density). Lần đầu build cache GT-density hơi lâu:
   !python sup_compare.py --pannuke_root /kaggle/input/datasets/hipinhththu/pannuke --seeds 42,43,44
 """
-import argparse
+import argparse, os, sys
+# chèn path chứa pannuke_loader (kaggle/lib) — repo root = cha của thư mục script
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_REPO = os.path.dirname(_HERE)
+for _p in (os.path.join(_REPO, "kaggle", "lib"), os.path.join(_REPO, "kaggle", "vast"), _REPO, _HERE):
+    if os.path.isdir(_p) and _p not in sys.path:
+        sys.path.insert(0, _p)
 import numpy as np
 import torch
 from distill_student_r2 import build_pannuke_density, train
