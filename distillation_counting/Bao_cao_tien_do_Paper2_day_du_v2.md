@@ -1,6 +1,17 @@
 # Báo cáo tiến độ Paper 2
 
-*Chưng cất pathology foundation model thành bộ đếm tế bào nhẹ, giám sát mức đếm (không cần mask)*
+*Bộ đếm tế bào nhẹ count-only (không mask) + bất định calibrated*
+
+---
+
+> ## ⚠️ PROVENANCE MODEL — ĐỌC TRƯỚC (2026-07-27)
+> **Model headline DUY NHẤT của paper = efflite0 3.62M count-only** (DensitySigmaUNet ch32, EfficientNet-lite0, Poisson-σ, leak-free fold12→fold3). Mọi số báo cáo PHẢI trên model này.
+>
+> **✅ ĐÃ trên efflite0 3.62M (dùng được):** §3.1b (tier-bias), §3.3 (efficiency), §3.6 (bảng chính 4-paradigm + kiến trúc), các ablation (distill/CBAM/HAAM/head-RF/loss).
+>
+> **⚠️ SUPERSEDED — số MODEL CŨ 1.9M (TinyUNet/distill), ĐANG re-run trên efflite0, KHÔNG dùng vào manuscript cho tới khi thay:** §3.2 (label-efficiency), §3.4 (transfer cross-dataset), §3.5 (UQ learned-σ). *(Git giữ lịch sử; các mục này giữ tạm làm tham chiếu, sẽ thay bằng số efflite0 rồi xoá.)*
+>
+> Trạng thái re-run: xem §6.
 
 ---
 
