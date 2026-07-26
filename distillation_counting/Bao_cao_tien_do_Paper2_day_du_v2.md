@@ -7,9 +7,9 @@
 > ## ⚠️ PROVENANCE MODEL — ĐỌC TRƯỚC (2026-07-27)
 > **Model headline DUY NHẤT của paper = efflite0 3.62M count-only** (DensitySigmaUNet ch32, EfficientNet-lite0, Poisson-σ, leak-free fold12→fold3). Mọi số báo cáo PHẢI trên model này.
 >
-> **✅ ĐÃ trên efflite0 3.62M (dùng được):** §3.1b (tier-bias), §3.3 (efficiency), §3.6 (bảng chính 4-paradigm + kiến trúc), các ablation (distill/CBAM/HAAM/head-RF/loss).
+> **✅ ĐÃ trên efflite0 3.62M (dùng được):** §3.1b (tier-bias), §3.2a (learning curve label-eff), §3.3 (efficiency), §3.6 (bảng chính 4-paradigm + kiến trúc), các ablation (distill/CBAM/HAAM/head-RF/loss).
 >
-> **⚠️ SUPERSEDED — số MODEL CŨ 1.9M (TinyUNet/distill), ĐANG re-run trên efflite0, KHÔNG dùng vào manuscript cho tới khi thay:** §3.2 (label-efficiency), §3.4 (transfer cross-dataset), §3.5 (UQ learned-σ). *(Git giữ lịch sử; các mục này giữ tạm làm tham chiếu, sẽ thay bằng số efflite0 rồi xoá.)*
+> **⚠️ SUPERSEDED — số MODEL CŨ 1.9M (TinyUNet/distill), ĐANG re-run trên efflite0, KHÔNG dùng vào manuscript cho tới khi thay:** §3.2b (count-only vs mask — đang chạy `sup_compare`), §3.4 (transfer cross-dataset — đang chạy in-domain NuInsSeg trước), §3.5 (UQ learned-σ). *(Git giữ lịch sử; giữ tạm làm tham chiếu, sẽ thay bằng số efflite0 rồi xoá.)*
 >
 > Trạng thái re-run: xem §6.
 
@@ -79,20 +79,23 @@ Vì sao MAPE toàn cục cao (47.6%)? Chia 665 ảnh theo số nhân GT và tín
 - **MAPE-47.6% bị kéo lên bởi vùng ít nhân.** Ở tầng Thấp, GT trung bình chỉ 10.6 nên **mẫu số nhỏ khuếch đại sai số tương đối** (MAPE 110%) dù MAE tuyệt đối chỉ 6.78; ở vùng đông MAPE chỉ 24.8%. Đây là **tính chất của metric MAPE**, không phản ánh năng lực đếm ở vùng nhiều nhân.
 - **Giới hạn thật (đưa vào Thảo luận):** ở vùng ít nhân PACT **thua teacher** (teacher tầng Thấp MAE 2.95 / MAPE 37.2%) — đầu density cộng dồn dương-tính-giả trên ảnh gần trống → đếm dư; PACT thắng toàn cục nhờ **vùng nhiều nhân**. *(R² từng tầng không báo vì trong một dải hẹp phương sai nền → 0, chỉ số vô nghĩa; R² chỉ hợp lệ toàn cục = 0.786.)*
 
-### 3.2 Vì sao distill? — Label-efficiency (phép so CÓ KIỂM SOÁT)
+### 3.2 Label-efficiency (efflite0 count-only, PanNuke leak-free)
 
-Để tách riêng ảnh hưởng của **loại giám sát**, so trên **cùng kiến trúc PACT, cùng data, cùng số ảnh** — chỉ khác nguồn nhãn: (a) **distilled** (target = density teacher + đếm mức ảnh, chỉ cần nhãn count); (b) **mask-supervised** (cùng mạng, target = density dựng từ mask GT từng nhân). NuInsSeg, 3 seed.
+**(a) Learning curve — cần bao nhiêu nhãn count?** Train efflite0 count-only trên {5,10,25,50,100}% ảnh fold12, test full fold3, 3 seed (`label_curve.py`):
 
-| Ngân sách ảnh | Distilled (count-only) — Worst-org / MAE | Mask-supervised — Worst-org / MAE |
-|---|---|---|
-| 10% (53 ảnh) | 0.865 / 24.26 | 0.879 / 26.09 |
-| 25% (133 ảnh) | 0.858 / 21.85 | 0.824 / 18.49 |
-| 50% (266 ảnh) | 0.840 / 20.34 | 0.830 / 17.73 |
-| 100% (532 ảnh) | 0.843 / 14.12 | 0.897 / 14.61 |
+| % nhãn count | #ảnh | R² ↑ | MAE ↓ |
+|---|---|---|---|
+| 5% | 259 | 0.453 ± 0.208 | 10.05 |
+| 10% | 518 | 0.742 ± 0.077 | 6.45 |
+| **25%** | 1295 | **0.849 ± 0.029** | 4.62 |
+| 50% | 2590 | 0.859 ± 0.036 | 4.61 |
+| **100%** | 5179 | **0.915 ± 0.010** | 3.82 |
 
-Cùng số ảnh → reliability **không phân biệt được thống kê** và MAE tương đương (mask nhỉnh ~2–3 nhân ở giữa nhưng hòa ở hai đầu). **Distillation (chỉ nhãn đếm) đạt chất lượng ngang giám sát bằng mask** — nhưng nhãn đếm là **một con số/ảnh** thay vì vẽ ~52.8 mask/ảnh. **Đây là phép so công bằng NHẤT của bài** (cùng mọi thứ, chỉ khác nguồn nhãn) → xương sống luận điểm.
+**Đọc:** tăng dốc rồi giảm dần lợi ích — **25% nhãn count (~1300 ảnh) đạt R² 0.849 ≈ 93% của full**; full còn hơn ~0.06 (chưa bão hoà hẳn); 5% quá ít (phương sai lớn, không dùng). 100%=0.915 khớp headline 0.920 (consistency ✓). → **nhãn count vốn rẻ (1 số/ảnh), lại chỉ cần ~1/4 để gần đạt** = luận điểm nhãn rẻ.
 
-*Ghi chú trung thực: (i) single-split, chỉ đọc tương đối giữa các mức; (ii) GT count vẫn lấy từ mask → chứng minh **yêu cầu giám sát** của phương pháp là mức đếm, không phải "đã annotate rẻ hơn trong thực tế"; (iii) claim về **loại nhãn** (một số vs mask từng nhân) — factual; bội số thời gian cụ thể chưa đưa vì thiếu citation chuẩn.*
+**(b) Count-only vs mask — CÙNG kiến trúc** *(⏳ đang chạy `sup_compare.py`: efflite0 count-only vs GT-density-từ-mask, cô lập supervision — điền khi xong)*. Số cũ NuInsSeg (config cũ): count-only 0.925 > GT-density 0.881.
+
+*Honest: GT count trong benchmark vẫn suy từ mask → chứng minh **yêu cầu giám sát** là mức đếm; tiết kiệm nhãn thật là cho dataset MỚI (đếm 1 số vs vẽ mask từng nhân). Thang chi phí: mask > point > count.*
 
 ### 3.3 Hiệu quả mô hình
 

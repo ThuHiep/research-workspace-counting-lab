@@ -200,6 +200,8 @@ Scaling **bão hoà ở 3.6M** (lớn hơn tệ đi) = lập luận **efficiency
 
 **★ Efficiency headline (đo thực T4 2026-07-26, `efficiency_profile.py`, thay số PACT 1.9M cũ):** efflite0 **3.619M · 0.98 GMACs · 6.04 ms/ảnh GPU (165/s) · 46 ms CPU · VRAM 37.9 MB** (256²). Real-time, deploy GPU+CPU.
 
+**★ Label-efficiency learning curve (efflite0 count-only, PanNuke leak-free, 3-seed, 2026-07-27, `label_curve.py`):** R² theo %nhãn count: 5%→0.453±0.208 / 10%→0.742 / **25%→0.849±0.029** / 50%→0.859 / **100%→0.915±0.010**. → 25% nhãn đạt ~93% full; 100% khớp headline 0.920 (consistency ✓). Thay khung "distilled↔supervised 1.9M" cũ. *(count-only vs GT-mask cùng-kiến-trúc = `sup_compare.py` đang chạy.)*
+
 **★ Kết quả:** efflite0 3.6M count-only **thắng cả 3 paradigm cạnh tranh** — DualU-Net 35M (density/mask 0.804), StarDist (instance/mask 0.841), DeNuC (detection 0.455) — trên bài đếm, nhãn rẻ hơn 1 bậc. **Detection (DeNuC) sụp mạnh nhất ĐÚNG ở vùng dày** (bias per-tier <10 −0.8 → 45+ −30.4: nhân chồng lấn → NMS bóp chết TP → recall sụp) = bằng chứng trực tiếp cho động lực CROWDING. Caveat: baseline mask/detection tối ưu segmentation/localization, đếm=readout (leak-free cùng test set). GT mean 24.5. efflite0 full-fold3 (0.920) > no-colon cũ (0.908).
 
 **Provenance artifacts (2026-07-25, ĐÃ save version Kaggle — điền tên version chính xác khi biết):**
