@@ -37,6 +37,7 @@ def main():
     args = ap.parse_args()
     dev = "cuda" if torch.cuda.is_available() else "cpu"
 
+    os.makedirs("work", exist_ok=True)   # nơi lưu cache GT-density (kẻo build xong không save được)
     tr_folds = [int(x) for x in args.train_folds.split(",")]
     fstr = "".join(str(x) for x in sorted(tr_folds))
     train_data = build_pannuke_density(args.pannuke_root, tr_folds, dev,
