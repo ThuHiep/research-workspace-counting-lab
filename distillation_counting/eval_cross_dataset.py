@@ -110,6 +110,8 @@ def main():
     # train (mirror distill_student_r2 -> cùng công thức bảng chính)
     ap.add_argument("--epochs", type=int, default=80)
     ap.add_argument("--student_ch", type=int, default=32)
+    ap.add_argument("--backbone", default="efficientnet_lite0",
+                    help="headline = efficientnet_lite0 (3.62M count-only); tinyunet = model CŨ 1.9M")
     ap.add_argument("--lr", type=float, default=1e-3)
     ap.add_argument("--bs", type=int, default=16)
     ap.add_argument("--w_density", type=float, default=1.0)
@@ -140,7 +142,7 @@ def main():
     print(f"[TRAIN] {args.train_dataset}: {len(train_data)} ảnh (train toàn bộ)")
     model = train(train_data, device, args.epochs, args.student_ch, args.lr,
                   list(range(len(train_data))), args.w_density, args.w_count, args.w_nll,
-                  args.beta, args.bs, args.detach_mu, args.sigma_mode)
+                  args.beta, args.bs, args.detach_mu, args.sigma_mode, args.backbone)
 
     # 2) predict trên TOÀN BỘ B (built-in dataset hoặc folder ngoài như MoNuSAC)
     if use_folder:
