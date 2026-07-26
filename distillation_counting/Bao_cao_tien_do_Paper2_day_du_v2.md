@@ -88,9 +88,9 @@ Cùng số ảnh → reliability **không phân biệt được thống kê** v�
 | Model | Params | Size (fp32) | Peak VRAM |
 |---|---|---|---|
 | PathoSAM teacher (ViT-H) | 641M | ~2.56 GB | 5.87 GB |
-| **PACT (ch32, chính)** | **1.935M** | **7.74 MB** | **70.7 MB** |
+| **efflite0 count-only (chính, headline)** | **3.619M** | ~14.5 MB | **37.9 MB** |
 
-PACT **1.935M** — nhỏ hơn teacher (641M) ~**330× tham số**, file **~330× nhẹ hơn**, và về **bộ nhớ chạy: 70.7 MB so với 5.87 GB → nhỏ hơn ~85×** (đo thực Tesla T4: teacher = peak VRAM image-encoder SAM ViT-H ở 1024² native; PACT ở 256² native). Đây đúng con số headline kiểu H-Optimus (16GB→3GB). PACT cũng nhỏ hơn student H-Optimus (24M) ~**12×**, NuLite (12M) ~**6×**. Đặc trưng hiệu quả riêng của PACT: **10.49 GMACs**, chạy **4.91 ms/ảnh (204 ảnh/giây)** trên T4 — thời-gian-thực, deploy được trên GPU/CPU khiêm tốn. *(GMACs/latency chỉ báo cho PACT; teacher chạy 1024²/prompt-based nên không so chung 2 metric này — so sánh dựa params·size·VRAM, như H-Optimus.)*
+**Model headline efflite0 3.619M count-only** (đo thực T4, 256² native, `efficiency_profile.py`): **0.98 GMACs**, **6.04 ms/ảnh GPU (165 ảnh/s)**, **46 ms/ảnh CPU (22 ảnh/s)**, **peak VRAM 37.9 MB**. → thời-gian-thực, deploy được cả trên **GPU khiêm tốn LẪN CPU**. So teacher PathoSAM (641M, VRAM 5.87 GB ở 1024²): nhỏ hơn ~**177× params**, VRAM chạy nhỏ hơn ~**155×**. Cũng nhỏ hơn student H-Optimus (24M) ~**7×**, NuLite-T (12M) ~**3×**, và nhẹ compute hơn hẳn (0.98 GMACs). *(GMACs/latency báo cho model ta; teacher chạy 1024²/prompt-based nên chỉ so params·VRAM.)*
 
 *Ablation dung lượng (phụ): cấu hình ch16 (~0.5M) không mất chất lượng (NuInsSeg nhỉnh, PanNuke hòa) → phương pháp bền theo dung lượng. Đây là ablation, cấu hình chính vẫn là ch32.*
 

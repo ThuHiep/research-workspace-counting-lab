@@ -198,6 +198,8 @@ Scaling **bão hoà ở 3.6M** (lớn hơn tệ đi) = lập luận **efficiency
 | KongNet (2510.23559, 10/2025) SOTA | — | mask | — | — | **cite** |
 | Distill-H-Optimus (2502.19217, 02/2025) | ~24M | mask | 0.871 (họ báo) | — | **cite peer (no-UQ)** |
 
+**★ Efficiency headline (đo thực T4 2026-07-26, `efficiency_profile.py`, thay số PACT 1.9M cũ):** efflite0 **3.619M · 0.98 GMACs · 6.04 ms/ảnh GPU (165/s) · 46 ms CPU · VRAM 37.9 MB** (256²). Real-time, deploy GPU+CPU.
+
 **★ Kết quả:** efflite0 3.6M count-only **thắng cả 3 paradigm cạnh tranh** — DualU-Net 35M (density/mask 0.804), StarDist (instance/mask 0.841), DeNuC (detection 0.455) — trên bài đếm, nhãn rẻ hơn 1 bậc. **Detection (DeNuC) sụp mạnh nhất ĐÚNG ở vùng dày** (bias per-tier <10 −0.8 → 45+ −30.4: nhân chồng lấn → NMS bóp chết TP → recall sụp) = bằng chứng trực tiếp cho động lực CROWDING. Caveat: baseline mask/detection tối ưu segmentation/localization, đếm=readout (leak-free cùng test set). GT mean 24.5. efflite0 full-fold3 (0.920) > no-colon cũ (0.908).
 
 **Provenance artifacts (2026-07-25, ĐÃ save version Kaggle — điền tên version chính xác khi biết):**
