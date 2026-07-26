@@ -170,7 +170,17 @@ Phần này báo cáo em đã **thử và điều chỉnh backbone/kiến trúc*
 | **NuLite** ([2408.01797](https://arxiv.org/abs/2408.01797)) | 2024 (BSPC 2026) | S/M/T FastViT-UNet (T≈12M) | reference off-the-shelf | pretrained **train CẢ 3 fold → KHÔNG leak-free** với fold3; muốn fair phải retrain fold1+2 (HoVer-Net-style, 130 ep, 1024px → rất nặng) |
 | Attention-enhanced lightweight ([MDPI Info 2025](https://www.mdpi.com/2078-2489/16/4/295)) · SAM cooperative-refine ([2603.28027](https://arxiv.org/pdf/2603.28027)) | 2025/2026 | nhẹ / SAM-based | cite related | dày phần related-work nếu cần |
 
-> **Chốt:** chỉ retrain leak-free **DualU-Net** (đủ head-to-head công bằng); **KongNet + 2502.19217 cite** làm SOTA + peer. Peer sát nhất = **2502.19217** (distilled, R², no-UQ) → luận điểm bán: nhỏ hơn ~7× mà R² không kém + **thêm UQ calibrated** (điều không peer distilled nào có).
+**★ Ứng viên retrain THÊM đã VERIFY code (2026-07-26) — bổ sung paradigm DETECTION (đang cân nhắc, CHƯA chạy):**
+
+| Model | Năm | Paradigm | Retrain leak-free | Compute Kaggle | Verdict |
+|---|---|---|---|---|---|
+| **DeNuC** ([ZijiangY1116/DeNuC](https://github.com/ZijiangY1116/DeNuC)) | 2026 | detection (ShuffleNet) | ✅ fold sẵn (`pannuke123/231/312`) | ✅ **nhẹ nhất, detection train KHÔNG cần FM** (UNI2-H chỉ cho classification) | **★ tốt nhất — mới nhất + nhẹ + không FM; đếm = số toạ độ (H5)** |
+| **HoVer-NeXt** ([repo](https://github.com/digitalpathologybern/hover_next_train)) | 2024 | instance-seg (ConvNeXt) | ✅ (chia fold tay qua convert CoNIC) | ✅ single-GPU torch2.1.1 | an toàn; tốn công chia fold |
+| **CellNuc-DETR** ([celldetr](https://github.com/oscar97pina/celldetr)) | 2025 | detection (Deformable-DETR) | ✅ config fold sẵn | ⚠️ compile MSDeformAttn CUDA + DETR nặng | được nhưng rủi ro compute |
+
+> Lưu ý DeNuC: mặc định split train **1 fold** (pannuke123 = train f1/val f2/test f3); muốn khớp "train fold1+2" của mình phải **gộp f1+2 vào train** (chỉnh preprocessing). Torch 2.8.0/py3.10 — cài cẩn thận kẻo hỏng CUDA. Đếm chỉ dùng **stage detection ShuffleNet** (siêu nhẹ, không tải FM).
+
+> **Chốt:** đã retrain leak-free **DualU-Net (density) + StarDist (instance)**; **KongNet + 2502.19217 cite** làm SOTA + peer. **Ứng viên detection (DeNuC 2026 ưu tiên, hoặc HoVer-NeXt 2024) = thêm paradigm thứ 3** khi cần — đã verify khả thi, chưa chạy. Peer sát nhất = **2502.19217** (distilled, R², no-UQ) → bán: nhỏ hơn ~7× mà R² không kém + **thêm UQ calibrated**.
 
 > ⚠️ **Còn tồn đọng nhất quán (chờ số về để sửa gọn):** §3.1 vẫn là bảng cũ NuInsSeg off-the-shelf (không-fair), §4.1 và §5 vẫn ghi "distilled 1.9M dẫn đầu accuracy". Khung này **mâu thuẫn** với định vị mới (model chính = **lightweight count-only 3.6M**, distill KHÔNG dẫn accuracy). Sẽ viết lại §3.1/§4/§5 quanh trục lightweight+UQ khi có số full-fold3.
 
