@@ -50,6 +50,8 @@ def main():
     ap.add_argument("--seeds", default="42")
     ap.add_argument("--backbone", default="efficientnet_lite0",
                     help="encoder; thử 'efficientnet_b0' (sân nhà HAAM, có SE) để đối chiếu")
+    ap.add_argument("--configs", default="none,cbam,haam,haam_ms",
+                    help="chọn nhánh attn chạy (vd 'none,cbam' để confirm nhanh)")
     args = ap.parse_args()
     dev = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -59,8 +61,9 @@ def main():
     tr, te = list(range(n_tr)), list(range(n_tr, len(data)))
     print(f"[data] train {len(tr)} / test {len(te)} (full fold3)")
 
-    configs = [("none (baseline)", "none"), ("cbam", "cbam"),
-               ("haam", "haam"), ("haam_ms (đa-scale)", "haam_ms")]
+    _all = {"none": ("none (baseline)", "none"), "cbam": ("cbam", "cbam"),
+            "haam": ("haam", "haam"), "haam_ms": ("haam_ms (đa-scale)", "haam_ms")}
+    configs = [_all[c.strip()] for c in args.configs.split(",") if c.strip() in _all]
     seeds = [int(s) for s in args.seeds.split(",")]
     edges = np.array([10, 20, 30, 45], float)
     tier_names = ["<10", "10-20", "20-30", "30-45", "45+"]
