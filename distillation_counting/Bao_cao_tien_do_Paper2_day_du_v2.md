@@ -146,17 +146,19 @@ Phần này báo cáo em đã **thử và điều chỉnh backbone/kiến trúc*
 
 | Model | Params | Nhãn | R² ↑ | MAE ↓ | Ghi chú |
 |---|---|---|---|---|---|
+| DeNuC (2026) | ShuffleNet-x2 | detection (centroid) | 0.455 | 9.64 | detection, retrain leak-free (F1 68.0, P89.1/R54.9); đếm = số toạ độ sau NMS; **under-count sụp theo mật độ** (bias 45+ **−30.4**) |
 | DualU-Net (2025) | ~35M | mask (đầy đủ) | 0.804 | 5.33 | SOTA-lightweight instance-seg, retrain leak-free; đếm từ đầu centroid; **over-count** (pred 26.2) |
 | StarDist | 1.43M (U-Net) | mask (instance) | 0.841 | 4.64 | instance-seg kinh điển, retrain leak-free; đếm = số instance; **under-count** (pred 20.8); nhỏ hơn efflite0 nhưng cần mask + kém accuracy |
-| **PACT — EfficientNet-lite0 (ours)** | **3.62M** | **count-only** | **0.920 ± 0.005** | **3.61 ± 0.07** | **thắng CẢ HAI baseline mask**; sát GT nhất; nhãn rẻ hơn một bậc |
+| **PACT — EfficientNet-lite0 (ours)** | **3.62M** | **count-only** | **0.920 ± 0.005** | **3.61 ± 0.07** | **thắng CẢ 3 baseline nhãn-đắt**; sát GT nhất; nhãn rẻ hơn một bậc |
 | KongNet (2026) | — | mask | *trích dẫn* | *trích dẫn* | SOTA hiện tại (không retrain, chỉ dẫn) |
 
 > **Trạng thái số liệu (cùng nền leak-free: train full fold12 5179 ảnh / test full fold3 2722 ảnh, colon GIỮ khắp nơi, GT mean 24.5):**
 > - **efflite0 (ours):** R² **0.920 ± 0.005** / MAE **3.61 ± 0.07** (3 seed) — `method_frontier.py`.
 > - **DualU-Net (~35M, mask):** R² **0.804** / MAE **5.33** (pred 26.2, over-count) — `eval_count_dualunet.py`, đếm-từ-centroid `find_local_maxima`.
 > - **StarDist (1.43M U-Net, mask):** R² **0.841** / MAE **4.64** (pred 20.8, under-count) — `stardist_baseline.py`, đếm = số instance (param từ `count_params()`).
+> - **DeNuC (ShuffleNet-x2 detection, 2026):** R² **0.455** / MAE **9.64** (pred 15.1, under-count nặng) — `denuc_count_eval.py`, đếm = số toạ độ sau NMS; test F1 68.0 (P89.1/R54.9). **Bias per-tier sụp đơn điệu theo mật độ: <10 −0.8 → 10-20 −4.9 → 20-30 −8.7 → 30-45 −13.4 → 45+ −30.4** — cơ chế detection thất bại dưới crowding (nhân chồng lấn → NMS bóp chết true-positive → recall sụp). Artifact: `outputs/20260726_110537_denuc_pan12_3/`.
 >
-> **Đọc:** bộ đếm nhẹ **3.6M count-only** đạt R²/MAE **tốt hơn CẢ HAI** baseline mask-supervised (DualU-Net ~35M **và** StarDist 1.43M) trên chính bài **đếm**, với **nhãn rẻ hơn một bậc** (count vs mask). Hai baseline mask lệch hai phía (DualU-Net dư, StarDist thiếu) còn efflite0 sát GT nhất. **Trung thực về params:** efflite0 nhỏ hơn DualU-Net ~10× nhưng **lớn hơn StarDist** (3.62M vs 1.43M) → luận điểm bán KHÔNG phải "nhỏ nhất", mà là **accuracy cao nhất + nhãn rẻ nhất** (count vs mask) + **có UQ**. *(Caveat: DualU-Net/StarDist tối ưu segmentation, đếm là readout — so cấp-tác-vụ-đếm leak-free cùng test set.)*
+> **Đọc:** bộ đếm nhẹ **3.6M count-only** đạt R²/MAE **tốt hơn CẢ 3** baseline nhãn-đắt (DualU-Net ~35M density, StarDist 1.43M instance, DeNuC detection) trên chính bài **đếm**, với **nhãn rẻ hơn một bậc** (count vs mask/centroid). Ba paradigm cạnh tranh đều thua; đặc biệt **detection sụp mạnh nhất ĐÚNG ở vùng dày** (bias 45+ tới −30.4) — bằng chứng trực tiếp cho động lực **crowding** của paper. Hai baseline mask lệch hai phía (DualU-Net dư, StarDist thiếu) còn efflite0 sát GT nhất. **Trung thực về params:** efflite0 nhỏ hơn DualU-Net ~10× nhưng **lớn hơn StarDist** (3.62M vs 1.43M) → luận điểm bán KHÔNG phải "nhỏ nhất", mà là **accuracy cao nhất + nhãn rẻ nhất** (count vs mask) + **có UQ**. *(Caveat: DualU-Net/StarDist tối ưu segmentation, đếm là readout — so cấp-tác-vụ-đếm leak-free cùng test set.)*
 
 **Định vị:** bộ đếm nhẹ **3.6M, count-only** đạt độ chính xác đếm **vượt SOTA-lightweight mask-supervised (DualU-Net ~35M)** — R² 0.920 vs 0.804, MAE 3.61 vs 5.33 — ở **~10× ít tham số + nhãn rẻ hơn một bậc (count vs mask)**, kèm **đầu bất định calibrated** (robust worst-organ + transfer). = đóng góp **hiệu quả (applied) + UQ**. *(so ở cấp tác-vụ-đếm, leak-free cùng test set; DualU-Net vốn tối ưu segmentation.)*
 
@@ -170,17 +172,16 @@ Phần này báo cáo em đã **thử và điều chỉnh backbone/kiến trúc*
 | **NuLite** ([2408.01797](https://arxiv.org/abs/2408.01797)) | 2024 (BSPC 2026) | S/M/T FastViT-UNet (T≈12M) | reference off-the-shelf | pretrained **train CẢ 3 fold → KHÔNG leak-free** với fold3; muốn fair phải retrain fold1+2 (HoVer-Net-style, 130 ep, 1024px → rất nặng) |
 | Attention-enhanced lightweight ([MDPI Info 2025](https://www.mdpi.com/2078-2489/16/4/295)) · SAM cooperative-refine ([2603.28027](https://arxiv.org/pdf/2603.28027)) | 2025/2026 | nhẹ / SAM-based | cite related | dày phần related-work nếu cần |
 
-**★ Ứng viên retrain THÊM đã VERIFY code (2026-07-26) — bổ sung paradigm DETECTION (đang cân nhắc, CHƯA chạy):**
+**★ Paradigm DETECTION — DeNuC (2026) ĐÃ CHẠY leak-free (2026-07-26):** train fold12→test fold3 gộp (`pannuke12_3`), ShuffleNet-x2 detection, 50 epoch ~13 phút (2.1GB). Test F1 **68.0** (P89.1/R54.9) → đếm R² **0.455** / MAE **9.64**, **under-count sụp đơn điệu theo mật độ** (bias 45+ −30.4). = paradigm thứ 3, tệ nhất, nhưng bằng chứng vàng cho luận điểm crowding. Đã ghi vào bảng chính §3.6.
+
+**Ứng viên detection/instance khác (nếu cần thêm, CHƯA chạy):**
 
 | Model | Năm | Paradigm | Retrain leak-free | Compute Kaggle | Verdict |
 |---|---|---|---|---|---|
-| **DeNuC** ([ZijiangY1116/DeNuC](https://github.com/ZijiangY1116/DeNuC)) | 2026 | detection (ShuffleNet) | ✅ fold sẵn (`pannuke123/231/312`) | ✅ **nhẹ nhất, detection train KHÔNG cần FM** (UNI2-H chỉ cho classification) | **★ tốt nhất — mới nhất + nhẹ + không FM; đếm = số toạ độ (H5)** |
 | **HoVer-NeXt** ([repo](https://github.com/digitalpathologybern/hover_next_train)) | 2024 | instance-seg (ConvNeXt) | ✅ (chia fold tay qua convert CoNIC) | ✅ single-GPU torch2.1.1 | an toàn; tốn công chia fold |
 | **CellNuc-DETR** ([celldetr](https://github.com/oscar97pina/celldetr)) | 2025 | detection (Deformable-DETR) | ✅ config fold sẵn | ⚠️ compile MSDeformAttn CUDA + DETR nặng | được nhưng rủi ro compute |
 
-> Lưu ý DeNuC: mặc định split train **1 fold** (pannuke123 = train f1/val f2/test f3); muốn khớp "train fold1+2" của mình phải **gộp f1+2 vào train** (chỉnh preprocessing). Torch 2.8.0/py3.10 — cài cẩn thận kẻo hỏng CUDA. Đếm chỉ dùng **stage detection ShuffleNet** (siêu nhẹ, không tải FM).
-
-> **Chốt:** đã retrain leak-free **DualU-Net (density) + StarDist (instance)**; **KongNet + 2502.19217 cite** làm SOTA + peer. **Ứng viên detection (DeNuC 2026 ưu tiên, hoặc HoVer-NeXt 2024) = thêm paradigm thứ 3** khi cần — đã verify khả thi, chưa chạy. Peer sát nhất = **2502.19217** (distilled, R², no-UQ) → bán: nhỏ hơn ~7× mà R² không kém + **thêm UQ calibrated**.
+> **Chốt:** đã retrain leak-free **3 paradigm cạnh tranh** — DualU-Net (density, 0.804) + StarDist (instance, 0.841) + **DeNuC (detection, 0.455)** — TẤT CẢ thua efflite0 count-only (0.920); **KongNet + 2502.19217 cite** làm SOTA + peer. Peer sát nhất = **2502.19217** (distilled, R², no-UQ) → bán: nhỏ hơn ~7× mà R² không kém + **thêm UQ calibrated**.
 
 > ⚠️ **Còn tồn đọng nhất quán (chờ số về để sửa gọn):** §3.1 vẫn là bảng cũ NuInsSeg off-the-shelf (không-fair), §4.1 và §5 vẫn ghi "distilled 1.9M dẫn đầu accuracy". Khung này **mâu thuẫn** với định vị mới (model chính = **lightweight count-only 3.6M**, distill KHÔNG dẫn accuracy). Sẽ viết lại §3.1/§4/§5 quanh trục lightweight+UQ khi có số full-fold3.
 

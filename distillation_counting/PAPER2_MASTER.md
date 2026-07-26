@@ -191,22 +191,24 @@ Scaling **bão hoà ở 3.6M** (lớn hơn tệ đi) = lập luận **efficiency
 
 | Method | Params | Nhãn | R² | MAE | trạng thái |
 |---|---|---|---|---|---|
+| DeNuC (retrain fold12, 2026) | ShuffleNet-x2 | detection (centroid) | 0.455 | 9.64 | ✅ (F1 68.0 P89/R55; under-count sụp theo mật độ, bias 45+ −30.4) |
 | DualU-Net (retrain fold_1+2) | ~35M (resnext50) | mask | 0.804 | 5.33 | ✅ (over-count 26.2) |
 | StarDist (retrain fold_1+2) | 1.43M (U-Net) | mask | 0.841 | 4.64 | ✅ (under-count 20.8; nhỏ hơn efflite0 nhưng cần mask + kém acc) |
-| **PACT efflite0 (ours)** | **3.62M** | **count-only** | **0.920±0.005** | **3.61±0.07** | ✅ **thắng CẢ HAI** |
+| **PACT efflite0 (ours)** | **3.62M** | **count-only** | **0.920±0.005** | **3.61±0.07** | ✅ **thắng CẢ 3 paradigm** |
 | KongNet (2510.23559, 10/2025) SOTA | — | mask | — | — | **cite** |
 | Distill-H-Optimus (2502.19217, 02/2025) | ~24M | mask | 0.871 (họ báo) | — | **cite peer (no-UQ)** |
 
-**★ Kết quả:** efflite0 3.6M count-only **thắng cả DualU-Net 35M lẫn StarDist mask** trên bài đếm, nhãn rẻ hơn 1 bậc. Caveat: 2 baseline tối ưu segmentation, đếm=readout (leak-free cùng test set). GT mean 24.5. efflite0 full-fold3 (0.920) > no-colon cũ (0.908).
+**★ Kết quả:** efflite0 3.6M count-only **thắng cả 3 paradigm cạnh tranh** — DualU-Net 35M (density/mask 0.804), StarDist (instance/mask 0.841), DeNuC (detection 0.455) — trên bài đếm, nhãn rẻ hơn 1 bậc. **Detection (DeNuC) sụp mạnh nhất ĐÚNG ở vùng dày** (bias per-tier <10 −0.8 → 45+ −30.4: nhân chồng lấn → NMS bóp chết TP → recall sụp) = bằng chứng trực tiếp cho động lực CROWDING. Caveat: baseline mask/detection tối ưu segmentation/localization, đếm=readout (leak-free cùng test set). GT mean 24.5. efflite0 full-fold3 (0.920) > no-colon cũ (0.908).
 
 **Provenance artifacts (2026-07-25, ĐÃ save version Kaggle — điền tên version chính xác khi biết):**
 - `checkpoints/*.pth` (DualU-Net, train 50ep ~3.5h) — ⚠️ từng mất 1 lần do thiếu mkdir; đã backup version này.
 - `stardist_models/stardist_pannuke_f12/` (StarDist 150ep) + `stardist_fold3_counts.csv`.
 - `dualunet_fold3_counts.csv` (per-image gt,pred DualU-Net).
+- **DeNuC (2026-07-26):** `outputs/20260726_110537_denuc_pan12_3/best_checkpoint.pth` (50ep ~13ph, 2.1GB) + `test_results/pannuke12_3/best_checkpoint_infer_res.npy` (dict 2722 ảnh, mỗi ảnh {gt_coords, pred_coords sau NMS}) — ⚠️ BACKUP kaggle. Setup: patch SPLIT_CONFIGS `pannuke12_3`={1,2:train,3:test}, whitelist sed vào denuc_{train,eval}.py, ln ./dataset→denuc_data.
 - COCO fold12 = derived từ `dualunet_merge_fold12.py` (rẻ, regen được).
-- Scripts: `method_frontier.py` (efflite0), `eval_count_dualunet.py`, `stardist_baseline.py`, `dualunet_merge_fold12.py`, config `config_{train,eval}_pannuke.yaml` — tất cả trong repo.
+- Scripts: `method_frontier.py` (efflite0), `eval_count_dualunet.py`, `stardist_baseline.py`, `dualunet_merge_fold12.py`, `denuc_count_eval.py`, config `config_{train,eval}_pannuke.yaml` — tất cả trong repo.
 
-**Định vị honest (cập nhật):** *"bộ đếm nhân 3.6M, count-only (không mask), R² **0.920** leak-free — **thắng SOTA-lightweight mask-supervised** (DualU-Net 35M + StarDist) ở bài đếm với **nhãn rẻ hơn 1 bậc**; kèm UQ calibrated (worst-organ robust, transfer 3 dataset)."* = **applied efficiency + UQ**, honest, mid-Q1-applied. Xem [[paper2-main-table-leakfree]], [[paper2-main-is-new-method]].
+**Định vị honest (cập nhật):** *"bộ đếm nhân 3.6M, count-only (không mask), R² **0.920** leak-free — **thắng cả 3 paradigm nhãn-đắt** (density DualU-Net 35M, instance StarDist, detection DeNuC) ở bài đếm với **nhãn rẻ hơn 1 bậc**; kèm UQ calibrated (worst-organ robust, transfer 3 dataset)."* = **applied efficiency + UQ**, honest, mid-Q1-applied. Xem [[paper2-main-table-leakfree]], [[paper2-main-is-new-method]].
 
 ---
 
