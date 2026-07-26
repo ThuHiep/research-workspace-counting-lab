@@ -49,21 +49,22 @@ from distill_student_r2 import (  # noqa: E402
 def _load_dataset(name, args, device):
     """Trả list mẫu {img, density, gt, organ, [fold]} cho dataset `name` (dùng ĐÚNG cache như bảng chính)."""
     tag = "gt" if args.use_gt_density else "teacher"
+    wdir = getattr(args, "work_dir", None) or "work"   # Kaggle: relative work/, không dùng {REPO}
+    os.makedirs(wdir, exist_ok=True)
     if name == "pannuke":
         folds = [int(x) for x in args.pannuke_folds.split(",")]
         fstr = "".join(str(x) for x in sorted(folds))
-        cache = f"{REPO}/work/{tag}_density_pannuke_f{fstr}.pkl"
-        os.makedirs(os.path.dirname(cache) or ".", exist_ok=True)
+        cache = f"{wdir}/{tag}_density_pannuke_f{fstr}.pkl"
         data = build_pannuke_density(args.pannuke_root, folds, device, cache, use_gt=args.use_gt_density)
     else:
-        cache = f"{REPO}/work/{tag}_density_nuinsseg.pkl"
-        os.makedirs(os.path.dirname(cache) or ".", exist_ok=True)
+        cache = f"{wdir}/{tag}_density_nuinsseg.pkl"
         if os.path.exists(cache):
             samples = None
             print(f"[A/{name}] cache có sẵn -> bỏ qua build_index")
         else:
-            samples = build_index(find_root())
-            print(f"[A/{name}] indexed {len(samples)} pairs")
+            nroot = getattr(args, "nuinsseg_root", None) or find_root()
+            samples = build_index(nroot)
+            print(f"[A/{name}] indexed {len(samples)} pairs (root={nroot})")
         data = build_teacher_density(samples, device, cache, use_gt=args.use_gt_density)
     # loại tissue (colon) nếu dataset này là PanNuke — y hệt bảng chính
     if args.exclude_tissue and name == "pannuke":
@@ -112,6 +113,8 @@ def main():
     ap.add_argument("--student_ch", type=int, default=32)
     ap.add_argument("--backbone", default="efficientnet_lite0",
                     help="headline = efficientnet_lite0 (3.62M count-only); tinyunet = model CŨ 1.9M")
+    ap.add_argument("--nuinsseg_root", default=None, help="Kaggle: /kaggle/input/datasets/ipateam/nuinsseg")
+    ap.add_argument("--work_dir", default="work", help="nơi lưu cache density (Kaggle: relative)")
     ap.add_argument("--lr", type=float, default=1e-3)
     ap.add_argument("--bs", type=int, default=16)
     ap.add_argument("--w_density", type=float, default=1.0)
