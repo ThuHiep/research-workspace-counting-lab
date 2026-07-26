@@ -146,7 +146,7 @@ Phần này báo cáo em đã **thử và điều chỉnh backbone/kiến trúc*
 
 | Model | Params | Nhãn | R² ↑ | MAE ↓ | Ghi chú |
 |---|---|---|---|---|---|
-| DeNuC (2026) | ShuffleNet-x2 | detection (centroid) | 0.455 | 9.64 | detection, retrain leak-free (F1 68.0, P89.1/R54.9); đếm = số toạ độ sau NMS; **under-count sụp theo mật độ** (bias 45+ **−30.4**) |
+| DeNuC (2026) | 4.37M (ShuffleNet-x2) | detection (centroid) | 0.455 | 9.64 | detection, retrain leak-free (F1 68.0, P89.1/R54.9); đếm = số toạ độ sau NMS; **lớn hơn efflite0 mà kém xa**; **under-count sụp theo mật độ** (bias 45+ **−30.4**) |
 | DualU-Net (2025) | ~35M | mask (đầy đủ) | 0.804 | 5.33 | SOTA-lightweight instance-seg, retrain leak-free; đếm từ đầu centroid; **over-count** (pred 26.2) |
 | StarDist | 1.43M (U-Net) | mask (instance) | 0.841 | 4.64 | instance-seg kinh điển, retrain leak-free; đếm = số instance; **under-count** (pred 20.8); nhỏ hơn efflite0 nhưng cần mask + kém accuracy |
 | **PACT — EfficientNet-lite0 (ours)** | **3.62M** | **count-only** | **0.920 ± 0.005** | **3.61 ± 0.07** | **thắng CẢ 3 baseline nhãn-đắt**; sát GT nhất; nhãn rẻ hơn một bậc |
@@ -156,7 +156,7 @@ Phần này báo cáo em đã **thử và điều chỉnh backbone/kiến trúc*
 > - **efflite0 (ours):** R² **0.920 ± 0.005** / MAE **3.61 ± 0.07** (3 seed) — `method_frontier.py`.
 > - **DualU-Net (~35M, mask):** R² **0.804** / MAE **5.33** (pred 26.2, over-count) — `eval_count_dualunet.py`, đếm-từ-centroid `find_local_maxima`.
 > - **StarDist (1.43M U-Net, mask):** R² **0.841** / MAE **4.64** (pred 20.8, under-count) — `stardist_baseline.py`, đếm = số instance (param từ `count_params()`).
-> - **DeNuC (ShuffleNet-x2 detection, 2026):** R² **0.455** / MAE **9.64** (pred 15.1, under-count nặng) — `denuc_count_eval.py`, đếm = số toạ độ sau NMS; test F1 68.0 (P89.1/R54.9). **Bias per-tier sụp đơn điệu theo mật độ: <10 −0.8 → 10-20 −4.9 → 20-30 −8.7 → 30-45 −13.4 → 45+ −30.4** — cơ chế detection thất bại dưới crowding (nhân chồng lấn → NMS bóp chết true-positive → recall sụp). Artifact: `outputs/20260726_110537_denuc_pan12_3/`.
+> - **DeNuC (4.37M ShuffleNet-x2 detection, 2026):** R² **0.455** / MAE **9.64** (pred 15.1, under-count nặng) — `denuc_count_eval.py`, đếm = số toạ độ sau NMS; test F1 68.0 (P89.1/R54.9). **Params 4.37M > efflite0 3.62M mà R² kém xa (0.455 vs 0.920).** **Bias per-tier sụp đơn điệu theo mật độ: <10 −0.8 → 10-20 −4.9 → 20-30 −8.7 → 30-45 −13.4 → 45+ −30.4** — cơ chế detection thất bại dưới crowding (nhân chồng lấn → NMS bóp chết true-positive → recall sụp). Artifact: `outputs/20260726_110537_denuc_pan12_3/`.
 >
 > **Đọc:** bộ đếm nhẹ **3.6M count-only** đạt R²/MAE **tốt hơn CẢ 3** baseline nhãn-đắt (DualU-Net ~35M density, StarDist 1.43M instance, DeNuC detection) trên chính bài **đếm**, với **nhãn rẻ hơn một bậc** (count vs mask/centroid). Ba paradigm cạnh tranh đều thua; đặc biệt **detection sụp mạnh nhất ĐÚNG ở vùng dày** (bias 45+ tới −30.4) — bằng chứng trực tiếp cho động lực **crowding** của paper. Hai baseline mask lệch hai phía (DualU-Net dư, StarDist thiếu) còn efflite0 sát GT nhất. **Trung thực về params:** efflite0 nhỏ hơn DualU-Net ~10× nhưng **lớn hơn StarDist** (3.62M vs 1.43M) → luận điểm bán KHÔNG phải "nhỏ nhất", mà là **accuracy cao nhất + nhãn rẻ nhất** (count vs mask) + **có UQ**. *(Caveat: DualU-Net/StarDist tối ưu segmentation, đếm là readout — so cấp-tác-vụ-đếm leak-free cùng test set.)*
 
