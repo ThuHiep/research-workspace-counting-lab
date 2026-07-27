@@ -7,9 +7,9 @@
 > ## ⚠️ PROVENANCE MODEL — ĐỌC TRƯỚC (2026-07-27)
 > **Model headline DUY NHẤT của paper = efflite0 3.62M count-only** (DensitySigmaUNet ch32, EfficientNet-lite0, Poisson-σ, leak-free fold12→fold3). Mọi số báo cáo PHẢI trên model này.
 >
-> **✅ ĐÃ trên efflite0 3.62M (dùng được):** §3.1b (tier-bias), §3.2a (learning curve label-eff), §3.3 (efficiency), §3.6 (bảng chính 4-paradigm + kiến trúc), các ablation (distill/CBAM/HAAM/head-RF/loss).
+> **✅ ĐÃ trên efflite0 3.62M (dùng được):** §3.1b (tier-bias), §3.2a (learning curve label-eff), §3.3 (efficiency), §3.4a-b (in-domain 2 dataset + transfer PanNuke→NuInsSeg), §3.5 (UQ conformal in-domain, mondrian worst-org 0.906), §3.6 (bảng chính 4-paradigm + kiến trúc), các ablation (distill/CBAM/HAAM/head-RF/loss).
 >
-> **⚠️ SUPERSEDED — số MODEL CŨ 1.9M (TinyUNet/distill), ĐANG re-run trên efflite0, KHÔNG dùng vào manuscript cho tới khi thay:** §3.2b (count-only vs mask — đang chạy `sup_compare`), §3.4 (transfer cross-dataset — đang chạy in-domain NuInsSeg trước), §3.5 (UQ learned-σ). *(Git giữ lịch sử; giữ tạm làm tham chiếu, sẽ thay bằng số efflite0 rồi xoá.)*
+> **⚠️ SUPERSEDED — số MODEL CŨ 1.9M, đang/còn thay:** §3.2b (count-only vs mask — `sup_compare` đang debug GT-density bất ổn); §3.5 phần PB-σ vs learned-σ cũ (dưới bảng UQ mới, tham chiếu). *(Git giữ lịch sử; giữ tạm làm tham chiếu, sẽ thay bằng số efflite0 rồi xoá.)*
 >
 > Trạng thái re-run: xem §6.
 
@@ -131,9 +131,23 @@ Vì sao MAPE toàn cục cao (47.6%)? Chia 665 ảnh theo số nhân GT và tín
 
 > ⚠️ **Bảng transfer 1.9M cũ (SUPERSEDED, đang re-run efflite0):** NuInsSeg→PanNuke worst-org 0.897; NuInsSeg→CryoNuSeg marginal 0.967; MoNuSAC sập do scale gap 4×. *(σ transfer không cần train lại — điểm cả Shvetsov/CellGenNet để "future work". Giữ tạm làm tham chiếu.)*
 
-### 3.5 (Phụ) Đầu bất định: learned-σ so với PB-σ giải tích
+### 3.5 Đầu bất định (UQ) — conformal in-domain trên efflite0 count-only
 
-PB-σ là đóng góp **Paper 1** (kiểm chứng trên foundation model). Câu hỏi: mang PB-σ xuống student 1.9M nén, còn hiệu chuẩn không? So trên **cùng student**, khác cách lấy σ:
+**Bảng UQ headline (efflite0 count-only, PanNuke fold3, split-conformal 20 seed, `gen_uq_pannuke`+`eval_r2_grouped`):**
+
+| scheme | marg.cov | width | Winkler | MAE | worst-org cov | #under-cover |
+|---|---|---|---|---|---|---|
+| R2-global | 0.904 | 14.47 | 20.33 | 3.45 | 0.765 | 4/19 |
+| **R2-mondrian** | 0.923 | 16.59 | 20.47 | 3.45 | **0.906** | **0/19** |
+| R2-cluster | 0.906 | 14.77 | **19.96** | 3.45 | 0.859 | 0/19 |
+
+**Đọc:** marginal coverage **0.90 đạt target** (calibrated); MAE 3.45 khớp headline (đúng model ✓); **mondrian đẩy worst-organ coverage lên 0.906, 0/19 organ under-covered** (global chỉ 0.765) → conditional coverage tốt. Cluster Winkler thấp nhất (19.96, p=1.9e-6 vs global). → **một model efflite0 vừa đếm chính xác VỪA cho khoảng tin cậy calibrated (cả marginal lẫn per-organ)**, thêm σ tốn **0 accuracy** (detach_mu). *(Con số worst-org 0.906 tái tạo đúng headline cũ trên model 3.62M — consistency.)*
+
+**Honest:** trên thang UQ-floor (E-AURC) so các UQ khác cùng backbone, ta xếp **~4/5** → UQ là **tính năng bổ trợ (calibrated + transfer), KHÔNG phải chỗ dẫn đầu**. Bán "CÓ UQ calibrated" (peers không có), không bán "UQ tốt nhất".
+
+---
+
+> ⚠️ **SUPERSEDED (1.9M, tham chiếu) — PB-σ vs learned-σ:** PB-σ là đóng góp **Paper 1**; câu hỏi cũ: mang xuống student 1.9M nén còn hiệu chuẩn không? So trên **cùng student** (số 1.9M):
 
 | Metric | PB-σ (KD, kiểu Paper 1) | Learned-σ (PACT) |
 |---|---|---|
