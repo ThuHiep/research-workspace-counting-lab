@@ -108,14 +108,20 @@ Vì sao MAPE toàn cục cao (47.6%)? Chia 665 ảnh theo số nhân GT và tín
 
 *Ablation dung lượng (phụ): cấu hình ch16 (~0.5M) không mất chất lượng (NuInsSeg nhỉnh, PanNuke hòa) → phương pháp bền theo dung lượng. Đây là ablation, cấu hình chính vẫn là ch32.*
 
-### 3.4 Transfer reliability cross-dataset
+### 3.4 Generalization đa dataset (efflite0 count-only)
 
-| Transfer | Coverage | Nhận xét |
-|---|---|---|
-| NuInsSeg → PanNuke | worst-org 0.897 | ≈ in-domain 0.906 |
-| NuInsSeg → CryoNuSeg | marginal 0.967 | reliability duy trì (dataset thứ 3) |
+**(a) In-domain — efflite0 count-only chạy trên dataset nào (R², 3 seed):**
 
-Đầu ra phân phối (μ, σ) transfer sang dataset khác **không cần train lại** — điều cả hai paper mốc (Shvetsov, CellGenNet) để lại "future work". *Giới hạn trung thực: transfer sang MoNuSAC KHÔNG giữ được do chênh độ phân giải làm nhân co ~4× (scale gap) — ghi rõ là giới hạn về scale.*
+| Dataset | Setup | R² ↑ | MAE ↓ |
+|---|---|---|---|
+| PanNuke | fold12→fold3 leak-free | **0.920 ± 0.005** | 3.61 |
+| NuInsSeg | random split (`method_frontier`) | **0.854 ± 0.048** | 13.80 |
+
+→ efflite0 count-only **generalize sang dataset 2** (0.854), không chỉ PanNuke. NuInsSeg thấp hơn (nhỏ hơn, dải count rộng, khó hơn). Đây là **mốc ceiling** cho transfer bên dưới.
+
+**(b) Transfer zero-shot (efflite0)** *(⏳ đang chạy `eval_cross_dataset --backbone efficientnet_lite0`; A2 PanNuke→NuInsSeg — điền khi xong; kỳ vọng ≤ 0.854 = ceiling in-domain)*.
+
+> ⚠️ **Bảng transfer 1.9M cũ (SUPERSEDED, đang re-run efflite0):** NuInsSeg→PanNuke worst-org 0.897; NuInsSeg→CryoNuSeg marginal 0.967; MoNuSAC sập do scale gap 4×. *(σ transfer không cần train lại — điểm cả Shvetsov/CellGenNet để "future work". Giữ tạm làm tham chiếu.)*
 
 ### 3.5 (Phụ) Đầu bất định: learned-σ so với PB-σ giải tích
 
