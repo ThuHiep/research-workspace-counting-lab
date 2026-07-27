@@ -147,6 +147,23 @@ Vì sao MAPE toàn cục cao (47.6%)? Chia 665 ảnh theo số nhân GT và tín
 
 **Honest:** trên thang UQ-floor (E-AURC) so các UQ khác cùng backbone, ta xếp **~4/5** → UQ là **tính năng bổ trợ (calibrated + transfer), KHÔNG phải chỗ dẫn đầu**. Bán "CÓ UQ calibrated" (peers không có), không bán "UQ tốt nhất".
 
+#### 3.5b Ablation σ head — Poisson-anchored vs raw (efflite0, matched, 2026-07-28)
+
+**Thiết kế:** cùng model efflite0 count-only, **CHỈ đổi σ head** (`--sigma_mode poisson` vs `raw`), `gen_uq_pannuke`/`gen_uq_nuinsseg` → `eval_r2_grouped` (20 seed). Poisson: `σ=√(max(μ,1))·exp(log_s)`; raw: `σ=exp(log_s)` (Gaussian-hetero hằng số theo μ).
+
+| Dataset (range) | σ head | marg.cov | width | Winkler (global) | worst-org |
+|---|---|---|---|---|---|
+| PanNuke (0–45, hẹp) | Poisson | 0.905 | 14.10 | 24.71 | 0.641 |
+| | raw | 0.908 | 15.10 | **21.63** | 0.655 |
+| **NuInsSeg (0→500+, rộng)** | **Poisson** | 0.926 | **37.72** | **45.43** | **0.864** |
+| | raw | 0.937 | 67.89 | 78.09 | 0.655 |
+
+**Đọc:**
+- **PanNuke (range hẹp):** Poisson ≈ raw, thậm chí raw nhỉnh Winkler (21.6 vs 24.7) → Poisson-anchoring **KHÔNG cần** khi count-range hẹp.
+- **NuInsSeg (range rộng):** Poisson **cắt 44% width (37.7 vs 67.9), 42% Winkler (45.4 vs 78.1), worst-org +0.21 (0.864 vs 0.655)** cùng coverage ~0.93. Cơ chế: σ hằng số phải thổi phồng khoảng cho MỌI tile để cover tile dày → over-cover 0.937 + rộng; σ=√μ·exp(log_s) co-giãn theo μ → tile thưa hẹp, tile dày mới rộng.
+- **Kết luận:** Poisson-anchoring **cần khi count-range rộng, thừa khi hẹp** → biện minh thiết kế cho **deployment/dataset mới** (range rộng, chưa biết trước). Đây là ablation **trong kiến trúc hiện tại, chỉ ra σ head giúp đúng nơi nào** (không phải module ngoài đã fail).
+- ⚠️ **Caveat trung thực:** hai run train riêng → μ lệch nhẹ do GPU-noise (MAE Poisson 8.15 vs raw 10.09 trên NuInsSeg) nên **một phần nhỏ** Winkler-gap là do μ; nhưng width −44% và worst-org +0.21 **chủ yếu là hiệu ứng σ-shape** (μ tốt hơn không thu hẹp width theo kiểu này).
+
 ---
 
 > ⚠️ **SUPERSEDED (1.9M, tham chiếu) — PB-σ vs learned-σ:** PB-σ là đóng góp **Paper 1**; câu hỏi cũ: mang xuống student 1.9M nén còn hiệu chuẩn không? So trên **cùng student** (số 1.9M):
