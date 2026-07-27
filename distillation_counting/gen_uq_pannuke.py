@@ -27,6 +27,8 @@ def main():
     ap.add_argument("--ch", type=int, default=32)
     ap.add_argument("--epochs", type=int, default=40)
     ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--sigma_mode", default="poisson", choices=["poisson", "raw", "nb"],
+                    help="poisson=√μ·exp(log_s) (headline); raw=exp(log_s) (ablation: sập trên dải count rộng?)")
     ap.add_argument("--out", default="work/efflite0_pan_countonly_uq_f3.pkl")
     args = ap.parse_args()
     dev = "cuda" if torch.cuda.is_available() else "cpu"
@@ -43,7 +45,7 @@ def main():
     np.random.seed(args.seed); torch.manual_seed(args.seed)
     # train(data, device, epochs, ch, lr, train_idx, w_density, w_count, w_nll, beta, bs, detach_mu, sigma_mode, backbone)
     model = train(data, dev, args.epochs, args.ch, 1e-3, tr,
-                  0.0, 1.0, 0.01, 0.5, 16, True, "poisson", args.backbone)
+                  0.0, 1.0, 0.01, 0.5, 16, True, args.sigma_mode, args.backbone)
 
     out = predict_r2(model, test_data, dev)          # {"preds":[{mu,sigma}], "gts":[[gt]], "organs":[org]}
     gt = np.array([g[0] for g in out["gts"]]); pr = np.array([p["mu"] for p in out["preds"]])
