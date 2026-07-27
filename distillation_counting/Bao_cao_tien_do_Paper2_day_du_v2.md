@@ -119,7 +119,15 @@ Vì sao MAPE toàn cục cao (47.6%)? Chia 665 ảnh theo số nhân GT và tín
 
 → efflite0 count-only **generalize sang dataset 2** (0.854), không chỉ PanNuke. NuInsSeg thấp hơn (nhỏ hơn, dải count rộng, khó hơn). Đây là **mốc ceiling** cho transfer bên dưới.
 
-**(b) Transfer zero-shot (efflite0)** *(⏳ đang chạy `eval_cross_dataset --backbone efficientnet_lite0`; A2 PanNuke→NuInsSeg — điền khi xong; kỳ vọng ≤ 0.854 = ceiling in-domain)*.
+**(b) Transfer zero-shot PanNuke→NuInsSeg (efflite0 count-only, `eval_cross_dataset`+`eval_r2_grouped` 20 seed):**
+
+| scheme | marg.cov | worst-org cov | MAE | Winkler |
+|---|---|---|---|---|
+| R2-global | 0.903 | 0.625 | 30.35 | 161 |
+| **R2-mondrian** | 0.922 | **0.716** | 30.35 | 161 |
+| **R2-cluster** | 0.905 | 0.702 | 30.35 | **120** (p<1e-6 vs global) |
+
+**Đọc honest — transfer MỘT PHẦN:** ✅ **marginal coverage GIỮ dưới shift** (0.90 target đạt; σ nới width 82 để bù) → UQ vẫn calibrated trung bình khi recalibrate ở target. ❌ **accuracy điểm degrade** (MAE 13.8 in-domain → **30.35** transfer, ~2.2×) và **worst-org coverage tụt** (0.72 vs in-domain 0.906); mondrian/cluster cứu conditional + Winkler (có ý nghĩa). → **Bán: "khoảng tin cậy transfer (giữ phủ), accuracy điểm thì không — cần recalibrate ở domain mới"**; KHÔNG bán "accuracy transfer tốt". Khớp finding cũ *MAE không transfer, coverage/σ transfer*.
 
 > ⚠️ **Bảng transfer 1.9M cũ (SUPERSEDED, đang re-run efflite0):** NuInsSeg→PanNuke worst-org 0.897; NuInsSeg→CryoNuSeg marginal 0.967; MoNuSAC sập do scale gap 4×. *(σ transfer không cần train lại — điểm cả Shvetsov/CellGenNet để "future work". Giữ tạm làm tham chiếu.)*
 
