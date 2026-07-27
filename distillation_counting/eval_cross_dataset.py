@@ -36,8 +36,11 @@ import torch
 from PIL import Image
 
 REPO = os.environ.get("REPO", "/workspace/sam3_research")
-for p in (f"{REPO}/kaggle/vast", f"{REPO}/kaggle/lib", REPO, os.path.dirname(os.path.abspath(__file__))):
-    if p not in sys.path:
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_REPO2 = os.path.dirname(_HERE)   # repo root theo vị trí script (Kaggle: /kaggle/working/<repo>)
+for p in (f"{REPO}/kaggle/vast", f"{REPO}/kaggle/lib", REPO,
+          os.path.join(_REPO2, "kaggle", "lib"), os.path.join(_REPO2, "kaggle", "vast"), _REPO2, _HERE):
+    if os.path.isdir(p) and p not in sys.path:
         sys.path.insert(0, p)
 
 from distill_student_nuinsseg import build_index, find_root  # noqa: E402
