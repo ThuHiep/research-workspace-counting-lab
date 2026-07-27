@@ -7,9 +7,9 @@
 > ## ⚠️ PROVENANCE MODEL — ĐỌC TRƯỚC (2026-07-27)
 > **Model headline DUY NHẤT của paper = efflite0 3.62M count-only** (DensitySigmaUNet ch32, EfficientNet-lite0, Poisson-σ, leak-free fold12→fold3). Mọi số báo cáo PHẢI trên model này.
 >
-> **✅ ĐÃ trên efflite0 3.62M (dùng được):** §3.1b (tier-bias), §3.2a (learning curve label-eff), §3.3 (efficiency), §3.4a-b (in-domain 2 dataset + transfer PanNuke→NuInsSeg), §3.5 (UQ conformal in-domain, mondrian worst-org 0.906), §3.6 (bảng chính 4-paradigm + kiến trúc), các ablation (distill/CBAM/HAAM/head-RF/loss).
+> **✅ ĐÃ trên efflite0 3.62M (dùng được):** §3.1b (tier-bias), §3.2a (learning curve label-eff), §3.2b (count-only vs mask parity), §3.3 (efficiency), §3.4a-b (in-domain 2 dataset + transfer PanNuke→NuInsSeg), §3.5 (UQ conformal in-domain, mondrian worst-org 0.906), §3.5b (ablation σ Poisson vs raw), §3.6 (bảng chính 4-paradigm + kiến trúc), các ablation (distill/CBAM/HAAM/head-RF/loss).
 >
-> **⚠️ SUPERSEDED — số MODEL CŨ 1.9M, đang/còn thay:** §3.2b (count-only vs mask — `sup_compare` đang debug GT-density bất ổn); §3.5 phần PB-σ vs learned-σ cũ (dưới bảng UQ mới, tham chiếu). *(Git giữ lịch sử; giữ tạm làm tham chiếu, sẽ thay bằng số efflite0 rồi xoá.)*
+> **⚠️ SUPERSEDED — số MODEL CŨ 1.9M, đang/còn thay:** §3.5 phần PB-σ vs learned-σ cũ (dưới bảng UQ mới, tham chiếu). *(Git giữ lịch sử; giữ tạm làm tham chiếu.)*
 >
 > Trạng thái re-run: xem §6.
 >
@@ -95,7 +95,15 @@ Vì sao MAPE toàn cục cao (47.6%)? Chia 665 ảnh theo số nhân GT và tín
 
 **Đọc:** tăng dốc rồi giảm dần lợi ích — **25% nhãn count (~1300 ảnh) đạt R² 0.849 ≈ 93% của full**; full còn hơn ~0.06 (chưa bão hoà hẳn); 5% quá ít (phương sai lớn, không dùng). 100%=0.915 khớp headline 0.920 (consistency ✓). → **nhãn count vốn rẻ (1 số/ảnh), lại chỉ cần ~1/4 để gần đạt** = luận điểm nhãn rẻ.
 
-**(b) Count-only vs mask — CÙNG kiến trúc** *(⏳ đang chạy `sup_compare.py`: efflite0 count-only vs GT-density-từ-mask, cô lập supervision — điền khi xong)*. Số cũ NuInsSeg (config cũ): count-only 0.925 > GT-density 0.881.
+**(b) Count-only vs mask — CÙNG kiến trúc efflite0** *(✅ `sup_compare.py`, cô lập supervision: cùng model, chỉ đổi target — count-only [w_density=0, w_count=1] vs GT-density-từ-mask [w_density=1, w_count=0.01]):*
+
+| supervision | R² ↑ | MAE ↓ |
+|---|---|---|
+| **count-only** | **0.9296 ± 0.009** | **3.48 ± 0.19** |
+| GT-density (mask) | 0.9247 ± 0.009 | 3.58 ± 0.16 |
+| **Δ (count-only − mask)** | **+0.0050** | −0.10 |
+
+**Đọc (trung thực, KHÔNG overclaim):** Δ +0.005 R² **< std ±0.009** → thống kê là **PARITY (hòa)**, không phải "count-only thắng mask". **Nhưng parity CHÍNH là luận điểm:** count-only đạt **ngang** full mask-supervision trên **cùng kiến trúc**, mà nhãn **rẻ hơn một bậc** (1 số đếm/ảnh vs vẽ mask pixel toàn ảnh). → **để ĐẾM thì KHÔNG cần mask pixel** — cái lợi đến từ *supervision rẻ*, không phải kiến trúc. Đây là đối chứng đóng chốt (control kiến trúc, vary supervision) củng cố label-efficiency §3.2a. *(số cũ NuInsSeg config cũ count-only 0.925 > GT-density 0.881 = SUPERSEDED; số efflite0 PanNuke leak-free này thay thế.)*
 
 *Honest: GT count trong benchmark vẫn suy từ mask → chứng minh **yêu cầu giám sát** là mức đếm; tiết kiệm nhãn thật là cho dataset MỚI (đếm 1 số vs vẽ mask từng nhân). Thang chi phí: mask > point > count.*
 
