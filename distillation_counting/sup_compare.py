@@ -32,7 +32,7 @@ def main():
     ap.add_argument("--test_fold", default="3")
     ap.add_argument("--backbone", default="efficientnet_lite0")
     ap.add_argument("--ch", type=int, default=32)
-    ap.add_argument("--epochs", type=int, default=40)
+    ap.add_argument("--epochs", type=int, default=60)   # density cần lâu hơn để hội tụ; count-only đã bão hoà ~40
     ap.add_argument("--seeds", default="42,43,44")
     args = ap.parse_args()
     dev = "cuda" if torch.cuda.is_available() else "cpu"
@@ -63,6 +63,7 @@ def main():
                           wd, wc, 0.01, 0.5, 16, True, "poisson", args.backbone)
             r2, mae = eval_r2_mae(model, data, te, dev)
             r2s.append(r2); maes.append(mae)
+            print(f"    [{name:16s}] seed {sd}: R² {r2:+.4f}  MAE {mae:.2f}")   # per-seed để bắt collapse
         rows.append((name, np.mean(r2s), np.std(r2s), np.mean(maes), np.std(maes)))
         print(f"  {name:20s} R² {np.mean(r2s):+.4f}±{np.std(r2s):.3f}  MAE {np.mean(maes):.3f}±{np.std(maes):.3f}")
 
