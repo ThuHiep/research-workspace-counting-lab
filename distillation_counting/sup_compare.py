@@ -50,7 +50,9 @@ def main():
           f"(CÙNG data, cùng efflite0 ch{args.ch}; chỉ đổi loss)")
 
     seeds = [int(s) for s in args.seeds.split(",")]
-    configs = [("count-only", 0.0, 1.0), ("GT-density (mask)", 1.0, 0.0)]
+    # GT-density cần neo count NHỎ (0.01) để train được — density MSE thuần bị background(0) chi phối
+    # → collapse về ~0 nếu w_count=0 (đúng recipe density-counting chuẩn; số cũ NuInsSeg 0.881 dùng vậy).
+    configs = [("count-only", 0.0, 1.0), ("GT-density (mask)", 1.0, 0.01)]
     rows = []
     for name, wd, wc in configs:
         r2s, maes = [], []
