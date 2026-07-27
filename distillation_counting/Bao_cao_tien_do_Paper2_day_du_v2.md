@@ -12,6 +12,8 @@
 > **⚠️ SUPERSEDED — số MODEL CŨ 1.9M, đang/còn thay:** §3.2b (count-only vs mask — `sup_compare` đang debug GT-density bất ổn); §3.5 phần PB-σ vs learned-σ cũ (dưới bảng UQ mới, tham chiếu). *(Git giữ lịch sử; giữ tạm làm tham chiếu, sẽ thay bằng số efflite0 rồi xoá.)*
 >
 > Trạng thái re-run: xem §6.
+>
+> **🚫 QUYẾT ĐỊNH FRAMING (2026-07-27): BỎ HẲN distillation khỏi paper.** Method = efflite0 count-only **from scratch, KHÔNG teacher, KHÔNG distill**. Manuscript **không nhắc** teacher/distill/PathoSAM. Ablation chỉ giữ **attention (CBAM/HAAM) / head-RF / loss** (liên quan kiến trúc count-only). Mọi nội dung "distill/teacher/PACT/chưng cất" trong file này = **lịch sử, KHÔNG đưa vào manuscript**. *(Tựa/§1/§4/§5 còn chữ "chưng cất" = cần viết lại khi soạn manuscript.)*
 
 ---
 
