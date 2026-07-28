@@ -47,51 +47,51 @@ def main():
     ap.add_argument("--backbone", default="efficientnet_lite0")
     ap.add_argument("--ch", type=int, default=32)
     ap.add_argument("--epochs", type=int, default=60)
-    ap.add_argument("--seed", type=int, default=42, help="split cố định (per-image pairing)")
+    ap.add_argument("--seeds", default="42,43,44", help="mỗi seed 1 split -> per-image Wilcoxon; xem nhất quán")
     ap.add_argument("--w_count_mask", type=float, default=0.1)
     ap.add_argument("--work_dir", default="work")
     args = ap.parse_args()
     dev = "cuda" if torch.cuda.is_available() else "cpu"
     os.makedirs(args.work_dir, exist_ok=True)
+    from scipy.stats import wilcoxon
 
     samples = build_index(args.nuinsseg_root or find_root())
     data = build_teacher_density(samples, dev, f"{args.work_dir}/gt_density_nuinsseg.pkl", use_gt=True)
     n = len(data)
-    rng = np.random.default_rng(args.seed); idx = rng.permutation(n); n_te = n // 5
-    te, tr = idx[:n_te], idx[n_te:]
-    gt = np.array([data[i]["gt"] for i in te])
-    print(f"[data] NuInsSeg {n} ảnh | train {len(tr)} / test {len(te)} | GT mean {gt.mean():.1f} (GT density từ mask)")
+    seeds = [int(s) for s in args.seeds.split(",")]
+    print(f"[data] NuInsSeg {n} ảnh (GT density từ mask) | {len(seeds)} seed")
 
-    configs = [("count-only", 0.0, 1.0), ("mask (GT-density)", 1.0, args.w_count_mask)]
-    preds = {}
-    for name, wd, wc in configs:
-        np.random.seed(args.seed); torch.manual_seed(args.seed)
-        model = train(data, dev, args.epochs, args.ch, 1e-3, list(tr),
-                      wd, wc, 0.01, 0.5, 16, True, "poisson", args.backbone)
-        pr = per_image_pred(model, data, te, dev)
-        preds[name] = pr
-        r2, mae = r2mae(pr, gt)
-        print(f"  [{name:18s}] R² {r2:+.4f}  MAE {mae:.3f}")
+    r2c_all, r2m_all, rows = [], [], []
+    for seed in seeds:
+        rng = np.random.default_rng(seed); idx = rng.permutation(n); n_te = n // 5
+        te, tr = idx[:n_te], idx[n_te:]
+        gt = np.array([data[i]["gt"] for i in te])
+        preds = {}
+        for name, wd, wc in [("count-only", 0.0, 1.0), ("mask (GT-density)", 1.0, args.w_count_mask)]:
+            np.random.seed(seed); torch.manual_seed(seed)
+            model = train(data, dev, args.epochs, args.ch, 1e-3, list(tr),
+                          wd, wc, 0.01, 0.5, 16, True, "poisson", args.backbone)
+            preds[name] = per_image_pred(model, data, te, dev)
+        ec = np.abs(gt - preds["count-only"]); em = np.abs(gt - preds["mask (GT-density)"])
+        r2c, _ = r2mae(preds["count-only"], gt); r2m, _ = r2mae(preds["mask (GT-density)"], gt)
+        try:
+            _, p = wilcoxon(ec, em)
+        except Exception as e:
+            p = float("nan"); print(f"[wilcoxon lỗi seed{seed}] {e}")
+        dmean = float((ec - em).mean())
+        r2c_all.append(r2c); r2m_all.append(r2m); rows.append((seed, r2c, r2m, ec.mean(), em.mean(), dmean, p))
+        vd = "parity" if p > 0.05 else ("count>mask" if dmean < 0 else "count<mask")
+        print(f"  [seed{seed}] R² count {r2c:+.4f} / mask {r2m:+.4f} | |err| {ec.mean():.2f} vs {em.mean():.2f} "
+              f"| p={p:.4g} -> {vd}")
 
-    err_c = np.abs(gt - preds["count-only"])
-    err_m = np.abs(gt - preds["mask (GT-density)"])
-    r2c, _ = r2mae(preds["count-only"], gt); r2m, _ = r2mae(preds["mask (GT-density)"], gt)
-    dmean = float((err_c - err_m).mean())
-    from scipy.stats import wilcoxon
-    try:
-        stat, p = wilcoxon(err_c, err_m)
-    except Exception as e:
-        stat, p = float("nan"), float("nan"); print(f"[wilcoxon lỗi] {e}")
-
-    print(f"\n=== NuInsSeg PARITY + per-image Wilcoxon (efflite0, seed{args.seed}, n_test={len(te)}) ===")
-    print(f"  count-only  R² {r2c:+.4f} | mask R² {r2m:+.4f} | ΔR² {r2c - r2m:+.4f}")
-    print(f"  per-image |err|: count-only {err_c.mean():.2f} vs mask {err_m.mean():.2f} "
-          f"(Δ={dmean:+.2f}, âm = count-only lỗi ÍT hơn)")
-    print(f"  Wilcoxon signed-rank p = {p:.4g}")
-    verdict = ("PARITY (không phân biệt, p>0.05)" if p > 0.05 else
-               ("count-only THẮNG có ý nghĩa (p<0.05, lỗi ít hơn)" if dmean < 0 else
-                "count-only THUA có ý nghĩa (p<0.05, lỗi nhiều hơn)"))
-    print(f"  -> {verdict}")
+    n_sig_win = sum(1 for r in rows if r[6] < 0.05 and r[5] < 0)
+    n_win_dir = sum(1 for r in rows if r[5] < 0)
+    print(f"\n=== NuInsSeg PARITY + per-image Wilcoxon (efflite0, {len(seeds)} seed) ===")
+    print(f"  count-only R² {np.mean(r2c_all):+.4f} ± {np.std(r2c_all):.4f} | "
+          f"mask R² {np.mean(r2m_all):+.4f} ± {np.std(r2m_all):.4f}")
+    print(f"  count-only lỗi ÍT hơn ở {n_win_dir}/{len(seeds)} seed | p<0.05 ở {n_sig_win}/{len(seeds)} seed")
+    print(f"  -> {'count-only ≥ mask nhất quán' if n_win_dir == len(seeds) else 'không nhất quán — xem lại'}"
+          f"{' (thắng có ý nghĩa)' if n_sig_win else ' (parity)'}")
 
 
 if __name__ == "__main__":
