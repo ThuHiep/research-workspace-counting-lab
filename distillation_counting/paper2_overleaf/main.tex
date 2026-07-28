@@ -182,9 +182,13 @@ Tập dữ liệu & count-only ($R^2$) & mask ($R^2$) & $\Delta R^2$ & $p$ (pair
 \midrule
 PanNuke & $0{,}930\pm0{,}009$ & $0{,}925\pm0{,}009$ & $+0{,}005$ & \pending & parity \\
 MoNuSeg & $0{,}656\pm0{,}102$ & $0{,}548\pm0{,}124$ & $+0{,}108$ & \pending & count-only $\ge$ mask \\
-NuInsSeg & \pending & \pending & \pending & \pending & \pending \\
+NuInsSeg$^\dagger$ & $0{,}948$ & $0{,}936$ & $+0{,}012$ & $0{,}024$ & count-only $>$ mask (có ý nghĩa) \\
 \bottomrule
 \end{tabular}
+
+\footnotetext{$^\dagger$ NuInsSeg dùng một chia cố định (seed 42, $n_{\text{test}}{=}133$) để bắt cặp trên
+từng ảnh; $R^2$ tuyệt đối ở chia này cao hơn giá trị trung bình đa-seed ($0{,}854\pm0{,}048$, Bảng in-domain).
+Kiểm định Wilcoxon bắt cặp trên sai số tuyệt đối từng ảnh cho $p{=}0{,}024$ (count-only lỗi ít hơn).}
 \end{table}
 
 \subsection{Định vị không gian tự phát từ giám sát đếm}\label{sec:emergence}

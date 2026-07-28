@@ -23,6 +23,16 @@ import numpy as np
 import torch
 from distill_student_r2 import build_pannuke_density, train
 from method_frontier import eval_r2_mae
+from r2_losses import count_from_density
+
+
+@torch.no_grad()
+def _per_image_pred(model, data, idx, dev):
+    model.eval(); pr = []
+    for i in idx:
+        x = torch.from_numpy(data[i]["img"].astype(np.float32) / 255.0).permute(2, 0, 1)[None].to(dev)
+        pr.append(float(count_from_density(model(x)[0])[0]))
+    return np.array(pr)
 
 
 def main():
@@ -34,6 +44,8 @@ def main():
     ap.add_argument("--ch", type=int, default=32)
     ap.add_argument("--epochs", type=int, default=60)   # density cần lâu hơn để hội tụ; count-only đã bão hoà ~40
     ap.add_argument("--seeds", default="42,43,44")
+    ap.add_argument("--w_count_mask", type=float, default=0.1,
+                    help="neo count cho mask (0.1 ổn định; 0.01 cũ có thể sập theo seed)")
     args = ap.parse_args()
     dev = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -52,8 +64,10 @@ def main():
     seeds = [int(s) for s in args.seeds.split(",")]
     # GT-density cần neo count NHỎ (0.01) để train được — density MSE thuần bị background(0) chi phối
     # → collapse về ~0 nếu w_count=0 (đúng recipe density-counting chuẩn; số cũ NuInsSeg 0.881 dùng vậy).
-    configs = [("count-only", 0.0, 1.0), ("GT-density (mask)", 1.0, 0.01)]
+    configs = [("count-only", 0.0, 1.0), ("GT-density (mask)", 1.0, args.w_count_mask)]
     rows = []
+    per_img = {}   # per-image preds ở seed đầu -> Wilcoxon bắt cặp
+    gt_te = np.array([data[i]["gt"] for i in te])
     for name, wd, wc in configs:
         r2s, maes = [], []
         for sd in seeds:
@@ -63,6 +77,8 @@ def main():
                           wd, wc, 0.01, 0.5, 16, True, "poisson", args.backbone)
             r2, mae = eval_r2_mae(model, data, te, dev)
             r2s.append(r2); maes.append(mae)
+            if sd == seeds[0]:
+                per_img[name] = _per_image_pred(model, data, te, dev)
             print(f"    [{name:16s}] seed {sd}: R² {r2:+.4f}  MAE {mae:.2f}")   # per-seed để bắt collapse
         rows.append((name, np.mean(r2s), np.std(r2s), np.mean(maes), np.std(maes)))
         print(f"  {name:20s} R² {np.mean(r2s):+.4f}±{np.std(r2s):.3f}  MAE {np.mean(maes):.3f}±{np.std(maes):.3f}")
@@ -73,6 +89,19 @@ def main():
         print(f"  {name:20s} {r2m:+.4f}±{r2s:.3f}   {mm:6.2f}±{ms:.2f}")
     d = rows[0][1] - rows[1][1]
     print(f"\n  Δ(count-only − GT-density) = {d:+.4f} R²")
+
+    # per-image Wilcoxon (bắt cặp trên từng ảnh, seed{seeds[0]}) -> parity/significance
+    ec = np.abs(gt_te - per_img["count-only"]); em = np.abs(gt_te - per_img["GT-density (mask)"])
+    from scipy.stats import wilcoxon
+    try:
+        _, p = wilcoxon(ec, em)
+    except Exception as e:
+        p = float("nan"); print(f"[wilcoxon lỗi] {e}")
+    dm = float((ec - em).mean())
+    verdict = ("PARITY (p>0.05)" if p > 0.05 else
+               ("count-only THẮNG (p<0.05, lỗi ít hơn)" if dm < 0 else "count-only THUA (p<0.05)"))
+    print(f"  per-image |err| (seed{seeds[0]}, n={len(te)}): count-only {ec.mean():.2f} vs mask {em.mean():.2f} "
+          f"| Wilcoxon p={p:.4g} -> {verdict}")
     print("  ĐỌC: count-only ≥ GT-density → ĐẾM KHÔNG CẦN pixel; cái thắng đến từ SUPERVISION, không phải kiến trúc.")
 
 
