@@ -29,11 +29,15 @@ def main():
     ap.add_argument("--root", default="../data/cryonuseg")
     ap.add_argument("--annotator", default="Annotator 1 (biologist)/label masks modify",
                     help="thư mục instance-labeled mask (tương đối trong root)")
+    ap.add_argument("--img_dir", default=None,
+                    help="override tuyệt đối thư mục 'tissue images' (bỏ qua root) — dùng khi cấu trúc Kaggle nested")
+    ap.add_argument("--mask_dir", default=None,
+                    help="override tuyệt đối thư mục instance-mask (bỏ qua root/annotator)")
     ap.add_argument("--out", default="../work/cryonuseg_png")
     args = ap.parse_args()
 
-    img_dir_in = os.path.join(args.root, "tissue images")
-    mask_dir = os.path.join(args.root, args.annotator)
+    img_dir_in = args.img_dir or os.path.join(args.root, "tissue images")
+    mask_dir = args.mask_dir or os.path.join(args.root, args.annotator)
     out_img = os.path.join(args.out, "images")
     os.makedirs(out_img, exist_ok=True)
 
