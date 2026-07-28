@@ -132,6 +132,9 @@ def main():
                          "random = chia WSI ngẫu nhiên theo seed (nhiễu trên dataset nhỏ)")
     ap.add_argument("--parity", action="store_true",
                     help="chạy CẢ count-only VÀ mask (GT-density polygon) -> parity dataset thứ 3 cho Q1")
+    ap.add_argument("--w_count_mask", type=float, default=0.1,
+                    help="neo count cho config mask (MoNuSeg count~40 -> cần >0.01 để density-MSE không sập; "
+                         "PanNuke count nhỏ dùng 0.01 đủ)")
     args = ap.parse_args()
     dev = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -164,7 +167,7 @@ def main():
     # (w_density, w_count): count-only bỏ mask; mask dùng GT-density polygon (chỉ khi --parity)
     configs = [("count-only", 0.0, 1.0)]
     if args.parity:
-        configs.append(("mask (GT-density)", 1.0, 0.01))
+        configs.append(("mask (GT-density)", 1.0, args.w_count_mask))
 
     results = {}
     for name, w_d, w_c in configs:
