@@ -126,8 +126,9 @@ Vì sao MAPE toàn cục cao (47.6%)? Chia 665 ảnh theo số nhân GT và tín
 |---|---|---|---|
 | PanNuke | fold12→fold3 leak-free | **0.920 ± 0.005** | 3.61 |
 | NuInsSeg | random split (`method_frontier`) | **0.854 ± 0.048** | 13.80 |
+| **MoNuSeg** | **official split (37 train/14 test), patch256 native (`monuseg_indomain`)** | **0.663 ± 0.099** | 5.42 ± 0.86 |
 
-→ efflite0 count-only **generalize sang dataset 2** (0.854), không chỉ PanNuke. NuInsSeg thấp hơn (nhỏ hơn, dải count rộng, khó hơn). Đây là **mốc ceiling** cho transfer bên dưới.
+→ efflite0 count-only **generalize sang 3 dataset ĐỘC LẬP** (đa nguồn: pan-cancer/đa-cơ-quan/TCGA), không chỉ PanNuke. **MoNuSeg R² 0.663 thấp hơn** (nhỏ 37 ảnh train + test count-variance thấp làm R² nhạy) nhưng **MAE 5.42 tốt** (~13% count/patch ~40). ⚠️ **Số tuyệt đối KHÔNG phải điểm bán Q1** → cần count-only-vs-mask trên MoNuSeg để bán PARITY dataset thứ 3 (đang mở rộng `monuseg_indomain`). Đây là **mốc ceiling** cho transfer bên dưới.
 
 **(b) Transfer zero-shot PanNuke→NuInsSeg (efflite0 count-only, `eval_cross_dataset`+`eval_r2_grouped` 20 seed):**
 
