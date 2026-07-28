@@ -105,6 +105,15 @@ Vì sao MAPE toàn cục cao (47.6%)? Chia 665 ảnh theo số nhân GT và tín
 
 **Đọc (trung thực, KHÔNG overclaim):** Δ +0.005 R² **< std ±0.009** → thống kê là **PARITY (hòa)**, không phải "count-only thắng mask". **Nhưng parity CHÍNH là luận điểm:** count-only đạt **ngang** full mask-supervision trên **cùng kiến trúc**, mà nhãn **rẻ hơn một bậc** (1 số đếm/ảnh vs vẽ mask pixel toàn ảnh). → **để ĐẾM thì KHÔNG cần mask pixel** — cái lợi đến từ *supervision rẻ*, không phải kiến trúc. Đây là đối chứng đóng chốt (control kiến trúc, vary supervision) củng cố label-efficiency §3.2a. *(số cũ NuInsSeg config cũ count-only 0.925 > GT-density 0.881 = SUPERSEDED; số efflite0 PanNuke leak-free này thay thế.)*
 
+**★ Parity ĐA DATASET (2026-07-29, Q1):** lặp count-only-vs-mask cùng kiến trúc trên **dataset thứ 2 MoNuSeg** (official split, `monuseg_indomain --parity --w_count_mask 0.1`):
+
+| Dataset | count-only | mask (GT-density) | Δ | Đọc |
+|---|---|---|---|---|
+| PanNuke | 0.930 ± 0.009 | 0.925 ± 0.009 | +0.005 | **parity** (trong nhiễu) |
+| MoNuSeg | 0.656 ± 0.102 | 0.548 ± 0.124 | +0.108 | count-only **≥** mask (phân phối chồng) |
+
+→ **Claim Q1: count-only KHÔNG BAO GIỜ tệ hơn mask, đôi khi tốt hơn, nhãn rẻ hơn một bậc.** ⚠️ Mask MoNuSeg lúc đầu **sập** (density-MSE + w_count=0.01 quá yếu trên patch dày count~40) → fix `w_count=0.1` mới hội tụ. Δ+0.108 (n=3 seed, chồng phân phối) → cần **per-image paired test** để chốt "≥ có ý nghĩa" hay parity (bước parity-stats kế).
+
 *Honest: GT count trong benchmark vẫn suy từ mask → chứng minh **yêu cầu giám sát** là mức đếm; tiết kiệm nhãn thật là cho dataset MỚI (đếm 1 số vs vẽ mask từng nhân). Thang chi phí: mask > point > count.*
 
 ### 3.3 Hiệu quả mô hình
