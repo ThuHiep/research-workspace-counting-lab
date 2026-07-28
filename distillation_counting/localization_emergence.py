@@ -71,8 +71,8 @@ def main():
     ap.add_argument("--w_count_mask", type=float, default=0.1,
                     help="neo count cho baseline mask (0.01 SẬP density-MSE; 0.1 để mask hội tụ, so localize công bằng)")
     ap.add_argument("--dump_npz", default=None,
-                    help="lưu (img,gt,pred_count,pred_mask) của N ảnh test đầu -> vẽ Figure localize")
-    ap.add_argument("--n_dump", type=int, default=8)
+                    help="lưu (img,gt,pred_count,pred_mask) của N ảnh test -> vẽ Figure localize (lọc đẹp sau)")
+    ap.add_argument("--n_dump", type=int, default=40, help="số ảnh ứng viên (rải đều test, đa dạng mô) để lọc")
     ap.add_argument("--work_dir", default="work")
     args = ap.parse_args()
     dev = "cuda" if torch.cuda.is_available() else "cpu"
@@ -117,16 +117,19 @@ def main():
 
     if args.dump_npz and len(dump_models) == 2:
         import torch as _t
-        ex = {"chance": chance}
-        for j in range(min(args.n_dump, len(test_data))):
-            d = test_data[j]
-            ex[f"img_{j}"] = d["img"]; ex[f"gt_{j}"] = d["density"].astype(np.float32)
+        # rải đều khắp test-set để đa dạng mô (thay vì N ảnh đầu cùng 1 tissue)
+        idxs = np.linspace(0, len(test_data) - 1, min(args.n_dump, len(test_data))).astype(int)
+        ex = {"chance": chance, "idxs": idxs}
+        for n, j in enumerate(idxs):
+            d = test_data[int(j)]
+            ex[f"img_{n}"] = d["img"]; ex[f"gt_{n}"] = d["density"].astype(np.float32)
+            ex[f"organ_{n}"] = str(d.get("organ", "")); ex[f"gtcount_{n}"] = float(d["gt"])
             x = _t.from_numpy(d["img"].astype(np.float32) / 255.0).permute(2, 0, 1)[None].to(dev)
             with _t.no_grad():
-                ex[f"count_{j}"] = dump_models["count-only"](x)[0].squeeze().cpu().numpy().astype(np.float32)
-                ex[f"mask_{j}"] = dump_models["mask (GT-density)"](x)[0].squeeze().cpu().numpy().astype(np.float32)
+                ex[f"count_{n}"] = dump_models["count-only"](x)[0].squeeze().cpu().numpy().astype(np.float32)
+                ex[f"mask_{n}"] = dump_models["mask (GT-density)"](x)[0].squeeze().cpu().numpy().astype(np.float32)
         np.savez_compressed(args.dump_npz, **ex)
-        print(f"\n  [dump] {args.n_dump} ví dụ -> {args.dump_npz} (vẽ Figure localize)")
+        print(f"\n  [dump] {len(idxs)} ảnh ứng viên (rải đều, kèm organ) -> {args.dump_npz} — tôi lọc đẹp nhất vẽ Figure")
 
 
 if __name__ == "__main__":
