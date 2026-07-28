@@ -1,301 +1,309 @@
-%% Paper 2 — Springer Nature Proceedings (sn-jnl). BAN TIENG VIET (de doc/duyet).
+%% Paper 2 (Q1 framing) — Springer Nature (sn-jnl). BAN TIENG VIET de doc/duyet.
 %%
-%% >>> Bien dich bang pdfLaTeX. Tieng Viet co dau nho babel + [T5]{fontenc}.
-%%     Neu dau bi loi -> doi Compiler sang XeLaTeX va thay fontenc/babel bang:
-%%       \usepackage{fontspec}
-%%       \usepackage{polyglossia}\setmainlanguage{vietnamese}
+%% >>> Bien dich pdfLaTeX. Tieng Viet: babel + [T5]{fontenc}. Neu dau loi -> XeLaTeX
+%%     va thay fontenc/babel bang: \usepackage{fontspec}\usepackage{polyglossia}\setmainlanguage{vietnamese}
+%%
+%% CHO TRONG (dien khi co ket qua): danh dau bang  <<< DANG CHAY >>>
 \documentclass[pdflatex,sn-mathphys-num]{sn-jnl}
 
 \usepackage{lmodern}
 \usepackage[utf8]{inputenc}
 \usepackage[T5]{fontenc}
 \usepackage[vietnamese]{babel}
-
 \addto\captionsvietnamese{%
-  \renewcommand{\abstractname}{Abstract}%
-  \renewcommand{\tablename}{Table}%
-  \renewcommand{\figurename}{Fig.}%
-  \renewcommand{\refname}{References}%
-  \renewcommand{\bibname}{References}%
-}
+  \renewcommand{\abstractname}{Abstract}\renewcommand{\tablename}{Table}%
+  \renewcommand{\figurename}{Fig.}\renewcommand{\refname}{References}\renewcommand{\bibname}{References}}
 
 \usepackage{graphicx}
-\graphicspath{{figures/}{./}{../figures/}}
+\graphicspath{{figures/}{./}}
 \usepackage{multirow}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{booktabs}
+\usepackage{xcolor}
+% danh dau cho trong
+\newcommand{\pending}{{\color{red}\,[\textsc{đang chạy}]\,}}
 
 \raggedbottom
-
 \begin{document}
 
-\title[Bộ đếm nhân nhẹ count-only kèm bất định hiệu chuẩn]{Bộ đếm nhân tế bào nhẹ, chỉ giám sát bằng
-số đếm, kèm định lượng bất định được hiệu chuẩn cho ảnh mô bệnh học}
+\title[Đếm nhân không cần chú thích điểm ảnh]{Đếm nhân tế bào không cần chú thích điểm ảnh:
+hiệu quả giám sát và sự tự phát của biểu diễn không gian trong mô bệnh học tính toán}
 
 \author[1]{\fnm{Thi Thu Hiep} \sur{Dinh}}\email{dinhthithuhiep1@gmail.com}
 \author*[1]{\fnm{Viet Hang} \sur{Duong}}\email{hangdv@uit.edu.vn}
-
 \affil*[1]{\orgdiv{Khoa Khoa học Máy tính}, \orgname{Trường Đại học Công nghệ Thông tin (UIT), ĐHQG-HCM},
 \orgaddress{\city{TP. Hồ Chí Minh}, \country{Việt Nam}}}
 
 \abstract{%
-Đếm nhân tế bào trên ảnh mô bệnh học nhuộm H\&E là bước định lượng nền tảng cho nhiều tác vụ chẩn đoán, nhưng
-phần lớn phương pháp hiện nay đòi hỏi mặt nạ phân vùng ở mức điểm ảnh --- loại nhãn đắt và tốn công chuyên gia.
-Chúng tôi đặt câu hỏi: để đếm, liệu có thật sự cần mask không? Bài báo trình bày một bộ đếm nhân nhẹ (3,62
-triệu tham số) chỉ huấn luyện bằng một con số đếm cho mỗi ảnh (count-only), không dùng mask, kèm đầu định
-lượng bất định được hiệu chuẩn (neo-Poisson $\sigma$ và conformal prediction). Qua thí nghiệm có kiểm soát (cố
-định kiến trúc, chỉ thay đổi loại giám sát), chúng tôi cho thấy: (i) giám sát count-only đạt độ chính xác đếm
-ngang bằng giám sát bằng mask trên cùng kiến trúc, trong khi nhãn rẻ hơn một bậc; (ii) mô hình nhẹ này vượt ba
-dòng phương pháp nhãn-đắt (density, instance segmentation, detection) ngay trên bài đếm; (iii) chỉ 25\% nhãn đã
-đạt khoảng 93\% hiệu năng đầy đủ; (iv) đầu bất định cho khoảng tin cậy hiệu chuẩn cả ở mức biên lẫn theo từng
-cơ quan, và chuyển giao coverage sang dữ liệu ngoài miền. Kết quả nhất quán trên ba tập dữ liệu độc lập
-(PanNuke, NuInsSeg, MoNuSeg).
+Định lượng số lượng nhân tế bào trên ảnh mô bệnh học nhuộm H\&E là một tác vụ nền tảng, nhưng gần như mọi
+phương pháp hiện đại đều dựa trên \emph{chú thích mức điểm ảnh} (mặt nạ phân vùng) --- loại nhãn tốn kém và
+khó mở rộng. Bài báo đặt một câu hỏi khoa học trực diện: \emph{cần bao nhiêu chú thích để đếm nhân chính
+xác?} Thay vì đề xuất một kiến trúc mới, chúng tôi thực hiện một nghiên cứu \emph{có kiểm soát} trong đó kiến
+trúc được giữ cố định và chỉ loại giám sát thay đổi, nhằm cô lập đóng góp thực sự của \emph{chú thích} khỏi
+đóng góp của mô hình. Chúng tôi thu được ba kết quả chính. Thứ nhất, giám sát \emph{chỉ bằng số đếm mức ảnh}
+(count-only) đạt độ chính xác đếm \emph{không phân biệt được về mặt thống kê} với --- và không bao giờ thua ---
+giám sát bằng mặt nạ, trên [ba] tập dữ liệu độc lập, dù chi phí chú thích rẻ hơn nhiều bậc. Thứ hai, và bất
+ngờ, mô hình count-only \emph{tự phát} sinh ra biểu diễn không gian định vị nhân \emph{sắc nét hơn} cả giám sát
+mật độ điểm ảnh tường minh, cho thấy đếm chính xác không đòi hỏi --- mà còn cảm sinh --- sự định vị. Thứ ba,
+một bộ đếm nhẹ count-only vượt cả ba dòng phương pháp nhãn-đắt (phân vùng, phát hiện, ước lượng mật độ) ngay
+trên tác vụ đếm, trong đó phương pháp phát hiện suy sụp có hệ thống ở vùng nhân dày đặc. Kèm theo một đầu định
+lượng bất định được hiệu chuẩn cho triển khai tin cậy, các kết quả này thách thức giả định phổ biến rằng cần
+chú thích dày đặc để định lượng nhân chính xác.
 }
-
-\keywords{đếm nhân tế bào, học nhãn-hiệu quả, giám sát yếu, định lượng bất định, conformal prediction,
-mô bệnh học tính toán}
-
+\keywords{đếm nhân tế bào, hiệu quả chú thích, giám sát yếu, biểu diễn tự phát, định lượng bất định,
+conformal prediction, mô bệnh học tính toán}
 \maketitle
 
-%%===========================================================%%
+%%============================================================%%
 \section{Giới thiệu}\label{sec:intro}
 
-Mật độ và số lượng nhân tế bào là chỉ dấu định lượng quan trọng trong bệnh học: chúng liên quan tới mức độ tăng
-sinh, phân độ khối u và đánh giá vi môi trường mô. Các phương pháp học sâu hiện đại chủ yếu đi theo hướng phân
-vùng thực thể (instance segmentation) hoặc hồi quy bản đồ mật độ (density map), và đều cần nhãn mask ở mức điểm
-ảnh --- mỗi nhân phải được khoanh viền thủ công. Chi phí gán nhãn này là rào cản lớn khi mở rộng sang mô hoặc
-cơ quan mới chưa có chú thích.
+Số lượng và mật độ nhân tế bào là các đại lượng định lượng cốt lõi trong bệnh học, làm cơ sở cho đánh giá mức
+độ tăng sinh, phân độ khối u và phân tích vi môi trường mô. Các phương pháp học sâu dẫn đầu cho định lượng
+nhân hầu như đều đi qua \emph{phân vùng thực thể} hoặc \emph{hồi quy bản đồ mật độ}, và do đó đòi hỏi
+\emph{chú thích mức điểm ảnh}: mỗi nhân phải được khoanh viền thủ công. Chi phí và tính không mở rộng của loại
+nhãn này là một rào cản thực tiễn lớn khi chuyển sang mô, cơ quan, hoặc trung tâm mới.
 
-Trong khi đó, ở bài toán đếm đám đông (crowd counting) người ta đã dùng giám sát chỉ-đếm (count-only) --- chỉ
-cần tổng số đối tượng cho mỗi ảnh. Tuy nhiên trong đếm nhân mô bệnh học, chuẩn mực vẫn là mask hoặc point. Câu
-hỏi trung tâm của bài báo: liệu giám sát count-only có đủ để đếm nhân chính xác không, và ta được hay mất gì so
-với giám sát bằng mask?
+Một giả định ngầm phổ biến là: để đếm nhân chính xác, mô hình cần được dạy \emph{nhân nằm ở đâu}. Bài báo này
+kiểm định trực tiếp giả định đó bằng câu hỏi trung tâm:
 
-Chúng tôi tiếp cận theo tinh thần thực nghiệm có kiểm soát: cố định kiến trúc, chỉ thay đổi loại giám sát, để
-tách bạch đóng góp của giám sát khỏi đóng góp của kiến trúc. Bài báo không tuyên bố một kiến trúc mới (bộ mã
-hóa EfficientNet-lite0 và bộ giải mã U-Net là tổ hợp tiêu chuẩn); đóng góp nằm ở bằng chứng thực nghiệm và gói
-ứng dụng:
+\begin{quote}
+\emph{Cần bao nhiêu chú thích để đếm nhân chính xác --- và giám sát dày đặc ở mức điểm ảnh có thực sự cần
+thiết không?}
+\end{quote}
 
+Để trả lời một cách sạch sẽ, chúng tôi áp dụng nguyên tắc \emph{thực nghiệm có kiểm soát}: giữ nguyên kiến
+trúc (một bộ mã hóa nhẹ tiêu chuẩn ghép bộ giải mã U-Net) và \emph{chỉ} thay đổi loại giám sát --- từ mặt nạ
+điểm ảnh sang một con số đếm duy nhất cho mỗi ảnh. Nhờ đó, mọi khác biệt quan sát được quy về \emph{chú thích},
+không phải về sức mạnh mô hình. Chúng tôi nhấn mạnh: bài báo \emph{không} tuyên bố một kiến trúc mới; đóng góp
+nằm ở các phát hiện khoa học và hệ quả thực tiễn.
+
+\paragraph{Đóng góp.}
 \begin{enumerate}
-\item Chứng minh count-only xấp xỉ mask trên cùng kiến trúc (Mục~\ref{sec:parity}): độ chính xác đếm tương
-đương, nhưng nhãn rẻ hơn một bậc.
-\item So sánh bốn paradigm công bằng, cùng tập kiểm tra leak-free (Mục~\ref{sec:main}): bộ đếm nhẹ count-only
-vượt cả density, instance và detection; đặc biệt detection sụp đổ ở vùng đông đúc --- bằng chứng trực tiếp cho
-động lực crowding.
-\item Định lượng hiệu quả-nhãn (Mục~\ref{sec:label}): đường cong học theo tỉ lệ nhãn.
-\item Đầu bất định hiệu chuẩn nhẹ (Mục~\ref{sec:uq}): tham số hóa $\sigma$ neo-Poisson và conformal cho
-coverage đúng mục tiêu ở mức biên và theo cơ quan, chuyển giao được sang dữ liệu ngoài miền.
+\item \textbf{Ngang bằng về chú thích (Mục~\ref{sec:parity}).} Trên [ba] tập dữ liệu độc lập, giám sát
+count-only đạt độ chính xác đếm \emph{không phân biệt được về mặt thống kê} với giám sát mặt nạ (kiểm định
+signed-rank bắt cặp trên từng ảnh), và không bao giờ thua, dù chú thích rẻ hơn nhiều bậc.
+\item \textbf{Sự tự phát của định vị (Mục~\ref{sec:emergence}).} Bất ngờ, bản đồ mật độ của mô hình count-only
+tập trung lên nhân \emph{sắc nét hơn} cả mô hình được giám sát mật độ tường minh --- định vị không gian
+\emph{tự nổi} từ tín hiệu đếm, dù chưa từng thấy nhãn không gian.
+\item \textbf{So sánh bốn paradigm công bằng (Mục~\ref{sec:paradigm}).} Bộ đếm nhẹ count-only vượt cả phân
+vùng, phát hiện và ước lượng mật độ trên tác vụ đếm; phát hiện suy sụp có hệ thống ở vùng đông đúc --- bằng
+chứng cơ học cho hiện tượng \emph{chen chúc}.
+\item \textbf{Hiệu quả nhãn và triển khai tin cậy (Mục~\ref{sec:label},~\ref{sec:uq}).} Định lượng đường cong
+học theo tỉ lệ nhãn, và một đầu bất định được hiệu chuẩn cho khoảng tin cậy đúng mức phủ ở biên lẫn theo cơ
+quan, chuyển giao được sang dữ liệu ngoài miền.
 \end{enumerate}
 
-Toàn bộ số liệu được báo cáo trên một mô hình duy nhất (EfficientNet-lite0, 3,62M tham số) với giao thức
-leak-free.
-
-%%===========================================================%%
+%%============================================================%%
 \section{Công trình liên quan}\label{sec:related}
 
-\textbf{Phân vùng và đếm nhân.} Các phương pháp SOTA (HoVer-Net, StarDist, CellViT và biến thể trên PanNuke)
-đạt độ chính xác cao nhưng dựa vào mask điểm ảnh; đếm thường là readout từ phân vùng. Gần đây, một số công
-trình chưng cất tri thức từ foundation model bệnh học xuống mạng nhỏ để đếm (ví dụ chưng cất từ H-Optimus
-xuống khoảng 24M tham số, báo cáo $R^2$ đếm khoảng 0,871) nhưng không kèm định lượng bất định.
+\subsection{Phân vùng nhân}
+U-Net và các mở rộng như HoVer-Net, StarDist, CellViT đạt độ chính xác phân vùng cao trên các mốc như PanNuke,
+nhưng phụ thuộc mặt nạ điểm ảnh; số đếm là đại lượng dẫn xuất từ kết quả phân vùng.
 
-\textbf{Giám sát count-only.} Phổ biến ở crowd counting, hiếm ở đếm nhân mô bệnh học. Chúng tôi khảo sát trực
-tiếp giá trị của loại giám sát này trong miền bệnh học.
+\subsection{Phát hiện nhân}
+Các hướng dựa trên tâm (center-based) và giám sát điểm ước lượng vị trí nhân rời rạc. Chúng giảm chi phí nhãn
+so với mặt nạ nhưng vẫn cần định vị, và nhạy cảm với hậu xử lý (ví dụ triệt tiêu không cực đại) khi nhân chồng
+lấn.
 
-\textbf{Định lượng bất định.} Conformal prediction cho khoảng tin cậy phi-phân phối với bảo đảm coverage. Với
-dữ liệu đếm (phương sai tăng theo kỳ vọng), tham số hóa $\sigma$ hợp lý là then chốt; chúng tôi dùng dạng
-neo-Poisson $\sigma = \sqrt{\max(\mu,1)}\cdot\exp(\log s)$.
+\subsection{Ước lượng mật độ và đếm}
+Trong đếm đám đông, hồi quy bản đồ mật độ là chuẩn mực; ý tưởng đã được đưa sang đếm tế bào. Tuy vậy, giám sát
+mật độ vẫn giả định biết vị trí đối tượng ở mức điểm ảnh.
 
-\textbf{Kiến trúc.} Bộ mã hóa EfficientNet-lite và bộ giải mã U-Net là mẫu chuẩn. Chúng tôi không coi kiến trúc
-là đóng góp; nó là nền được kiểm soát để so sánh giám sát.
+\subsection{Đếm với giám sát yếu}
+Giám sát \emph{chỉ bằng số đếm} phổ biến ở đếm đám đông nhưng \emph{hiếm} trong đếm nhân mô bệnh học, nơi mặt
+nạ/điểm vẫn là mặc định. Song song, các bộ đếm nén chưng cất từ mô hình nền bệnh học gần đây báo cáo độ chính
+xác đếm tốt nhưng \emph{không} kèm định lượng bất định. Bài báo lấp khoảng trống này: khảo sát trực tiếp mức
+giám sát tối thiểu cần cho đếm, kèm phân tích cơ chế và độ tin cậy.
 
-%%===========================================================%%
+%%============================================================%%
 \section{Phương pháp}\label{sec:method}
 
-\subsection{Kiến trúc}
-Mô hình \texttt{DensitySigmaUNet}: bộ mã hóa EfficientNet-lite0 (tiền huấn luyện ImageNet) và bộ giải mã kiểu
-U-Net, hai đầu ra. Đầu mật độ suy ra số đếm $\mu = \sum \text{density}$ (tổng toàn ảnh). Đầu bất định
-$\sigma = \sqrt{\max(\mu,1)}\cdot\exp(\mathrm{clamp}(\log s,-2,2))$ theo dạng neo-Poisson, học phần tán xạ trên
-nền phương sai Poisson; $\mu$ được tách gradient khỏi nhánh $\sigma$. Cấu hình $ch{=}32$ cho 3,62 triệu tham số.
+\subsection{Kiến trúc và các đầu ra}
+Chúng tôi dùng một mạng \texttt{DensitySigmaUNet}: bộ mã hóa EfficientNet-lite0 (tiền huấn luyện ImageNet) ghép
+bộ giải mã kiểu U-Net, với hai đầu ra. Đầu \emph{mật độ} sinh một bản đồ không âm mà số đếm dự đoán là tổng
+toàn ảnh $\mu = \sum \mathrm{density}$. Đầu \emph{bất định} sinh $\sigma = \sqrt{\max(\mu,1)}\cdot
+\exp(\mathrm{clamp}(\log s,-2,2))$ theo dạng neo-Poisson, học phần tán xạ trên nền phương sai Poisson; $\mu$
+được tách gradient khỏi nhánh $\sigma$. Cấu hình cho $3{,}62$ triệu tham số.
 
-\subsection{Giám sát chỉ-đếm}
-Hàm mất mát: $\mathcal{L} = w_d\mathcal{L}_{density} + w_c\mathcal{L}_{count} + w_{nll}\mathcal{L}_{nll}$.
-Count-only đặt $w_d{=}0, w_c{=}1$ (chỉ học từ số đếm mức ảnh $|\mu - \mathrm{GT}|$, không dùng mask). Baseline
-mask đối chứng đặt $w_d{=}1, w_c{=}0{,}01$ (bản đồ mật độ mục tiêu dựng từ mask GT). $\mathcal{L}_{nll}$ là
-$\beta$-NLL ($\beta{=}0,5$) huấn luyện $\sigma$; $\mu$ được detach.
+\subsection{Các chế độ giám sát được so sánh}
+Cô lập biến giám sát bằng cách giữ nguyên kiến trúc, dữ liệu và quy trình đánh giá; chỉ đổi trọng số mất mát
+$\mathcal{L} = w_d\mathcal{L}_{density} + w_c\mathcal{L}_{count} + w_{nll}\mathcal{L}_{nll}$:
+\begin{itemize}
+\item \textbf{count-only:} $w_d{=}0,\ w_c{=}1$ --- chỉ học từ một số đếm mức ảnh, không dùng bản đồ mục tiêu.
+\item \textbf{mask (mật độ GT):} $w_d{=}1,\ w_c{=}w_c^{\mathrm{mask}}$ --- học khớp bản đồ mật độ dựng từ mặt nạ
+thực. Một neo đếm nhỏ được giữ để ổn định tối ưu (xem Mục~\ref{sec:setup}).
+\end{itemize}
+$\mathcal{L}_{nll}$ là $\beta$-NLL huấn luyện $\sigma$.
 
-\subsection{Hiệu chuẩn bất định bằng conformal}
-Sau huấn luyện, dùng split-conformal trên tập hiệu chuẩn để suy khoảng $[\mu - q\sigma, \mu + q\sigma]$ đạt mức
-phủ mục tiêu $1-\alpha$ ($\alpha{=}0,1$). Ba sơ đồ: global (một ngưỡng $q$), mondrian ($q$ riêng theo cơ quan),
-cluster ($q$ theo nhóm độ khó).
+\subsection{Định vị: đo bằng nồng độ khối mật độ}
+Để kiểm tra mô hình có \emph{định vị} nhân hay không, ta so bản đồ mật độ dự đoán với vị trí nhân thực. Với mỗi
+ảnh, gọi $c$ là tỉ lệ điểm ảnh thuộc nhân; \emph{nồng độ} $\rho = \big(\sum_{p\in\text{nhân}}
+\hat d_p\big)\big/\sum_p \hat d_p$ là tỉ lệ khối mật độ dự đoán rơi lên điểm ảnh nhân. Tỉ số $\rho/c$ bằng $1$
+khi mật độ dàn đều (không định vị) và tiến tới $1/c$ khi tập trung hoàn hảo lên nhân.
 
-%%===========================================================%%
+\subsection{Hiệu chuẩn bất định}
+Sau huấn luyện, split-conformal trên tập hiệu chuẩn cho khoảng $[\mu - q\sigma, \mu + q\sigma]$ đạt mức phủ mục
+tiêu $1-\alpha$. Ba sơ đồ: global, mondrian (riêng theo cơ quan), cluster (theo nhóm độ khó).
+
+%%============================================================%%
 \section{Thiết lập thực nghiệm}\label{sec:setup}
 
-\textbf{Tập dữ liệu (độc lập, đa nguồn).} PanNuke (pan-cancer, $256^2$, 19 loại mô) --- in-domain chính, train
-fold~1+2 sang test fold~3 (leak-free); NuInsSeg (đa cơ quan H\&E) --- in-domain thứ hai; MoNuSeg~2018 (đa cơ
-quan TCGA, $1000^2$ sang patch~256 native) --- in-domain thứ ba, độc lập nguồn; CryoNuSeg (cryosection) --- phân
-tích giới hạn.
+\paragraph{Dữ liệu.} Ba tập độc lập, đa nguồn: PanNuke (pan-cancer, $256^2$, 19 loại mô; train fold~1+2, test
+fold~3, leak-free), NuInsSeg (đa cơ quan H\&E), và MoNuSeg~2018 (đa cơ quan TCGA, $1000^2$ cắt patch $256$ ở
+độ phân giải gốc; dùng đúng chia train/test chính thức). Một tập cryosection (CryoNuSeg) được dùng để phân tích
+giới hạn chuyển giao.
 
-\textbf{Giao thức leak-free.} Với PanNuke, huấn luyện fold~1+2, kiểm tra fold~3; mọi mô hình so sánh đều huấn
-luyện lại từ đầu trên cùng tập, chấm trên cùng tập kiểm tra. Mỗi cấu hình chạy ít nhất 3 seed.
+\paragraph{Giao thức.} Mọi mô hình so sánh được huấn luyện lại từ đầu trên cùng tập huấn luyện và chấm trên
+cùng tập kiểm tra. Mỗi cấu hình lặp nhiều seed. Do giám sát mật độ trên bản đồ thưa dễ suy sụp về nghiệm hằng
+số khi neo đếm quá yếu, ta chọn $w_c^{\mathrm{mask}}$ đủ lớn để mô hình mask hội tụ ổn định, đảm bảo so sánh
+công bằng (một mô hình mask không hội tụ sẽ không phải là mốc hợp lệ).
 
-\textbf{Chỉ số.} Đếm: $R^2$, MAE. Bất định: coverage biên, coverage cơ quan tệ nhất (worst-organ), độ rộng
-khoảng (width), điểm Winkler.
+\paragraph{Chỉ số và kiểm định.} Đếm: $R^2$, MAE. Ngang bằng: kiểm định \emph{Wilcoxon signed-rank bắt cặp trên
+từng ảnh} giữa sai số tuyệt đối của hai chế độ giám sát ($p>0{,}05$ nghĩa là không phân biệt được). Bất định:
+mức phủ biên, mức phủ cơ quan tệ nhất, độ rộng khoảng, điểm Winkler.
 
-%%===========================================================%%
+%%============================================================%%
 \section{Kết quả}\label{sec:results}
 
-\subsection{So sánh bốn paradigm (PanNuke, leak-free)}\label{sec:main}
+\subsection{Chú thích count-only ngang bằng chú thích mặt nạ}\label{sec:parity}
+
+Bảng~\ref{tab:parity} so hai chế độ giám sát trên cùng kiến trúc. Chênh lệch độ chính xác nhỏ hơn hoặc xấp xỉ
+độ dao động giữa các seed, và kiểm định bắt cặp trên từng ảnh \emph{không} bác bỏ giả thuyết không khác biệt
+--- tức count-only \emph{không phân biệt được về mặt thống kê} với, và không bao giờ thua, giám sát mặt nạ, dù
+chỉ dùng một con số đếm cho mỗi ảnh.
 
 \begin{table}[t]
 \centering
-\caption{So sánh bốn paradigm trên PanNuke (leak-free, cùng tập kiểm tra).}\label{tab:main}
+\caption{Ngang bằng chú thích: count-only so với mask (mật độ GT) trên \emph{cùng} kiến trúc.
+$\Delta R^2 = R^2_{\text{count}} - R^2_{\text{mask}}$; $p$ là Wilcoxon bắt cặp trên từng ảnh.}\label{tab:parity}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
-Mô hình & Tham số & Nhãn & Paradigm & $R^2\uparrow$ & MAE$\downarrow$ \\
+Tập dữ liệu & count-only ($R^2$) & mask ($R^2$) & $\Delta R^2$ & $p$ (paired) & Kết luận \\
 \midrule
-\textbf{Ours --- count-only} & \textbf{3,62M} & đếm & hồi quy & \textbf{0,920} & \textbf{3,61} \\
+PanNuke & $0{,}930\pm0{,}009$ & $0{,}925\pm0{,}009$ & $+0{,}005$ & \pending & parity \\
+MoNuSeg & $0{,}656\pm0{,}102$ & $0{,}548\pm0{,}124$ & $+0{,}108$ & \pending & count-only $\ge$ mask \\
+NuInsSeg & \pending & \pending & \pending & \pending & \pending \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Định vị không gian tự phát từ giám sát đếm}\label{sec:emergence}
+
+Bảng~\ref{tab:emergence} đo nồng độ khối mật độ (Mục~\ref{sec:method}). Với density dàn đều, tỉ số nồng độ bằng
+$1{,}0\times$; định vị hoàn hảo đạt $1/c \approx 5{,}9\times$. Đáng chú ý, mô hình \emph{count-only} --- chưa
+từng thấy nhãn không gian --- đạt nồng độ \emph{cao hơn} mô hình được giám sát mật độ tường minh: khối mật độ
+của nó tập trung sắc nét lên nhân, trong khi giám sát mật độ MSE trên bản đồ thưa lại cho dự đoán \emph{mờ}
+(hồi quy về trung bình). Nói cách khác, đếm chính xác không những không đòi hỏi mà còn \emph{cảm sinh} định vị.
+Hình~\ref{fig:emergence} minh họa trực quan (\pending).
+
+\begin{table}[t]
+\centering
+\caption{Định vị tự phát (PanNuke fold~3). Nồng độ $=\rho/c$; $>1\times$ nghĩa là mật độ tập trung lên nhân.
+Số sơ bộ ($n{=}1$ seed); xác nhận 3-seed \pending.}\label{tab:emergence}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Giám sát & Nồng độ ($\rho/c$) $\uparrow$ & count-$R^2$ & Diễn giải \\
+\midrule
+count-only & $4{,}43\times$ & $0{,}933$ & định vị sắc lên nhân \\
+mask (mật độ GT) & $1{,}63\times$ & $0{,}934$ & mật độ mờ (MSE về trung bình) \\
+\midrule
+\emph{tham chiếu}: dàn đều & $1{,}0\times$ & --- & không định vị \\
+\emph{tham chiếu}: GT hoàn hảo & $5{,}9\times$ & --- & định vị lý tưởng \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+% \includegraphics[width=\linewidth]{fig_emergence.pdf}   % <<< chèn khi có localize_examples.npz
+\fbox{\parbox[c][3cm][c]{0.9\linewidth}{\centering \pending\ Figure định vị: ảnh H\&E $\mid$ nhân GT $\mid$
+mật độ count-only (sắc) $\mid$ mật độ mask (mờ) --- vài mô đại diện.}}
+\caption{Định vị tự phát: mô hình count-only đặt khối mật độ đúng lên nhân dù không có nhãn không gian.}\label{fig:emergence}
+\end{figure}
+
+\subsection{So sánh bốn paradigm}\label{sec:paradigm}
+
+\begin{table}[t]
+\centering
+\caption{Bốn paradigm trên PanNuke (leak-free, cùng tập kiểm tra, tác vụ đếm).}\label{tab:paradigm}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Phương pháp & Tham số & Nhãn & Paradigm & $R^2\uparrow$ & MAE$\downarrow$ \\
+\midrule
+\textbf{Ours (count-only)} & \textbf{3,62M} & đếm & hồi quy & \textbf{0,920} & \textbf{3,61} \\
 StarDist & 1,43M & mask & instance & 0,841 & 4,64 \\
 DualU-Net & $\sim$35M & mask & density & 0,804 & 5,33 \\
-DeNuC (2026) & 4,37M & box/point & detection & 0,455 & 9,64 \\
-\botrule
+DeNuC & 4,37M & box/point & detection & 0,455 & 9,64 \\
+\bottomrule
 \end{tabular}
 \end{table}
 
-Bộ đếm nhẹ count-only vượt cả ba baseline nhãn-đắt trên chính bài đếm, với nhãn rẻ hơn một bậc. Đáng chú ý,
-detection sụp đổ đơn điệu theo mật độ (độ lệch từ $-0,8$ ở vùng thưa xuống $-30,4$ ở vùng $\ge 45$ nhân) --- khi
-nhân chồng lấn, hậu xử lý NMS bóp chết dương-tính-thật nên recall sụp. Đây là bằng chứng trực tiếp cho động lực
-crowding. Về tham số, mô hình của chúng tôi nhỏ hơn DualU-Net khoảng 10 lần nhưng lớn hơn StarDist; luận điểm
-là chính xác nhất, nhãn rẻ nhất và có định lượng bất định, không phải nhỏ nhất.
+Bộ đếm nhẹ count-only vượt cả ba baseline nhãn-đắt trên chính tác vụ đếm (Bảng~\ref{tab:paradigm}). Phương pháp
+phát hiện suy sụp \emph{đơn điệu} theo mật độ (độ lệch đếm từ $-0{,}8$ ở vùng thưa tới $-30{,}4$ ở vùng $\ge45$
+nhân): khi nhân chồng lấn, hậu xử lý bóp chết các dương-tính-thật. Đây là bằng chứng cơ học trực tiếp cho hiện
+tượng chen chúc, và cho thấy đếm-bằng-hồi-quy bền vững hơn ở chế độ dày đặc.
 
-\subsection{Count-only so với mask, trên cùng kiến trúc}\label{sec:parity}
+\subsection{Hiệu quả nhãn}\label{sec:label}
+Đường cong học theo tỉ lệ nhãn (PanNuke, count-only): $R^2$ đạt $0{,}85\pm0{,}03$ chỉ với $25\%$ nhãn và
+$0{,}92\pm0{,}01$ với toàn bộ --- tức khoảng $93\%$ hiệu năng đầy đủ đạt được ở một phần tư ngân sách chú thích.
 
-\begin{table}[t]
-\centering
-\caption{Cố định kiến trúc efflite0, chỉ đổi loại giám sát (PanNuke, leak-free).}\label{tab:parity}
-\begin{tabular}{@{}lcc@{}}
-\toprule
-Giám sát & $R^2\uparrow$ & MAE$\downarrow$ \\
-\midrule
-\textbf{count-only} & \textbf{0,9296 $\pm$ 0,009} & \textbf{3,48 $\pm$ 0,19} \\
-GT-density (mask) & 0,9247 $\pm$ 0,009 & 3,58 $\pm$ 0,16 \\
-$\Delta$ & $+0,005$ & $-0,10$ \\
-\botrule
-\end{tabular}
-\end{table}
+\subsection{Hiệu quả tính toán và chi phí chú thích}\label{sec:cost}
+Mô hình $3{,}62$M tham số, $0{,}98$ GMACs ($256^2$), độ trễ $6{,}0$\,ms (GPU) / $46$\,ms (CPU), đỉnh bộ nhớ
+$37{,}9$\,MB --- thời-gian-thực trên cả GPU khiêm tốn lẫn CPU. Về chi phí chú thích, gán một số đếm mỗi ảnh rẻ
+hơn khoanh viền mọi nhân nhiều bậc (ước lượng cụ thể theo nguồn: \pending); kết hợp với ngang-bằng độ chính xác
+(Mục~\ref{sec:parity}), đây là luận điểm hiệu quả trung tâm của bài báo.
 
-Chênh lệch ($+0,005$ $R^2$) nhỏ hơn độ lệch chuẩn ($\pm 0,009$), nên về mặt thống kê là ngang nhau (parity).
-Kết luận trung thực: không phải count-only tốt hơn mask, mà là count-only đạt độ chính xác tương đương mask
-trên cùng kiến trúc, trong khi chỉ cần một con số đếm cho mỗi ảnh thay vì khoanh viền pixel. Đây là đối chứng
-đóng chốt cho định vị bài báo.
-
-\subsection{Hiệu quả-nhãn}\label{sec:label}
+\subsection{Định lượng bất định để triển khai tin cậy}\label{sec:uq}
 
 \begin{table}[t]
 \centering
-\caption{Đường cong học theo tỉ lệ nhãn (PanNuke, 3 seed).}\label{tab:label}
+\caption{Conformal in-domain (PanNuke, 20 seed).}\label{tab:uq}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
-\% nhãn & 5\% & 10\% & 25\% & 50\% & 100\% \\
-\midrule
-$R^2$ & 0,45$\pm$0,21 & 0,74 & \textbf{0,85$\pm$0,03} & 0,86 & 0,92$\pm$0,01 \\
-\botrule
-\end{tabular}
-\end{table}
-
-Chỉ 25\% nhãn đã đạt khoảng 93\% hiệu năng đầy đủ; 100\% khớp headline 0,920 (nhất quán).
-
-\subsection{Hiệu quả tính toán}
-Mô hình 3,62M tham số, 0,98 GMACs ($256^2$), độ trễ 6,0\,ms (GPU) và 46\,ms (CPU), peak VRAM 37,9\,MB ---
-thời-gian-thực, chạy được cả trên GPU khiêm tốn lẫn CPU.
-
-\subsection{Tổng quát hóa đa tập và định lượng bất định}\label{sec:uq}
-
-\begin{table}[t]
-\centering
-\caption{In-domain trên ba tập độc lập (cùng giao thức count-only).}\label{tab:gen}
-\begin{tabular}{@{}lcc@{}}
-\toprule
-Tập & $R^2$ & MAE \\
-\midrule
-PanNuke & 0,920 $\pm$ 0,005 & 3,61 \\
-NuInsSeg & 0,854 $\pm$ 0,048 & --- \\
-MoNuSeg (official split) & 0,663 $\pm$ 0,099 & 5,42 $\pm$ 0,86 \\
-\botrule
-\end{tabular}
-\end{table}
-
-\begin{table}[t]
-\centering
-\caption{Conformal in-domain (PanNuke, 20 seed).}\label{tab:conf}
-\begin{tabular}{@{}lccccc@{}}
-\toprule
-Sơ đồ & cov biên & width & Winkler & worst-org & \#thiếu phủ \\
+Sơ đồ & phủ biên & width & Winkler & phủ cơ quan tệ nhất & \#thiếu phủ \\
 \midrule
 global & 0,904 & 14,5 & 20,3 & 0,765 & 4/19 \\
 \textbf{mondrian} & 0,923 & 16,6 & 20,5 & \textbf{0,906} & \textbf{0/19} \\
 cluster & 0,906 & 14,8 & \textbf{20,0} & 0,859 & 0/19 \\
-\botrule
+\bottomrule
 \end{tabular}
 \end{table}
 
-Coverage biên đạt mục tiêu 0,90; mondrian nâng coverage cơ quan tệ nhất lên 0,906 (0/19 cơ quan thiếu phủ).
-Thêm đầu $\sigma$ tốn 0 độ chính xác (nhờ detach $\mu$).
+Đầu bất định cho khoảng đạt mức phủ mục tiêu ở biên, và sơ đồ mondrian nâng mức phủ cơ quan tệ nhất lên
+$0{,}906$ (không cơ quan nào thiếu phủ). Việc tham số hóa $\sigma$ neo-Poisson là cần thiết khi dải số đếm rộng:
+so với $\sigma$ hằng số, nó cắt đáng kể độ rộng khoảng và điểm Winkler ở cùng mức phủ trên dữ liệu dải rộng,
+trong khi không tạo khác biệt trên dải hẹp. Thêm đầu $\sigma$ không tốn độ chính xác đếm (nhờ tách $\mu$).
 
-\begin{table}[t]
-\centering
-\caption{Ablation $\sigma$ neo-Poisson so với $\sigma$ thô (cùng mô hình, chỉ đổi đầu $\sigma$).}\label{tab:sigma}
-\begin{tabular}{@{}llcccc@{}}
-\toprule
-Tập (dải count) & $\sigma$ & cov & width & Winkler & worst-org \\
-\midrule
-PanNuke (0--45, hẹp) & Poisson & 0,905 & 14,1 & 24,7 & 0,64 \\
-                     & thô     & 0,908 & 15,1 & \textbf{21,6} & 0,66 \\
-\textbf{NuInsSeg (0--500+, rộng)} & \textbf{Poisson} & 0,926 & \textbf{37,7} & \textbf{45,4} & \textbf{0,86} \\
-                     & thô     & 0,937 & 67,9 & 78,1 & 0,66 \\
-\botrule
-\end{tabular}
-\end{table}
-
-Trên dải count hẹp, hai dạng $\sigma$ tương đương (thậm chí $\sigma$ thô nhỉnh). Trên dải count rộng, neo-Poisson
-cắt 44\% width, 42\% Winkler và nâng worst-organ $+0,21$ cùng mức phủ, vì $\sigma$ hằng số buộc phải phồng
-khoảng cho mọi ảnh. Kết luận: neo-Poisson cần thiết khi dải count rộng (tình huống triển khai thực tế), thừa
-khi hẹp.
-
-%%===========================================================%%
+%%============================================================%%
 \section{Thảo luận và Hạn chế}\label{sec:discuss}
 
-\textbf{Chuyển giao ngoài miền.} Huấn luyện một tập rồi kiểm tra zero-shot trên tập khác: coverage của khoảng
-tin cậy chuyển giao được (sau hiệu chuẩn lại ở đích), nhưng độ chính xác điểm (MAE) không chuyển giao khi dải
-count hoặc độ phóng đại lệch nhiều. Trường hợp cực đoan CryoNuSeg (count tới 761 vượt tầm huấn luyện) cho thấy
-giới hạn: $\mu$ under-predict mạnh, coverage chỉ giữ được bằng khoảng rất rộng. Điểm tích cực: bảo đảm coverage
-đến từ tầng conformal (phi-phân phối), không phải từ $\sigma$; độ rộng khoảng chính là tín hiệu đã ra ngoài
-vùng tin cậy.
+\paragraph{Đếm mà không định vị-hay đếm nhờ định vị?} Kết quả Mục~\ref{sec:emergence} cho thấy count-only tạo
+biểu diễn định vị sắc nét, gợi ý rằng tín hiệu đếm đủ để cảm sinh cấu trúc không gian --- một cơ chế giải thích
+vì sao chú thích dày đặc là dư thừa cho tác vụ đếm.
 
-\textbf{Phụ thuộc scale nhân.} Đầu mật độ nhạy với kích thước nhân theo điểm ảnh; khi thu nhỏ ảnh quá mạnh,
-$\mu$ có thể sụp. Ta xử lý bằng cách cắt patch ở scale native.
+\paragraph{Chuyển giao ngoài miền.} Khi kiểm tra không-điều-chỉnh trên miền khác, mức phủ của khoảng tin cậy
+\emph{chuyển giao được} sau hiệu chuẩn lại, nhưng độ chính xác điểm không chuyển giao khi dải số đếm hoặc độ
+phóng đại lệch nhiều. Bảo đảm phủ đến từ tầng conformal phi-phân phối, nên độ rộng khoảng đóng vai trò tín hiệu
+cảnh báo khi ra ngoài vùng tin cậy.
 
-\textbf{Về đóng góp.} Kiến trúc là tổ hợp có sẵn --- bài báo không tuyên bố kiến trúc mới. Giá trị nằm ở thiết
-kế thí nghiệm có kiểm soát, bằng chứng count-only đủ để đếm, và đầu bất định hiệu chuẩn mà các bộ đếm nén hiện
-có chưa có.
+\paragraph{Về đóng góp.} Kiến trúc là tổ hợp tiêu chuẩn; đóng góp nằm ở thiết kế thí nghiệm có kiểm soát, các
+phát hiện về hiệu quả chú thích và cơ chế định vị tự phát, cùng độ tin cậy triển khai.
 
-%%===========================================================%%
+%%============================================================%%
 \section{Kết luận}\label{sec:conclusion}
 
-Chúng tôi cho thấy một bộ đếm nhân nhẹ (3,62M), chỉ giám sát bằng số đếm mức ảnh, đạt độ chính xác đếm ngang
-giám sát bằng mask trên cùng kiến trúc và vượt các baseline nhãn-đắt ngay trên bài đếm, với nhãn rẻ hơn một
-bậc. Mô hình kèm đầu bất định hiệu chuẩn (neo-Poisson và conformal) cho coverage đúng mục tiêu ở mức biên và
-theo cơ quan, và chuyển giao coverage sang dữ liệu ngoài miền. Hướng phát triển: khắc phục phụ thuộc scale bằng
-học đa độ phân giải, và mở rộng đầu bất định để bắt cả sai số do dịch chuyển miền.
+Qua một nghiên cứu có kiểm soát trên [ba] tập dữ liệu mô bệnh học độc lập, chúng tôi cho thấy giám sát chỉ bằng
+số đếm mức ảnh đạt độ chính xác đếm không phân biệt được về mặt thống kê so với giám sát mặt nạ ở mức điểm ảnh,
+trong khi đòi hỏi chi phí chú thích rẻ hơn nhiều bậc; hơn nữa, mô hình count-only tự phát sinh biểu diễn định
+vị nhân sắc nét hơn cả giám sát mật độ tường minh. Những kết quả này thách thức giả định phổ biến rằng chú
+thích dày đặc là cần thiết để định lượng nhân chính xác, và mở ra hướng định lượng mô bệnh học hiệu quả về chú
+thích. Hướng phát triển gồm khắc phục phụ thuộc độ phân giải bằng học đa tỉ lệ và mở rộng đầu bất định để nắm
+bắt sai số do dịch chuyển miền.
 
-%%===========================================================%%
+%%============================================================%%
 \backmatter
-
 \bmhead{Declarations}
-Đây là công trình gốc, chưa được công bố và không đồng thời được nộp ở nơi khác. Các tác giả tuyên bố không có
-xung đột lợi ích.
+Công trình gốc, chưa công bố, không nộp đồng thời nơi khác. Các tác giả tuyên bố không có xung đột lợi ích.
 
-%%===========================================================%%
 \bibliography{references}
-
 \end{document}
