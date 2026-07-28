@@ -64,14 +64,16 @@ def find_pairs(root):
     for x in glob.glob(os.path.join(root, "**", "*.xml"), recursive=True):
         stem = os.path.splitext(os.path.basename(x))[0]
         if stem in imgs:
-            pairs.append((imgs[stem], x, stem))
+            ip = imgs[stem]
+            is_test = "test" in (ip + x).lower()   # split chính thức MoNuSeg (folder ...TestData)
+            pairs.append((ip, x, stem, is_test))
     return pairs
 
 
 def build_patches(pairs):
-    """-> list {img 256 uint8, density zeros, gt count, organ=wsi, wsi}."""
+    """-> list {img 256 uint8, density zeros, gt count, organ=wsi, wsi, is_test}."""
     data = []
-    for ip, xp, stem in pairs:
+    for ip, xp, stem, is_test in pairs:
         arr = read_tif(ip)
         if arr.ndim == 2:
             arr = np.stack([arr] * 3, -1)
@@ -88,7 +90,8 @@ def build_patches(pairs):
             for gx in range(GRID):
                 patch = img[gy * IMG:(gy + 1) * IMG, gx * IMG:(gx + 1) * IMG]
                 data.append({"img": patch, "density": np.zeros((IMG, IMG), np.float32),
-                             "gt": float(cnt[gy, gx]), "organ": stem, "wsi": stem})
+                             "gt": float(cnt[gy, gx]), "organ": stem, "wsi": stem,
+                             "is_test": is_test})
     return data
 
 
@@ -107,35 +110,49 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", required=True, help="thư mục MoNuSeg (chứa .tif + .xml, tìm đệ quy)")
     ap.add_argument("--backbone", default="efficientnet_lite0")
-    ap.add_argument("--epochs", type=int, default=40)
+    ap.add_argument("--epochs", type=int, default=60)
     ap.add_argument("--seeds", default="42,43,44")
+    ap.add_argument("--split", default="official", choices=["official", "random"],
+                    help="official = train folder Training / test folder TestData (test CỐ ĐỊNH, so literature); "
+                         "random = chia WSI ngẫu nhiên theo seed (nhiễu trên dataset nhỏ)")
     args = ap.parse_args()
     dev = "cuda" if torch.cuda.is_available() else "cpu"
 
     pairs = find_pairs(args.root)
     assert pairs, f"không thấy cặp .tif+.xml trong {args.root}"
-    print(f"[data] {len(pairs)} ảnh MoNuSeg có annotation (root={args.root})")
+    n_test_folder = sum(1 for p in pairs if p[3])
+    print(f"[data] {len(pairs)} ảnh MoNuSeg có annotation | folder Test={n_test_folder} (root={args.root})")
     data = build_patches(pairs)
     wsis = sorted(set(d["wsi"] for d in data))
     gts = np.array([d["gt"] for d in data])
     print(f"[patches] {len(data)} patch 256 từ {len(wsis)} WSI | count/patch "
           f"mean {gts.mean():.1f} min {gts.min():.0f} max {gts.max():.0f}")
 
+    if args.split == "official" and n_test_folder == 0:
+        print("[cảnh báo] không tìm thấy folder Test -> fallback sang split random")
+        args.split = "random"
+
     seeds = [int(s) for s in args.seeds.split(",")]
     r2s, maes = [], []
     for seed in seeds:
-        rng = np.random.default_rng(seed)
-        perm = list(rng.permutation(np.array(wsis)))
-        n_te = max(1, len(wsis) // 5)
-        te_w = set(perm[:n_te])
-        tr = [i for i, d in enumerate(data) if d["wsi"] not in te_w]
-        te = [i for i, d in enumerate(data) if d["wsi"] in te_w]
+        if args.split == "official":
+            tr = [i for i, d in enumerate(data) if not d["is_test"]]
+            te = [i for i, d in enumerate(data) if d["is_test"]]
+            n_te_w = len(set(data[i]["wsi"] for i in te))
+        else:
+            rng = np.random.default_rng(seed)
+            perm = list(rng.permutation(np.array(wsis)))
+            te_w = set(perm[:max(1, len(wsis) // 5)])
+            tr = [i for i, d in enumerate(data) if d["wsi"] not in te_w]
+            te = [i for i, d in enumerate(data) if d["wsi"] in te_w]
+            n_te_w = len(te_w)
         np.random.seed(seed); torch.manual_seed(seed)
         model = train(data, dev, args.epochs, 32, 1e-3, list(tr),
                       0.0, 1.0, 0.01, 0.5, 16, True, "poisson", args.backbone)
         r2, mae = eval_r2(model, data, te, dev)
         r2s.append(r2); maes.append(mae)
-        print(f"  [seed{seed}] test {len(te_w)} WSI / {len(te)} patch  R² {r2:+.4f}  MAE {mae:.3f}")
+        print(f"  [seed{seed}] split={args.split} test {n_te_w} WSI / {len(te)} patch  "
+              f"R² {r2:+.4f}  MAE {mae:.3f}")
 
     print(f"\n=== MoNuSeg IN-DOMAIN count-only efflite0 ({len(seeds)} seed) — dataset thứ 3 ===")
     print(f"  R²  {np.nanmean(r2s):+.4f} ± {np.nanstd(r2s):.4f}")
