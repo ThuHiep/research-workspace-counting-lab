@@ -67,9 +67,12 @@ def main():
     ap.add_argument("--backbone", default="efficientnet_lite0")
     ap.add_argument("--ch", type=int, default=32)
     ap.add_argument("--epochs", type=int, default=60)
-    ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--seeds", default="42,43,44")
     ap.add_argument("--w_count_mask", type=float, default=0.1,
                     help="neo count cho baseline mask (0.01 SẬP density-MSE; 0.1 để mask hội tụ, so localize công bằng)")
+    ap.add_argument("--dump_npz", default=None,
+                    help="lưu (img,gt,pred_count,pred_mask) của N ảnh test đầu -> vẽ Figure localize")
+    ap.add_argument("--n_dump", type=int, default=8)
     ap.add_argument("--work_dir", default="work")
     args = ap.parse_args()
     dev = "cuda" if torch.cuda.is_available() else "cpu"
@@ -84,27 +87,46 @@ def main():
     tr = list(range(len(train_data)))
     print(f"[data] train fold{tr_folds}={len(train_data)} / test fold{args.test_fold}={len(test_data)} (GT density)")
 
+    seeds = [int(s) for s in args.seeds.split(",")]
     configs = [("count-only", 0.0, 1.0), ("mask (GT-density)", 1.0, args.w_count_mask)]
-    rows = []
+    agg = {name: {"corr": [], "mass": [], "ratio": [], "r2": []} for name, _, _ in configs}
+    dump_models = {}
     for name, w_d, w_c in configs:
-        np.random.seed(args.seed); torch.manual_seed(args.seed)
-        # train(data, dev, epochs, ch, lr, idx, w_density, w_count, w_nll, beta, bs, detach_mu, sigma_mode, backbone)
-        model = train(train_data, dev, args.epochs, args.ch, 1e-3, tr,
-                      w_d, w_c, 0.01, 0.5, 16, True, "poisson", args.backbone)
-        st = localize_stats(model, test_data, dev)
-        rows.append((name, st))
-        print(f"  [{name:18s}] corr {st['corr']:+.4f} | mass {st['mass']:.3f} "
-              f"(chance {st['chance']:.3f}, ratio {st['ratio']:.2f}×) | count-R² {st['r2']:+.4f}")
+        for seed in seeds:
+            np.random.seed(seed); torch.manual_seed(seed)
+            model = train(train_data, dev, args.epochs, args.ch, 1e-3, tr,
+                          w_d, w_c, 0.01, 0.5, 16, True, "poisson", args.backbone)
+            st = localize_stats(model, test_data, dev)
+            for k in agg[name]:
+                agg[name][k].append(st[k])
+            print(f"  [{name:18s} seed{seed}] corr {st['corr']:+.4f} | mass {st['mass']:.3f} "
+                  f"(ratio {st['ratio']:.2f}×) | count-R² {st['r2']:+.4f}")
+            if args.dump_npz and seed == seeds[0]:
+                dump_models[name] = model
 
-    print("\n=== LOCALIZATION EMERGENCE (fold3 test, efflite0) ===")
-    print(f"  {'supervision':18s} {'corr↑':>8s} {'mass':>7s} {'chance':>8s} {'ratio↑':>7s} {'count-R²':>10s}")
-    for name, st in rows:
-        print(f"  {name:18s} {st['corr']:+.4f} {st['mass']:7.3f} {st['chance']:8.3f} "
-              f"{st['ratio']:6.2f}× {st['r2']:+10.4f}")
-    print("\n  ratio = mass/chance: ~1× => density ĐỀU, KHÔNG localize; >>1× => tập trung lên nhân.")
-    if len(rows) == 2:
-        print("  ĐỌC: nếu count-only ratio/corr GẦN mask -> spatial localization TỰ NỔI dù không nhãn "
-              "không gian (cơ chế headline). Nếu KÉM xa -> đếm không qua localize (story khác).")
+    chance = float(np.mean([ (d["density"] > 0).mean() for d in test_data ]))
+    print(f"\n=== LOCALIZATION EMERGENCE (fold3 test, efflite0, {len(seeds)} seed) ===")
+    print(f"  chance (nhân chiếm) = {chance:.3f} | GT hoàn hảo ratio = {1/chance:.2f}× | uniform = 1.0×")
+    print(f"  {'supervision':18s} {'ratio↑ (mass conc.)':>22s} {'corr↑':>10s} {'count-R²':>12s}")
+    for name, _, _ in configs:
+        a = agg[name]
+        print(f"  {name:18s}  {np.mean(a['ratio']):5.2f}× ± {np.std(a['ratio']):.2f}"
+              f"        {np.mean(a['corr']):+.4f}   {np.mean(a['r2']):+.4f} ± {np.std(a['r2']):.4f}")
+    print("\n  ĐỌC: ratio ≫1× = density tập trung LÊN nhân (localize). count-only ratio > mask ratio")
+    print("       = spatial localization TỰ NỔI từ count, SẮC hơn density-MSE (headline cơ chế).")
+
+    if args.dump_npz and len(dump_models) == 2:
+        import torch as _t
+        ex = {"chance": chance}
+        for j in range(min(args.n_dump, len(test_data))):
+            d = test_data[j]
+            ex[f"img_{j}"] = d["img"]; ex[f"gt_{j}"] = d["density"].astype(np.float32)
+            x = _t.from_numpy(d["img"].astype(np.float32) / 255.0).permute(2, 0, 1)[None].to(dev)
+            with _t.no_grad():
+                ex[f"count_{j}"] = dump_models["count-only"](x)[0].squeeze().cpu().numpy().astype(np.float32)
+                ex[f"mask_{j}"] = dump_models["mask (GT-density)"](x)[0].squeeze().cpu().numpy().astype(np.float32)
+        np.savez_compressed(args.dump_npz, **ex)
+        print(f"\n  [dump] {args.n_dump} ví dụ -> {args.dump_npz} (vẽ Figure localize)")
 
 
 if __name__ == "__main__":
