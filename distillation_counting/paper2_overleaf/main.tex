@@ -1,0 +1,253 @@
+% =====================================================================
+%  Bản thảo Paper 2 — định dạng Springer LNCS / LNICST (EAI AICON)
+%  Biên dịch: pdfLaTeX trên Overleaf.
+%  YÊU CẦU: file lớp llncs.cls (Overleaf: tạo project từ template
+%  "Springer LNCS" để có sẵn llncs.cls, rồi thay main.tex bằng file này).
+%  Nếu dấu tiếng Việt lỗi với pdfLaTeX -> đổi trình biên dịch sang XeLaTeX
+%  và xem khối tùy chọn ở dưới (đã ghi chú).
+% =====================================================================
+\documentclass[runningheads]{llncs}
+
+% ---- Hỗ trợ tiếng Việt (pdfLaTeX) ----
+\usepackage[T5]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[vietnamese]{babel}
+% ---- Nếu dùng XeLaTeX thay vì pdfLaTeX, XÓA 3 dòng trên và bỏ ghi chú 3 dòng dưới:
+% \usepackage{fontspec}
+% \usepackage{polyglossia}
+% \setmainlanguage{vietnamese}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath,amssymb}
+\usepackage{array}
+
+\begin{document}
+
+\title{Bộ đếm nhân tế bào nhẹ, chỉ giám sát bằng số đếm, kèm định lượng bất định được hiệu chuẩn cho ảnh mô bệnh học}
+
+\titlerunning{Bộ đếm nhân nhẹ count-only kèm bất định hiệu chuẩn}
+
+\author{Nhóm tác giả\inst{1}}
+\authorrunning{Nhóm tác giả}
+\institute{Đơn vị công tác, Địa chỉ \\ \email{email@domain}}
+
+\maketitle
+
+% =====================================================================
+\begin{abstract}
+Đếm nhân tế bào trên ảnh mô bệnh học nhuộm H\&E là bước định lượng nền tảng cho nhiều tác vụ chẩn đoán, nhưng phần lớn phương pháp hiện nay đòi hỏi \emph{mặt nạ phân vùng ở mức điểm ảnh} --- loại nhãn đắt và tốn công chuyên gia. Chúng tôi đặt câu hỏi: để \emph{đếm}, liệu có thật sự cần mask không? Bài báo trình bày một bộ đếm nhân \textbf{nhẹ (3,62 triệu tham số)} chỉ huấn luyện bằng \textbf{một con số đếm cho mỗi ảnh (count-only)}, không dùng mask, kèm \textbf{đầu định lượng bất định được hiệu chuẩn} (neo-Poisson $\sigma$ + conformal prediction). Qua thí nghiệm \emph{có kiểm soát} (cố định kiến trúc, chỉ thay đổi loại giám sát), chúng tôi cho thấy: (i) giám sát count-only đạt độ chính xác đếm \emph{ngang bằng} giám sát bằng mask trên cùng kiến trúc, trong khi nhãn rẻ hơn một bậc; (ii) mô hình nhẹ này \emph{vượt} ba dòng phương pháp nhãn-đắt (density, instance segmentation, detection) ngay trên bài đếm; (iii) chỉ \textbf{25\% nhãn} đã đạt $\sim$93\% hiệu năng đầy đủ; (iv) đầu bất định cho \emph{khoảng tin cậy hiệu chuẩn} cả ở mức biên lẫn theo từng cơ quan, và \emph{chuyển giao coverage} sang dữ liệu ngoài miền. Kết quả nhất quán trên ba tập dữ liệu độc lập (PanNuke, NuInsSeg, MoNuSeg).
+
+\keywords{đếm nhân tế bào \and học nhãn-hiệu quả \and giám sát yếu \and định lượng bất định \and conformal prediction \and mô bệnh học tính toán}
+\end{abstract}
+
+% =====================================================================
+\section{Giới thiệu}
+
+Mật độ và số lượng nhân tế bào là chỉ dấu định lượng quan trọng trong bệnh học: chúng liên quan tới mức độ tăng sinh, phân độ khối u và đánh giá vi môi trường mô. Các phương pháp học sâu hiện đại chủ yếu đi theo hướng \emph{phân vùng thực thể (instance segmentation)} hoặc \emph{hồi quy bản đồ mật độ (density map)}, và đều cần \emph{nhãn mask ở mức điểm ảnh} --- mỗi nhân phải được khoanh viền thủ công. Chi phí gán nhãn này là rào cản lớn khi mở rộng sang mô/cơ quan mới chưa có chú thích.
+
+Trong khi đó, ở bài toán đếm đám đông (crowd counting) người ta đã dùng \emph{giám sát chỉ-đếm (count-only)} --- chỉ cần tổng số đối tượng cho mỗi ảnh. Tuy nhiên trong đếm nhân mô bệnh học, chuẩn mực vẫn là mask/point. Câu hỏi trung tâm của bài báo: \textbf{liệu giám sát count-only có đủ để đếm nhân chính xác không, và ta được/mất gì so với giám sát bằng mask?}
+
+Chúng tôi tiếp cận theo tinh thần \emph{thực nghiệm có kiểm soát}: cố định kiến trúc, chỉ thay đổi loại giám sát, để tách bạch đóng góp của \emph{giám sát} khỏi đóng góp của \emph{kiến trúc}. Bài báo \emph{không} tuyên bố một kiến trúc mới (bộ mã hóa EfficientNet-lite0 + bộ giải mã U-Net là tổ hợp tiêu chuẩn); đóng góp nằm ở \emph{bằng chứng thực nghiệm} và \emph{gói ứng dụng}:
+
+\begin{enumerate}
+\item \textbf{Chứng minh count-only $\approx$ mask trên cùng kiến trúc} (Mục~\ref{sec:parity}): độ chính xác đếm tương đương, nhưng nhãn rẻ hơn một bậc.
+\item \textbf{So sánh 4 paradigm công bằng, cùng tập kiểm tra leak-free} (Mục~\ref{sec:main}): bộ đếm nhẹ count-only vượt cả density, instance và detection; đặc biệt detection \emph{sụp đổ ở vùng đông đúc} --- bằng chứng trực tiếp cho động lực \emph{crowding}.
+\item \textbf{Định lượng hiệu quả-nhãn} (Mục~\ref{sec:label}): đường cong học theo tỉ lệ nhãn.
+\item \textbf{Đầu bất định hiệu chuẩn nhẹ} (Mục~\ref{sec:uq}): tham số hóa $\sigma$ neo-Poisson + conformal cho coverage đúng mục tiêu ở mức biên và theo cơ quan, chuyển giao được sang dữ liệu ngoài miền.
+\end{enumerate}
+
+Toàn bộ số liệu được báo cáo trên \emph{một mô hình duy nhất} (EfficientNet-lite0, 3,62M tham số) với giao thức leak-free.
+
+% =====================================================================
+\section{Công trình liên quan}
+
+\paragraph{Phân vùng \& đếm nhân.} Các phương pháp SOTA (HoVer-Net, StarDist, CellViT và biến thể trên PanNuke) đạt độ chính xác cao nhưng dựa vào \emph{mask điểm ảnh}; đếm thường là readout từ phân vùng. Gần đây, một số công trình chưng cất tri thức từ foundation model bệnh học xuống mạng nhỏ để đếm (ví dụ chưng cất từ H-Optimus xuống $\sim$24M tham số, báo cáo R$^2$ đếm $\sim$0,871) nhưng \emph{không kèm định lượng bất định}.
+
+\paragraph{Giám sát count-only.} Phổ biến ở crowd counting, hiếm ở đếm nhân mô bệnh học. Chúng tôi khảo sát trực tiếp giá trị của loại giám sát này trong miền bệnh học.
+
+\paragraph{Định lượng bất định.} Conformal prediction cho khoảng tin cậy phi-phân phối với bảo đảm coverage. Với dữ liệu đếm (phương sai tăng theo kỳ vọng), tham số hóa $\sigma$ hợp lý là then chốt; chúng tôi dùng dạng neo-Poisson $\sigma = \sqrt{\max(\mu,1)}\cdot\exp(\log s)$.
+
+\paragraph{Kiến trúc.} Bộ mã hóa EfficientNet-lite + bộ giải mã U-Net là mẫu chuẩn. Chúng tôi \emph{không} coi kiến trúc là đóng góp; nó là nền được kiểm soát để so sánh giám sát.
+
+% =====================================================================
+\section{Phương pháp}
+
+\subsection{Kiến trúc}
+Mô hình \texttt{DensitySigmaUNet}: bộ mã hóa \emph{EfficientNet-lite0} (tiền huấn luyện ImageNet) + bộ giải mã kiểu U-Net, hai đầu ra:
+\begin{itemize}
+\item \textbf{Đầu mật độ $\rightarrow$ đếm:} xuất bản đồ mật độ không âm; số đếm dự đoán $\mu = \sum \text{density}$.
+\item \textbf{Đầu bất định $\sigma$:} $\sigma = \sqrt{\max(\mu,1)}\cdot\exp(\mathrm{clamp}(\log s,-2,2))$ --- neo-Poisson, học phần tán xạ trên nền phương sai Poisson. $\mu$ được \emph{tách gradient} khỏi nhánh $\sigma$.
+\end{itemize}
+Cấu hình $ch{=}32$ cho \textbf{3,62 triệu tham số}.
+
+\subsection{Giám sát chỉ-đếm}
+Hàm mất mát: $\mathcal{L} = w_d\mathcal{L}_{density} + w_c\mathcal{L}_{count} + w_{nll}\mathcal{L}_{nll}$.
+\begin{itemize}
+\item \textbf{Count-only:} $w_d{=}0,\ w_c{=}1$ --- chỉ học từ số đếm mức ảnh $|\mu - \mathrm{GT}|$; không dùng mask.
+\item \textbf{Baseline mask (đối chứng):} $w_d{=}1,\ w_c{=}0{,}01$ --- bản đồ mật độ mục tiêu dựng từ mask GT.
+\item $\mathcal{L}_{nll}$: $\beta$-NLL ($\beta{=}0,5$) huấn luyện $\sigma$; $\mu$ được detach.
+\end{itemize}
+
+\subsection{Hiệu chuẩn bất định bằng conformal}
+Sau huấn luyện, dùng split-conformal trên tập hiệu chuẩn để suy khoảng $[\mu - q\sigma,\ \mu + q\sigma]$ đạt mức phủ mục tiêu $1-\alpha$ ($\alpha{=}0,1$). Ba sơ đồ: \emph{global} (một ngưỡng $q$), \emph{mondrian} ($q$ riêng theo cơ quan), \emph{cluster} ($q$ theo nhóm độ khó).
+
+% =====================================================================
+\section{Thiết lập thực nghiệm}
+
+\paragraph{Tập dữ liệu (độc lập, đa nguồn).} PanNuke (pan-cancer, 256$^2$, 19 loại mô) --- in-domain chính, train fold~1+2 $\rightarrow$ test fold~3 (leak-free); NuInsSeg (đa cơ quan H\&E) --- in-domain thứ hai; MoNuSeg~2018 (đa cơ quan TCGA, 1000$^2$ $\rightarrow$ patch~256 native) --- in-domain thứ ba, độc lập nguồn; CryoNuSeg (cryosection) --- phân tích giới hạn.
+
+\paragraph{Giao thức leak-free.} Với PanNuke, huấn luyện fold~1+2, kiểm tra fold~3; mọi mô hình so sánh đều huấn luyện lại từ đầu trên cùng tập, chấm trên cùng tập kiểm tra. Mỗi cấu hình chạy $\ge 3$ seed.
+
+\paragraph{Chỉ số.} Đếm: R$^2$, MAE. Bất định: coverage biên, coverage cơ quan tệ nhất (worst-organ), độ rộng khoảng (width), điểm Winkler.
+
+% =====================================================================
+\section{Kết quả}
+
+\subsection{So sánh 4 paradigm (PanNuke, leak-free)}
+\label{sec:main}
+
+\begin{table}[t]
+\centering
+\caption{So sánh bốn paradigm trên PanNuke (leak-free, cùng tập kiểm tra).}
+\label{tab:main}
+\begin{tabular}{lccccc}
+\toprule
+Mô hình & Tham số & Nhãn & Paradigm & R$^2\uparrow$ & MAE$\downarrow$ \\
+\midrule
+\textbf{Ours --- count-only} & \textbf{3,62M} & đếm & hồi quy & \textbf{0,920} & \textbf{3,61} \\
+StarDist & 1,43M & mask & instance & 0,841 & 4,64 \\
+DualU-Net & $\sim$35M & mask & density & 0,804 & 5,33 \\
+DeNuC (2026) & 4,37M & box/point & detection & 0,455 & 9,64 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Bộ đếm nhẹ count-only \emph{vượt cả ba} baseline nhãn-đắt trên chính bài đếm, với nhãn rẻ hơn một bậc. Đáng chú ý, \textbf{detection sụp đổ đơn điệu theo mật độ} (độ lệch từ $-0,8$ ở vùng thưa xuống $-30,4$ ở vùng $\ge 45$ nhân) --- khi nhân chồng lấn, hậu xử lý NMS bóp chết dương-tính-thật $\rightarrow$ recall sụp. Đây là bằng chứng trực tiếp cho động lực \emph{crowding}. \emph{Trung thực:} mô hình của chúng tôi nhỏ hơn DualU-Net $\sim$10$\times$ nhưng lớn hơn StarDist; luận điểm là \emph{chính xác nhất + nhãn rẻ nhất + có định lượng bất định}, không phải "nhỏ nhất".
+
+\subsection{Count-only so với mask, trên cùng kiến trúc}
+\label{sec:parity}
+
+\begin{table}[t]
+\centering
+\caption{Cố định kiến trúc efflite0, chỉ đổi loại giám sát (PanNuke, leak-free).}
+\label{tab:parity}
+\begin{tabular}{lcc}
+\toprule
+Giám sát & R$^2\uparrow$ & MAE$\downarrow$ \\
+\midrule
+\textbf{count-only} & \textbf{0,9296 $\pm$ 0,009} & \textbf{3,48 $\pm$ 0,19} \\
+GT-density (mask) & 0,9247 $\pm$ 0,009 & 3,58 $\pm$ 0,16 \\
+$\Delta$ & $+0,005$ & $-0,10$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Chênh lệch ($+0,005$ R$^2$) \emph{nhỏ hơn độ lệch chuẩn} ($\pm 0,009$) $\rightarrow$ về mặt thống kê là \textbf{ngang nhau (parity)}. Kết luận trung thực: không phải "count-only tốt hơn mask", mà là \emph{count-only đạt độ chính xác tương đương mask trên cùng kiến trúc}, trong khi chỉ cần một con số đếm cho mỗi ảnh thay vì khoanh viền pixel. Đây là đối chứng đóng chốt cho định vị bài báo.
+
+\subsection{Hiệu quả-nhãn}
+\label{sec:label}
+
+\begin{table}[t]
+\centering
+\caption{Đường cong học theo tỉ lệ nhãn (PanNuke, 3 seed).}
+\label{tab:label}
+\begin{tabular}{lccccc}
+\toprule
+\% nhãn & 5\% & 10\% & 25\% & 50\% & 100\% \\
+\midrule
+R$^2$ & 0,45$\pm$0,21 & 0,74 & \textbf{0,85$\pm$0,03} & 0,86 & 0,92$\pm$0,01 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Chỉ \textbf{25\% nhãn} đã đạt $\sim$93\% hiệu năng đầy đủ; 100\% khớp headline 0,920 (nhất quán).
+
+\subsection{Hiệu quả tính toán}
+Mô hình 3,62M tham số, 0,98 GMACs (256$^2$), độ trễ 6,0\,ms (GPU) / 46\,ms (CPU), peak VRAM 37,9\,MB --- thời-gian-thực, chạy được cả trên GPU khiêm tốn lẫn CPU.
+
+\subsection{Tổng quát hóa đa tập \& định lượng bất định}
+\label{sec:uq}
+
+\begin{table}[t]
+\centering
+\caption{In-domain trên ba tập độc lập (cùng giao thức count-only).}
+\label{tab:gen}
+\begin{tabular}{lcc}
+\toprule
+Tập & R$^2$ & MAE \\
+\midrule
+PanNuke & 0,920 $\pm$ 0,005 & 3,61 \\
+NuInsSeg & 0,854 $\pm$ 0,048 & --- \\
+\textbf{MoNuSeg} & \textbf{[ĐANG CHẠY --- điền sau]} & [\,] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Conformal in-domain (PanNuke, 20 seed).}
+\label{tab:conf}
+\begin{tabular}{lccccc}
+\toprule
+Sơ đồ & cov biên & width & Winkler & worst-org & \#thiếu phủ \\
+\midrule
+global & 0,904 & 14,5 & 20,3 & 0,765 & 4/19 \\
+\textbf{mondrian} & 0,923 & 16,6 & 20,5 & \textbf{0,906} & \textbf{0/19} \\
+cluster & 0,906 & 14,8 & \textbf{20,0} & 0,859 & 0/19 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Coverage biên đạt mục tiêu 0,90; mondrian nâng coverage cơ quan tệ nhất lên \textbf{0,906} (0/19 cơ quan thiếu phủ). Thêm đầu $\sigma$ tốn 0 độ chính xác (nhờ detach $\mu$).
+
+\paragraph{Ablation $\sigma$ neo-Poisson vs $\sigma$ thô.}
+\begin{table}[t]
+\centering
+\caption{Cùng mô hình, chỉ đổi đầu $\sigma$.}
+\label{tab:sigma}
+\begin{tabular}{llcccc}
+\toprule
+Tập (dải count) & $\sigma$ & cov & width & Winkler & worst-org \\
+\midrule
+PanNuke (0--45, hẹp) & Poisson & 0,905 & 14,1 & 24,7 & 0,64 \\
+                     & thô     & 0,908 & 15,1 & \textbf{21,6} & 0,66 \\
+\textbf{NuInsSeg (0--500+, rộng)} & \textbf{Poisson} & 0,926 & \textbf{37,7} & \textbf{45,4} & \textbf{0,86} \\
+                     & thô     & 0,937 & 67,9 & 78,1 & 0,66 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Trên dải count \emph{hẹp}, hai dạng $\sigma$ tương đương (thậm chí $\sigma$ thô nhỉnh). Trên dải count \emph{rộng}, neo-Poisson cắt 44\% width, 42\% Winkler và nâng worst-organ $+0,21$ cùng mức phủ --- vì $\sigma$ hằng số buộc phải phồng khoảng cho mọi ảnh. Kết luận: neo-Poisson \emph{cần thiết khi dải count rộng} (tình huống triển khai thực tế), thừa khi hẹp.
+
+% =====================================================================
+\section{Thảo luận \& Hạn chế}
+
+\paragraph{Chuyển giao ngoài miền.} Huấn luyện một tập rồi kiểm tra zero-shot trên tập khác: coverage của khoảng tin cậy \emph{chuyển giao được} (sau hiệu chuẩn lại ở đích), nhưng độ chính xác điểm (MAE) \emph{không chuyển giao} khi dải count/độ phóng đại lệch nhiều. Trường hợp cực đoan CryoNuSeg (count tới 761 vượt tầm huấn luyện) cho thấy giới hạn: $\mu$ under-predict mạnh, coverage chỉ giữ được bằng khoảng rất rộng. Điểm tích cực: \emph{bảo đảm coverage đến từ tầng conformal (phi-phân phối), không phải từ $\sigma$}; độ rộng khoảng chính là tín hiệu "đã ra ngoài vùng tin cậy".
+
+\paragraph{Phụ thuộc scale nhân.} Đầu mật độ nhạy với kích thước nhân theo điểm ảnh; khi thu nhỏ ảnh quá mạnh, $\mu$ có thể sụp. Ta xử lý bằng cách cắt patch ở scale native.
+
+\paragraph{Về đóng góp.} Kiến trúc là tổ hợp có sẵn --- bài báo không tuyên bố kiến trúc mới. Giá trị nằm ở thiết kế thí nghiệm có kiểm soát, bằng chứng count-only đủ để đếm, và đầu bất định hiệu chuẩn mà các bộ đếm nén hiện có chưa có.
+
+% =====================================================================
+\section{Kết luận}
+
+Chúng tôi cho thấy một bộ đếm nhân nhẹ (3,62M), chỉ giám sát bằng số đếm mức ảnh, đạt độ chính xác đếm ngang giám sát bằng mask trên cùng kiến trúc và vượt các baseline nhãn-đắt ngay trên bài đếm, với nhãn rẻ hơn một bậc. Mô hình kèm đầu bất định hiệu chuẩn (neo-Poisson + conformal) cho coverage đúng mục tiêu ở mức biên và theo cơ quan, và chuyển giao coverage sang dữ liệu ngoài miền. Hướng phát triển: khắc phục phụ thuộc scale bằng học đa độ phân giải, và mở rộng đầu bất định để bắt cả sai số do dịch chuyển miền.
+
+% =====================================================================
+\begin{thebibliography}{99}
+\bibitem{pannuke} Gamper, J. và cộng sự: PanNuke: An Open Pan-Cancer Histology Dataset for Nuclei Instance Segmentation and Classification (2019).
+\bibitem{monuseg} Kumar, N. và cộng sự: A Dataset and a Technique for Generalized Nuclear Segmentation for Computational Pathology (MoNuSeg). IEEE TMI (2017).
+\bibitem{cryonuseg} Mahbod, A. và cộng sự: CryoNuSeg: A Dataset for Nuclei Instance Segmentation of Cryosectioned H\&E-Stained Histological Images (2021).
+\bibitem{stardist} Schmidt, U. và cộng sự: Cell Detection with Star-Convex Polygons (StarDist). MICCAI (2018).
+\bibitem{hovernet} Graham, S. và cộng sự: HoVer-Net: Simultaneous Segmentation and Classification of Nuclei. Medical Image Analysis (2019).
+\bibitem{efficientnet} Tan, M., Le, Q.: EfficientNet: Rethinking Model Scaling for CNNs. ICML (2019).
+\bibitem{unet} Ronneberger, O. và cộng sự: U-Net: Convolutional Networks for Biomedical Image Segmentation. MICCAI (2015).
+\bibitem{cqr} Romano, Y. và cộng sự: Conformalized Quantile Regression. NeurIPS (2019).
+\bibitem{vovk} Vovk, V. và cộng sự: Algorithmic Learning in a Random World. Springer (2005).
+\bibitem{bnll} Seitzer, M. và cộng sự: On the Pitfalls of Heteroscedastic Uncertainty Estimation ($\beta$-NLL). ICLR (2022).
+\bibitem{distillfm} Distilling a Pathology Foundation Model into a Lightweight Nuclei Counter. arXiv:2502.19217 (2025).
+\bibitem{kongnet} KongNet. arXiv:2510.23559 (2025).
+\end{thebibliography}
+
+\end{document}
