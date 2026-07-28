@@ -32,25 +32,31 @@ from r2_losses import count_from_density
 
 @torch.no_grad()
 def localize_stats(model, test_data, dev):
-    """-> (corr_mean, massfrac_mean, r2_count) trên test."""
+    """-> dict(corr, mass, chance, ratio, r2). ratio=mass/chance (>1 = localize hơn ngẫu nhiên)."""
     model.eval()
-    corrs, massfr, pr, yt = [], [], [], []
+    corrs, massfr, chance, pr, yt = [], [], [], [], []
     for d in test_data:
         x = torch.from_numpy(d["img"].astype(np.float32) / 255.0).permute(2, 0, 1)[None].to(dev)
         dens = model(x)[0]                                  # (1,1,H,W)
         pred = dens.squeeze().cpu().numpy().astype(np.float64)   # (H,W)
         gt = d["density"].astype(np.float64)                # (H,W) GT nhân
         pr.append(float(count_from_density(dens)[0])); yt.append(d["gt"])
+        nuc = gt > 0
+        chance.append(float(nuc.mean()))                    # tỉ lệ pixel là nhân (= mass kỳ vọng nếu density đều)
         pf, gf = pred.ravel(), gt.ravel()
         if pf.std() > 1e-8 and gf.std() > 1e-8:
             corrs.append(float(np.corrcoef(pf, gf)[0, 1]))
         tot = pred.sum()
-        if tot > 1e-8:
-            massfr.append(float(pred[gt > 0].sum() / tot))  # khối rơi lên pixel nhân GT
+        if abs(tot) > 1e-8:
+            massfr.append(float(pred[nuc].sum() / tot))     # khối rơi lên pixel nhân GT
     pr, yt = np.array(pr), np.array(yt)
     ss = ((yt - pr) ** 2).sum(); st = ((yt - yt.mean()) ** 2).sum()
     r2 = 1 - ss / st if st > 0 else float("nan")
-    return float(np.mean(corrs)), float(np.mean(massfr)), r2
+    corr = float(np.mean(corrs)) if corrs else float("nan")
+    mass = float(np.mean(massfr)) if massfr else float("nan")
+    ch = float(np.mean(chance))
+    return {"corr": corr, "mass": mass, "chance": ch,
+            "ratio": (mass / ch if ch > 0 and mass == mass else float("nan")), "r2": r2}
 
 
 def main():
@@ -60,8 +66,10 @@ def main():
     ap.add_argument("--test_fold", default="3")
     ap.add_argument("--backbone", default="efficientnet_lite0")
     ap.add_argument("--ch", type=int, default=32)
-    ap.add_argument("--epochs", type=int, default=40)
+    ap.add_argument("--epochs", type=int, default=60)
     ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--w_count_mask", type=float, default=0.1,
+                    help="neo count cho baseline mask (0.01 SẬP density-MSE; 0.1 để mask hội tụ, so localize công bằng)")
     ap.add_argument("--work_dir", default="work")
     args = ap.parse_args()
     dev = "cuda" if torch.cuda.is_available() else "cpu"
@@ -76,25 +84,26 @@ def main():
     tr = list(range(len(train_data)))
     print(f"[data] train fold{tr_folds}={len(train_data)} / test fold{args.test_fold}={len(test_data)} (GT density)")
 
-    configs = [("count-only", 0.0, 1.0), ("mask (GT-density)", 1.0, 0.01)]
+    configs = [("count-only", 0.0, 1.0), ("mask (GT-density)", 1.0, args.w_count_mask)]
     rows = []
     for name, w_d, w_c in configs:
         np.random.seed(args.seed); torch.manual_seed(args.seed)
         # train(data, dev, epochs, ch, lr, idx, w_density, w_count, w_nll, beta, bs, detach_mu, sigma_mode, backbone)
         model = train(train_data, dev, args.epochs, args.ch, 1e-3, tr,
                       w_d, w_c, 0.01, 0.5, 16, True, "poisson", args.backbone)
-        corr, massfr, r2 = localize_stats(model, test_data, dev)
-        rows.append((name, corr, massfr, r2))
-        print(f"  [{name:18s}] corr {corr:+.4f} | mass-on-nuclei {massfr:.3f} | count-R² {r2:+.4f}")
+        st = localize_stats(model, test_data, dev)
+        rows.append((name, st))
+        print(f"  [{name:18s}] corr {st['corr']:+.4f} | mass {st['mass']:.3f} "
+              f"(chance {st['chance']:.3f}, ratio {st['ratio']:.2f}×) | count-R² {st['r2']:+.4f}")
 
     print("\n=== LOCALIZATION EMERGENCE (fold3 test, efflite0) ===")
-    print(f"  {'supervision':18s} {'corr↑':>8s} {'mass-on-nuclei↑':>16s} {'count-R²':>10s}")
-    for name, corr, massfr, r2 in rows:
-        print(f"  {name:18s} {corr:+.4f} {massfr:16.3f} {r2:+10.4f}")
+    print(f"  {'supervision':18s} {'corr↑':>8s} {'mass':>7s} {'chance':>8s} {'ratio↑':>7s} {'count-R²':>10s}")
+    for name, st in rows:
+        print(f"  {name:18s} {st['corr']:+.4f} {st['mass']:7.3f} {st['chance']:8.3f} "
+              f"{st['ratio']:6.2f}× {st['r2']:+10.4f}")
+    print("\n  ratio = mass/chance: ~1× => density ĐỀU, KHÔNG localize; >>1× => tập trung lên nhân.")
     if len(rows) == 2:
-        dc = rows[0][1] - rows[1][1]; dm = rows[0][2] - rows[1][2]
-        print(f"\n  Δ(count-only − mask): corr {dc:+.4f} | mass {dm:+.3f}")
-        print("  ĐỌC: nếu count-only corr/mass GẦN mask -> spatial localization TỰ NỔI dù không nhãn "
+        print("  ĐỌC: nếu count-only ratio/corr GẦN mask -> spatial localization TỰ NỔI dù không nhãn "
               "không gian (cơ chế headline). Nếu KÉM xa -> đếm không qua localize (story khác).")
 
 
