@@ -182,13 +182,14 @@ Tập dữ liệu & count-only ($R^2$) & mask ($R^2$) & $\Delta R^2$ & $p$ (pair
 \midrule
 PanNuke & $0{,}930\pm0{,}009$ & $0{,}925\pm0{,}009$ & $+0{,}005$ & \pending & parity \\
 MoNuSeg & $0{,}656\pm0{,}102$ & $0{,}548\pm0{,}124$ & $+0{,}108$ & \pending & count-only $\ge$ mask \\
-NuInsSeg$^\dagger$ & $0{,}948$ & $0{,}936$ & $+0{,}012$ & $0{,}024$ & count-only $>$ mask (có ý nghĩa) \\
+NuInsSeg & $0{,}921\pm0{,}016$ & $0{,}847\pm0{,}054$ & $+0{,}074$ & $^\dagger$ & count-only $\ge$ mask \\
 \bottomrule
 \end{tabular}
 
-\footnotetext{$^\dagger$ NuInsSeg dùng một chia cố định (seed 42, $n_{\text{test}}{=}133$) để bắt cặp trên
-từng ảnh; $R^2$ tuyệt đối ở chia này cao hơn giá trị trung bình đa-seed ($0{,}854\pm0{,}048$, Bảng in-domain).
-Kiểm định Wilcoxon bắt cặp trên sai số tuyệt đối từng ảnh cho $p{=}0{,}024$ (count-only lỗi ít hơn).}
+\footnotetext{Mỗi giá trị là trung bình 3 seed. $^\dagger$ NuInsSeg: kiểm định Wilcoxon bắt cặp trên từng ảnh
+theo mỗi chia; count-only có sai số tuyệt đối nhỏ hơn ở $2/3$ chia (đạt $p<0{,}05$ ở $1/3$). Chúng tôi do đó
+\emph{không} tuyên bố ưu thế có ý nghĩa thống kê nhất quán, mà chỉ khẳng định count-only \emph{không thua} và
+đạt $R^2$ cao hơn, ổn định hơn (độ lệch chuẩn nhỏ hơn) so với giám sát mặt nạ trên tập này.}
 \end{table}
 
 \subsection{Định vị không gian tự phát từ giám sát đếm}\label{sec:emergence}
