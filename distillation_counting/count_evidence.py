@@ -356,14 +356,18 @@ def main():
                 _, pw = wilcoxon(norm[msh], norm_s[msh])
             except Exception:
                 pw = float("nan")
-            d = float(np.nanmean(norm_s[msh] - norm[msh]))      # phần tụt DO NHÂN
-            tot = float(np.nanmean(1 - norm[msh]))              # tổng phần tụt khi gỡ nhân
-            frc = d / tot if tot > 1e-6 else float("nan")       # bao nhiêu % cú tụt là do NHÂN (còn lại: artifact)
+            d = float(np.nanmean(norm_s[msh] - norm[msh]))      # phần tụt DO NHÂN (đã trừ artifact)
+            tot = float(np.nanmean(1 - norm[msh]))              # count tụt khi gỡ NHÂN
+            tots = float(np.nanmean(1 - norm_s[msh]))           # count tụt khi gỡ NỀN = phần do ARTIFACT
+            frc = d / tot if tot > 1e-6 else float("nan")       # tỉ lệ cú tụt quy được cho NHÂN
             # CẦN CẢ p NHỎ VÀ EFFECT SIZE ĐỦ LỚN. p nhỏ với d≈0 (n lớn) KHÔNG phải bằng chứng —
             # đó là lỗi p-value-không-effect-size, sẽ tuyên "đặc hiệu" một cách sai.
             ok = (pw < 0.05) and (d >= args.min_effect) and (frc >= 0.5)
-            print(f"      [{lab}] n={msh.sum()}: tụt-do-nhân={d:+.3f} ({frc:.0%} của tổng tụt {tot:.3f}), "
-                  f"Wilcoxon p={pw:.4g} -> {'ĐẶC HIỆU với nhân' if ok else 'KHÔNG đủ (effect nhỏ / phần lớn là artifact inpaint)'}")
+            note = " (sham làm TĂNG count -> artifact không gây tụt)" if tots < 0 else ""
+            print(f"      [{lab}] n={msh.sum()}: gỡ-nhân tụt {tot:+.3f} | gỡ-nền(artifact) tụt {tots:+.3f} "
+                  f"=> DO NHÂN {d:+.3f} = {frc:.0%} cú tụt{note}")
+            print(f"      {'':>{len(lab)+3}s} Wilcoxon p={pw:.4g}, ngưỡng effect {args.min_effect} -> "
+                  f"{'ĐẶC HIỆU với nhân' if ok else 'KHÔNG đủ (effect nhỏ / phần lớn là artifact inpaint)'}")
 
     # (d) hồi quy gộp — GIỮ để tham chiếu, KHÔNG dùng cho claim (confound giữa-ảnh)
     A = np.vstack([rem_a, np.ones_like(rem_a)]).T
