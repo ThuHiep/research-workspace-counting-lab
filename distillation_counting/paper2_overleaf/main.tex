@@ -91,13 +91,13 @@ bất định được hiệu chuẩn cho triển khai tin cậy (Mục~\ref{sec
 %%============================================================%%
 \section{Công trình liên quan}\label{sec:related}
 
-\paragraph{Phân vùng nhân.} U-Net và các mở rộng như HoVer-Net, StarDist và CellViT đạt độ chính xác phân vùng
-cao trên các mốc chuẩn như PanNuke. Chúng dựa vào mặt nạ ở mức điểm ảnh, và số đếm là một đại lượng dẫn xuất từ
-đầu ra phân vùng.
+\paragraph{Phân vùng nhân.} U-Net~\cite{unet} và các mở rộng như HoVer-Net~\cite{hovernet} và
+StarDist~\cite{stardist} đạt độ chính xác phân vùng cao trên các mốc chuẩn như PanNuke~\cite{pannuke}. Chúng dựa
+vào mặt nạ ở mức điểm ảnh, và số đếm là một đại lượng dẫn xuất từ đầu ra phân vùng.
 
 \paragraph{Phát hiện nhân.} Các hướng dựa trên tâm và giám sát điểm ước lượng vị trí nhân một cách rời rạc, qua
-đó giảm chi phí chú thích so với mặt nạ đầy đủ. Tuy vậy, chúng vẫn yêu cầu định vị và nhạy cảm với bước hậu xử
-lý khi nhân chồng lấn.
+đó giảm chi phí chú thích so với mặt nạ đầy đủ~\cite{qu2020}. Tuy vậy, chúng vẫn yêu cầu định vị và nhạy cảm với
+bước hậu xử lý khi nhân chồng lấn.
 
 \paragraph{Ước lượng mật độ và đếm.} Hồi quy bản đồ mật độ là chuẩn mực trong đếm đám đông và đã được chuyển
 sang đếm tế bào. Dù rẻ hơn phân vùng thực thể, giám sát mật độ vẫn giả định biết vị trí đối tượng ở mức điểm
@@ -105,15 +105,16 @@ sang đếm tế bào. Dù rẻ hơn phân vùng thực thể, giám sát mật 
 
 \paragraph{Đếm với giám sát yếu.} Giám sát chỉ bằng số đếm phổ biến trong đếm đám đông nhưng hiếm gặp trong đếm
 nhân mô bệnh học. Song song, các bộ đếm nén gần đây chưng cất tri thức từ mô hình nền bệnh học và báo cáo độ
-chính xác đếm tốt, nhưng nhìn chung không kèm định lượng bất định. Bài báo bổ khuyết khoảng trống này bằng một
+chính xác đếm tốt~\cite{distillfm,kongnet}, nhưng nhìn chung không kèm định lượng bất định. Bài báo bổ khuyết
+khoảng trống này bằng một
 khảo sát có kiểm soát về mức giám sát cần thiết cho việc đếm, kèm đánh giá độ tin cậy.
 
 %%============================================================%%
 \section{Phương pháp}\label{sec:method}
 
 \subsection{Kiến trúc và đầu ra}
-Mô hình, ký hiệu \texttt{DensitySigmaUNet}, gồm một bộ mã hóa EfficientNet-lite0 tiền huấn luyện trên ImageNet
-ghép với một bộ giải mã kiểu U-Net và hai đầu ra. Đầu \emph{mật độ} sinh một bản đồ không âm; số đếm dự đoán là
+Mô hình, ký hiệu \texttt{DensitySigmaUNet}, gồm một bộ mã hóa EfficientNet-lite0~\cite{efficientnet} tiền huấn
+luyện trên ImageNet ghép với một bộ giải mã kiểu U-Net~\cite{unet} và hai đầu ra. Đầu \emph{mật độ} sinh một bản đồ không âm; số đếm dự đoán là
 tổng toàn ảnh $\mu = \sum_p \hat d_p$. Đầu \emph{bất định} sinh độ lệch chuẩn theo dạng neo-Poisson
 $\sigma = \sqrt{\max(\mu,1)}\,\exp\!\big(\mathrm{clamp}(\log s,-2,2)\big)$, trong đó phần tán xạ được học trên
 nền phương sai Poisson và $\mu$ được tách gradient khỏi nhánh $\sigma$. Cấu hình sử dụng cho $3{,}62$ triệu
@@ -129,21 +130,22 @@ sử dụng bản đồ mục tiêu ở mức điểm ảnh.
 \item \textbf{mask} ($w_d{=}1$): mô hình học khớp bản đồ mật độ dựng từ mặt nạ thực; một trọng số đếm nhỏ $w_c$
 được giữ để ổn định quá trình tối ưu.
 \end{itemize}
-$\mathcal{L}_{\text{NLL}}$ là hàm hợp lý âm dạng $\beta$-NLL, huấn luyện $\sigma$ mà không ảnh hưởng $\mu$.
+$\mathcal{L}_{\text{NLL}}$ là hàm hợp lý âm dạng $\beta$-NLL~\cite{bnll}, huấn luyện $\sigma$ mà không ảnh hưởng
+$\mu$.
 
 \subsection{Hiệu chuẩn khoảng dự đoán}
-Sau huấn luyện, chúng tôi áp dụng conformal prediction theo lối chia (split-conformal) trên một tập hiệu chuẩn
-để thu khoảng $[\mu - q\sigma,\ \mu + q\sigma]$ đạt mức phủ mục tiêu $1-\alpha$. Ba sơ đồ được xem xét: một
+Sau huấn luyện, chúng tôi áp dụng conformal prediction theo lối chia (split-conformal)~\cite{vovk,cqr} trên một
+tập hiệu chuẩn để thu khoảng $[\mu - q\sigma,\ \mu + q\sigma]$ đạt mức phủ mục tiêu $1-\alpha$. Ba sơ đồ được xem xét: một
 ngưỡng chung (global), một ngưỡng riêng cho mỗi cơ quan (mondrian) và một ngưỡng theo nhóm độ khó (cluster).
 
 %%============================================================%%
 \section{Thiết lập thực nghiệm}\label{sec:setup}
 
-\paragraph{Dữ liệu.} Chúng tôi đánh giá trên ba tập độc lập, khác nhau về nguồn: PanNuke (đa loại ung thư,
+\paragraph{Dữ liệu.} Chúng tôi đánh giá trên ba tập độc lập, khác nhau về nguồn: PanNuke~\cite{pannuke} (đa loại ung thư,
 $256\times256$, 19 loại mô; huấn luyện trên fold~1--2, kiểm tra trên fold~3 theo giao thức không rò rỉ),
-NuInsSeg (đa cơ quan) và MoNuSeg~2018 (đa cơ quan từ TCGA; ảnh $1000\times1000$ được cắt thành các mảnh $256$ ở
-độ phân giải gốc, dùng đúng phân chia huấn luyện/kiểm tra chính thức). Một tập cryosection (CryoNuSeg) được dùng
-riêng cho phân tích giới hạn chuyển giao.
+NuInsSeg~\cite{nuinsseg} (đa cơ quan) và MoNuSeg~2018~\cite{monuseg} (đa cơ quan từ TCGA; ảnh $1000\times1000$
+được cắt thành các mảnh $256$ ở độ phân giải gốc, dùng đúng phân chia huấn luyện/kiểm tra chính thức). Một tập
+cryosection (CryoNuSeg~\cite{cryonuseg}) được dùng riêng cho phân tích giới hạn chuyển giao.
 
 \paragraph{Giao thức.} Mọi phương pháp so sánh được huấn luyện lại từ đầu trên cùng tập huấn luyện và đánh giá
 trên cùng tập kiểm tra; mỗi cấu hình lặp lại với ba hạt giống ngẫu nhiên và chúng tôi báo cáo trung bình cùng
@@ -219,7 +221,7 @@ cung cấp một lý giải cơ học cho ưu thế của hồi quy đếm ở c
 Phương pháp & Tham số & Nhãn & Paradigm & $R^2\uparrow$ & MAE$\downarrow$ \\
 \midrule
 Ours (count-only) & $3{,}62$M & đếm & hồi quy & \textbf{0,920} & \textbf{3,61} \\
-StarDist & $1{,}43$M & mặt nạ & phân vùng & 0,841 & 4,64 \\
+StarDist~\cite{stardist} & $1{,}43$M & mặt nạ & phân vùng & 0,841 & 4,64 \\
 DualU-Net & ${\sim}35$M & mặt nạ & mật độ & 0,804 & 5,33 \\
 DeNuC & $4{,}37$M & hộp/điểm & phát hiện & 0,455 & 9,64 \\
 \bottomrule
@@ -235,9 +237,13 @@ nhanh khi cắt giảm nhãn --- một đặc tính có giá trị thực tiễn
 \subsection{Chi phí tính toán và chi phí chú thích}\label{sec:cost}
 Bộ đếm có $3{,}62$M tham số và $0{,}98$ GMACs ở đầu vào $256\times256$, với độ trễ $6{,}0$\,ms trên GPU và
 $46$\,ms trên CPU, đỉnh bộ nhớ $37{,}9$\,MB. Các chỉ số này cho phép suy luận thời gian thực trên cả GPU phổ
-thông lẫn CPU. Về phía chú thích, việc cung cấp một số đếm cho mỗi ảnh rẻ hơn đáng kể so với khoanh viền mọi
-nhân (ước lượng định lượng dựa trên nguồn: \pending). Kết hợp với kết quả tương đương về độ chính xác ở
-Mục~\ref{sec:parity}, sự bất đối xứng chi phí này là luận điểm hiệu quả trung tâm của bài báo.
+thông lẫn CPU. Về phía chú thích, chi phí gán nhãn ở mức điểm ảnh vượt trội chi phí gán một con số đếm cho mỗi
+ảnh. Qu và cộng sự~\cite{qu2020} báo cáo rằng khoanh viền đầy đủ mọi nhân trong một ảnh (trung bình khoảng
+$600$ nhân) tốn
+khoảng $115$ phút, trong khi chỉ đánh dấu điểm cho toàn bộ nhân tốn khoảng $14$ phút. Một nhãn đếm ở mức ảnh
+không đòi hỏi khoanh viền và có chi phí không vượt quá mức đánh dấu điểm --- tức thấp hơn khoảng một bậc độ lớn
+so với mặt nạ đầy đủ --- và có thể còn rẻ hơn khi chỉ cần số đếm xấp xỉ. Kết hợp với kết quả tương đương về độ
+chính xác ở Mục~\ref{sec:parity}, sự bất đối xứng chi phí này là luận điểm hiệu quả trung tâm của bài báo.
 
 \subsection{Định lượng bất định cho triển khai tin cậy}\label{sec:uq}
 Bảng~\ref{tab:uq} trình bày chất lượng khoảng dự đoán sau hiệu chuẩn conformal trên PanNuke. Mức phủ biên đạt
