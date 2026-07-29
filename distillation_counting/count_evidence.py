@@ -81,21 +81,29 @@ def main():
     ap.add_argument("--fracs", default="0,0.25,0.5,0.75,1.0", help="tỉ lệ nhân bị gỡ")
     ap.add_argument("--reps", type=int, default=3, help="số tập con ngẫu nhiên mỗi tỉ lệ (giảm nhiễu)")
     ap.add_argument("--out_dir", default="evidence_out")
+    ap.add_argument("--work_dir", default="work",
+                    help="cache GT-density. ĐẶT NGOÀI repo (vd /kaggle/working/pannuke_cache) để tái dùng "
+                         "cache sup_compare đã build + không bị 'rm -rf <repo>' xóa.")
+    ap.add_argument("--deterministic", action="store_true",
+                    help="bật cuDNN tất định — CHẬM hơn nhiều với efflite0 trên PanNuke lớn. Mặc định TẮT.")
     args = ap.parse_args()
     dev = "cuda" if torch.cuda.is_available() else "cpu"
-    os.makedirs(args.out_dir, exist_ok=True); os.makedirs("work", exist_ok=True)
+    os.makedirs(args.out_dir, exist_ok=True); os.makedirs(args.work_dir, exist_ok=True)
 
     np.random.seed(args.seed); torch.manual_seed(args.seed); torch.cuda.manual_seed_all(args.seed)
-    torch.backends.cudnn.deterministic = True; torch.backends.cudnn.benchmark = False
-    torch.use_deterministic_algorithms(True, warn_only=True)
+    if args.deterministic:
+        torch.backends.cudnn.deterministic = True; torch.backends.cudnn.benchmark = False
+        torch.use_deterministic_algorithms(True, warn_only=True)
+    else:
+        torch.backends.cudnn.benchmark = True   # NHANH; PanNuke lớn không cần tất định
 
     # ---------- train count-only (headline) ----------
     tr_folds = [int(x) for x in args.train_folds.split(",")]
     fstr = "".join(str(x) for x in sorted(tr_folds))
     train_data = build_pannuke_density(args.pannuke_root, tr_folds, dev,
-                                       f"work/gt_density_pannuke_f{fstr}.pkl", use_gt=True)
+                                       f"{args.work_dir}/gt_density_pannuke_f{fstr}.pkl", use_gt=True)
     test_data = build_pannuke_density(args.pannuke_root, [int(args.test_fold)], dev,
-                                      f"work/gt_density_pannuke_f{args.test_fold}.pkl", use_gt=True)
+                                      f"{args.work_dir}/gt_density_pannuke_f{args.test_fold}.pkl", use_gt=True)
     data = list(train_data) + list(test_data)
     tr = list(range(len(train_data))); te = list(range(len(train_data), len(data)))
     print(f"[data] train fold{tr_folds}={len(tr)} / test fold{args.test_fold}={len(te)}")
