@@ -52,6 +52,9 @@ def main():
     ap.add_argument("--work_dir", default="work",
                     help="nơi lưu cache GT-density. ĐẶT NGOÀI repo (vd /kaggle/working/pannuke_cache) "
                          "để 'rm -rf <repo>' mỗi lần clone KHÔNG xóa cache -> khỏi build lại (rất chậm).")
+    ap.add_argument("--deterministic", action="store_true",
+                    help="bật cuDNN tất định — CHẬM hơn nhiều với efflite0. PanNuke lớn+ổn định KHÔNG cần "
+                         "-> mặc định TẮT (benchmark=True) cho nhanh.")
     args = ap.parse_args()
     dev = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -77,11 +80,13 @@ def main():
     for name, wd, wc in configs:
         r2s, maes = [], []
         for sd in seeds:
-            # DETERMINISM: seed np/torch KHÔNG đủ (cuDNN chọn thuật toán conv ngẫu nhiên) -> mỗi seed
-            # tái lập được; phương sai còn lại là phương sai SEED thật. Nhất quán với monuseg/parity_nuinsseg.
             np.random.seed(sd); torch.manual_seed(sd); torch.cuda.manual_seed_all(sd)
-            torch.backends.cudnn.deterministic = True; torch.backends.cudnn.benchmark = False
-            torch.use_deterministic_algorithms(True, warn_only=True)
+            if args.deterministic:
+                # cuDNN tất định: mỗi seed tái lập chính xác nhưng CHẬM (efflite0 depthwise). Chỉ bật khi cần.
+                torch.backends.cudnn.deterministic = True; torch.backends.cudnn.benchmark = False
+                torch.use_deterministic_algorithms(True, warn_only=True)
+            else:
+                torch.backends.cudnn.benchmark = True   # NHANH; PanNuke lớn+ổn định nên không cần tất định
             # train(data, device, epochs, ch, lr, train_idx, w_density, w_count, w_nll, beta, bs, detach_mu, sigma_mode, backbone)
             model = train(data, dev, args.epochs, args.ch, args.lr, tr,
                           wd, wc, 0.01, 0.5, 16, True, "poisson", args.backbone)
