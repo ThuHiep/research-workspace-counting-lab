@@ -46,6 +46,9 @@ def main():
     ap.add_argument("--seeds", default="42,43,44")
     ap.add_argument("--w_count_mask", type=float, default=0.1,
                     help="neo count cho mask (0.1 ổn định; 0.01 cũ có thể sập theo seed)")
+    ap.add_argument("--lr", type=float, default=1e-3,
+                    help="Adam LR; efflite0/CNN dùng 1e-3. Backbone transformer (pvt/swin) có thể cần "
+                         "hạ (3e-4/1e-4) nếu 1e-3 phá feature pretrained -> sập hằng số.")
     args = ap.parse_args()
     dev = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -77,7 +80,7 @@ def main():
             torch.backends.cudnn.deterministic = True; torch.backends.cudnn.benchmark = False
             torch.use_deterministic_algorithms(True, warn_only=True)
             # train(data, device, epochs, ch, lr, train_idx, w_density, w_count, w_nll, beta, bs, detach_mu, sigma_mode, backbone)
-            model = train(data, dev, args.epochs, args.ch, 1e-3, tr,
+            model = train(data, dev, args.epochs, args.ch, args.lr, tr,
                           wd, wc, 0.01, 0.5, 16, True, "poisson", args.backbone)
             r2, mae = eval_r2_mae(model, data, te, dev)
             r2s.append(r2); maes.append(mae)
@@ -86,7 +89,7 @@ def main():
         rows.append((name, np.mean(r2s), np.std(r2s), np.mean(maes), np.std(maes)))
         print(f"  {name:20s} R² {np.mean(r2s):+.4f}±{np.std(r2s):.3f}  MAE {np.mean(maes):.3f}±{np.std(maes):.3f}")
 
-    print(f"\n=== SUPERVISION head-to-head (CÙNG efflite0 ch{args.ch}, {len(seeds)} seed, PanNuke fold{args.test_fold}) ===")
+    print(f"\n=== SUPERVISION head-to-head (CÙNG {args.backbone} ch{args.ch}, lr{args.lr:g}, {len(seeds)} seed, PanNuke fold{args.test_fold}) ===")
     print(f"  {'supervision':20s} {'R² ↑':>16s} {'MAE ↓':>14s}")
     for name, r2m, r2s, mm, ms in rows:
         print(f"  {name:20s} {r2m:+.4f}±{r2s:.3f}   {mm:6.2f}±{ms:.2f}")
