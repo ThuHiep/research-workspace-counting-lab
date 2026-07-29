@@ -65,9 +65,14 @@ def shift_to_background(b, uni, rng, tries=40):
     return None
 
 
+_INPAINT = None   # đường thực sự dùng: "telea" hoặc "median-fill" — PHẢI biết, vì artifact khác nhau xa
+
+
 def occlude(img, remove_masks):
     """Gỡ các nhân trong remove_masks: inpaint (Telea) bằng mô xung quanh -> tự nhiên, tránh
-    tạo mảng phẳng làm model phản ứng nhầm. Fallback: điền màu nền trung vị."""
+    tạo mảng phẳng làm model phản ứng nhầm. Fallback: điền màu nền trung vị (để lại ĐĨA PHẲNG
+    rất lộ -> artifact mạnh hơn nhiều; nếu rơi vào đây thì kết quả ② đọc khác đi)."""
+    global _INPAINT
     if not remove_masks:
         return img.copy()
     m = np.zeros(img.shape[:2], np.uint8)
@@ -75,8 +80,15 @@ def occlude(img, remove_masks):
         m[b] = 1
     try:
         import cv2
-        return cv2.inpaint(np.ascontiguousarray(img), m, 3, cv2.INPAINT_TELEA)
-    except Exception:
+        out = cv2.inpaint(np.ascontiguousarray(img), m, 3, cv2.INPAINT_TELEA)
+        if _INPAINT is None:
+            _INPAINT = "telea"; print("[occlude] dùng cv2.inpaint TELEA (mô nền lan vào) — đúng thiết kế")
+        return out
+    except Exception as e:
+        if _INPAINT is None:
+            _INPAINT = "median-fill"
+            print(f"[occlude] ⚠ cv2 KHÔNG dùng được ({type(e).__name__}: {e}) -> fallback ĐIỀN MÀU TRUNG VỊ. "
+                  f"Vùng gỡ thành đĩa phẳng rất lộ => artifact MẠNH hơn Telea, đọc ② phải thận trọng hơn.")
         out = img.copy()
         bg = np.median(img[m == 0].reshape(-1, 3), axis=0) if (m == 0).any() else img.reshape(-1, 3).mean(0)
         out[m == 1] = bg.astype(np.uint8)
@@ -128,6 +140,9 @@ def main():
     ap.add_argument("--n_vis", type=int, default=12,
                     help="số ảnh lưu PANEL minh họa vào <out_dir>/samples/ (gốc | gỡ 30%% | gỡ hết | sham) "
                          "kèm count dự đoán -> xem MẮT THẤY model phản ứng thế nào. 0 = tắt.")
+    ap.add_argument("--min_effect", type=float, default=0.02,
+                    help="ngưỡng EFFECT SIZE để dám gọi 'đặc hiệu với nhân' (đơn vị count chuẩn hóa). "
+                         "p<0.05 mà effect≈0 thì KHÔNG phải bằng chứng — n lớn làm p nhỏ vô nghĩa.")
     ap.add_argument("--zip", action="store_true",
                     help="nén <out_dir> thành .zip cạnh nó (tiện tải 1 lần từ Kaggle).")
     ap.add_argument("--work_dir", default="work",
@@ -257,18 +272,31 @@ def main():
             krm = int(round(frac * N))
             for _ in range(args.reps if 0 < frac < 1 else 1):   # frac 0/1 xác định -> khỏi lặp
                 sel = rng.choice(N, size=krm, replace=False) if krm > 0 else np.array([], int)
-                p = predict_count(model, occlude(img, [inst[j] for j in sel]), dev)
-                # SHAM: gỡ cùng số vùng, cùng hình dạng/diện tích, cùng inpaint — nhưng ở NỀN
-                p_sh, n_sh = full_pred, 0
+                sel_m = [inst[j] for j in sel]
+                a_nuc = int(np.logical_or.reduce(sel_m).sum()) if sel_m else 0
+                p = predict_count(model, occlude(img, sel_m), dev)
+                # SHAM: gỡ cùng SỐ vùng, cùng HÌNH DẠNG, cùng DIỆN TÍCH, cùng inpaint — chỉ khác: ở NỀN.
+                # busy tích lũy để sham KHÔNG đè nhau (nếu đè -> diện tích gỡ thực nhỏ hơn nhân -> so sánh
+                # thành ra bất công và sẽ kết luận SAI). a_sh cho phép kiểm tra diện tích có khớp thật không.
+                p_sh, n_sh, a_sh = full_pred, 0, 0
                 if not args.no_sham and krm > 0:
-                    shm = [m for m in (shift_to_background(inst[j], uni, rng) for j in sel) if m is not None]
+                    busy = uni.copy(); shm = []
+                    for j in sel:
+                        m2 = shift_to_background(inst[j], busy, rng)
+                        if m2 is not None:
+                            shm.append(m2); busy |= m2
                     n_sh = len(shm)
-                    p_sh = predict_count(model, occlude(img, shm), dev) if n_sh else float("nan")
-                rows.append((c, frac, N, N - krm, p, full_pred, p_sh, n_sh))
+                    if n_sh:
+                        a_sh = int(np.logical_or.reduce(shm).sum())
+                        p_sh = predict_count(model, occlude(img, shm), dev)
+                    else:
+                        p_sh = float("nan")
+                rows.append((c, frac, N, N - krm, p, full_pred, p_sh, n_sh, a_nuc, a_sh))
         if (c + 1) % 50 == 0:
             print(f"  [occ] {c+1}/{len(idx_occ)} ảnh")
     rows = np.array(rows, float)
-    img_a, frac_a, N_a, rem_a, pred_a, full_a, sham_a, nsh_a = rows.T
+    img_a, frac_a, N_a, rem_a, pred_a, full_a, sham_a, nsh_a, anuc_a, ash_a = rows.T
+    ar_a = np.divide(ash_a, anuc_a, out=np.ones_like(ash_a), where=anuc_a > 0)   # diện tích sham / nhân
     ok = full_a > 1e-6
     norm = np.where(ok, pred_a / np.where(ok, full_a, 1), np.nan)      # count sau gỡ NHÂN / count gốc
     norm_s = np.where(ok, sham_a / np.where(ok, full_a, 1), np.nan)    # ... sau gỡ NỀN (sham)
@@ -295,28 +323,47 @@ def main():
           f"(=1.0 nghĩa gỡ 1 nhân thì count tụt đúng 1)")
 
     # (c) SHAM-CONTROL: tách đáp-ứng-NHÂN khỏi artifact inpaint
-    print(f"  (c) sham-control (gỡ NỀN cùng diện tích) theo liều:")
-    print(f"      {'gỡ':>5s} {'nhân(norm)':>12s} {'nền/sham':>12s} {'tụt-do-NHÂN':>13s}")
     xs = sorted(set(keep)); mean_norm, sd_norm, mean_sh = [], [], []
-    for k in xs:
-        m = (keep == k)
-        a = np.nanmean(norm[m]); b = np.nanmean(norm_s[m])
-        mean_norm.append(a); sd_norm.append(np.nanstd(norm[m])); mean_sh.append(b)
-        print(f"      {1-k:5.2f} {a:12.3f} {b:12.3f} {b - a:13.3f}")
+    if args.no_sham:
+        for k in xs:
+            m = (keep == k); mean_norm.append(np.nanmean(norm[m])); sd_norm.append(np.nanstd(norm[m])); mean_sh.append(np.nan)
+        print("  (c) sham-control TẮT (--no_sham) -> KHÔNG tách được artifact inpaint, đừng claim nhân quả.")
+    else:
+        print(f"  (c) sham-control (gỡ NỀN cùng diện tích/hình dạng) theo liều:")
+        print(f"      {'gỡ':>5s} {'nhân(norm)':>12s} {'nền/sham':>12s} {'tụt-do-NHÂN':>13s} {'dt.sham/nhân':>13s}")
+        for k in xs:
+            m = (keep == k)
+            a = np.nanmean(norm[m]); b = np.nanmean(norm_s[m]); r = np.nanmean(ar_a[m])
+            mean_norm.append(a); sd_norm.append(np.nanstd(norm[m])); mean_sh.append(b)
+            flag = "" if (k == 1.0 or r >= 0.8) else "  <-- diện tích KHÔNG khớp, so sánh không công bằng"
+            print(f"      {1-k:5.2f} {a:12.3f} {b:12.3f} {b - a:13.3f} {r:13.2f}{flag}")
     at_zero = float(np.nanmean(norm[frac_a == 1.0])) if (frac_a == 1.0).any() else float("nan")
     at_zero_s = float(np.nanmean(norm_s[frac_a == 1.0])) if (frac_a == 1.0).any() else float("nan")
-    plc = nsh_a[frac_a == 1.0].sum() / max(N_a[frac_a == 1.0].sum(), 1)
-    print(f"      gỡ HẾT nhân: count còn {at_zero:.3f} | sham cùng diện tích còn {at_zero_s:.3f} "
-          f"-> tụt DO NHÂN = {at_zero_s - at_zero:.3f} (tỉ lệ đặt được sham {plc:.2f})")
-    msh = (frac_a > 0) & np.isfinite(norm) & np.isfinite(norm_s)
-    if msh.any() and not args.no_sham:
+    if not args.no_sham:
+        ar1 = float(np.nanmean(ar_a[frac_a == 1.0])) if (frac_a == 1.0).any() else float("nan")
+        print(f"      gỡ HẾT nhân: count còn {at_zero:.3f} | sham còn {at_zero_s:.3f} -> tụt DO NHÂN = "
+              f"{at_zero_s - at_zero:.3f} (dt.sham/nhân={ar1:.2f}{' — sham đặt KHÔNG đủ, chỉ tham khảo' if ar1 < 0.8 else ''})")
+        # Wilcoxon CHỈ trên hàng KHỚP DIỆN TÍCH (>=80%): nếu sham gỡ ít hơn thì nó tụt ít là đương nhiên,
+        # đưa vào sẽ kết luận "đặc hiệu với nhân" một cách GIẢ.
         from scipy.stats import wilcoxon
-        try:
-            _, pw = wilcoxon(norm[msh], norm_s[msh])
-        except Exception:
-            pw = float("nan")
-        print(f"      Wilcoxon (gỡ-nhân vs gỡ-nền, n={msh.sum()}): p={pw:.4g} "
-              f"-> {'ĐẶC HIỆU với nhân' if pw < 0.05 else 'KHÔNG đặc hiệu (chỉ là artifact inpaint)'}")
+        for lab, msh in (("khớp-diện-tích (mọi liều)", (frac_a > 0) & (ar_a >= 0.8)),
+                         ("khớp-diện-tích, liều nhỏ ≤30%", (frac_a > 0) & (frac_a <= 0.3) & (ar_a >= 0.8))):
+            msh = msh & np.isfinite(norm) & np.isfinite(norm_s)
+            if msh.sum() < 10:
+                print(f"      [{lab}] chỉ {msh.sum()} mẫu -> BỎ (không đủ để kết luận)")
+                continue
+            try:
+                _, pw = wilcoxon(norm[msh], norm_s[msh])
+            except Exception:
+                pw = float("nan")
+            d = float(np.nanmean(norm_s[msh] - norm[msh]))      # phần tụt DO NHÂN
+            tot = float(np.nanmean(1 - norm[msh]))              # tổng phần tụt khi gỡ nhân
+            frc = d / tot if tot > 1e-6 else float("nan")       # bao nhiêu % cú tụt là do NHÂN (còn lại: artifact)
+            # CẦN CẢ p NHỎ VÀ EFFECT SIZE ĐỦ LỚN. p nhỏ với d≈0 (n lớn) KHÔNG phải bằng chứng —
+            # đó là lỗi p-value-không-effect-size, sẽ tuyên "đặc hiệu" một cách sai.
+            ok = (pw < 0.05) and (d >= args.min_effect) and (frc >= 0.5)
+            print(f"      [{lab}] n={msh.sum()}: tụt-do-nhân={d:+.3f} ({frc:.0%} của tổng tụt {tot:.3f}), "
+                  f"Wilcoxon p={pw:.4g} -> {'ĐẶC HIỆU với nhân' if ok else 'KHÔNG đủ (effect nhỏ / phần lớn là artifact inpaint)'}")
 
     # (d) hồi quy gộp — GIỮ để tham chiếu, KHÔNG dùng cho claim (confound giữa-ảnh)
     A = np.vstack([rem_a, np.ones_like(rem_a)]).T
@@ -325,7 +372,7 @@ def main():
     print(f"  (d) [THAM CHIẾU, ĐỪNG claim] hồi quy GỘP pred~số-nhân-còn-lại: dốc {slope:.3f}, "
           f"chặn {intercept:+.2f}, corr {corr:.3f} — bị chi phối bởi biến thiên GIỮA ảnh, không phải nhân quả.")
     np.savez(f"{args.out_dir}/occlusion.npz", img=img_a, frac=frac_a, N=N_a, remaining=rem_a,
-             pred=pred_a, full=full_a, sham=sham_a, n_sham=nsh_a,
+             pred=pred_a, full=full_a, sham=sham_a, n_sham=nsh_a, area_nuc=anuc_a, area_sham=ash_a,
              slope_within=sl_in, sens_small=sens, slope_pooled=slope, corr=corr)
 
     plt.figure(figsize=(5, 4))
