@@ -71,7 +71,11 @@ def main():
     for name, wd, wc in configs:
         r2s, maes = [], []
         for sd in seeds:
-            np.random.seed(sd); torch.manual_seed(sd)
+            # DETERMINISM: seed np/torch KHÔNG đủ (cuDNN chọn thuật toán conv ngẫu nhiên) -> mỗi seed
+            # tái lập được; phương sai còn lại là phương sai SEED thật. Nhất quán với monuseg/parity_nuinsseg.
+            np.random.seed(sd); torch.manual_seed(sd); torch.cuda.manual_seed_all(sd)
+            torch.backends.cudnn.deterministic = True; torch.backends.cudnn.benchmark = False
+            torch.use_deterministic_algorithms(True, warn_only=True)
             # train(data, device, epochs, ch, lr, train_idx, w_density, w_count, w_nll, beta, bs, detach_mu, sigma_mode, backbone)
             model = train(data, dev, args.epochs, args.ch, 1e-3, tr,
                           wd, wc, 0.01, 0.5, 16, True, "poisson", args.backbone)
