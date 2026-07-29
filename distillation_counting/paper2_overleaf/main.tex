@@ -164,8 +164,13 @@ mức phủ của cơ quan có mức phủ thấp nhất, độ rộng khoảng 
 
 Bảng~\ref{tab:parity} so sánh hai chế độ giám sát trên cùng một kiến trúc. Trên cả ba tập dữ liệu, độ chính xác
 đếm của count-only không thấp hơn của mask: trên PanNuke hai chế độ tương đương trong phạm vi dao động giữa các
-lần chạy, trong khi trên MoNuSeg và NuInsSeg count-only đạt $R^2$ trung bình cao hơn và ổn định hơn (độ lệch
-chuẩn nhỏ hơn). Kiểm định bắt cặp trên từng ảnh không cho thấy count-only kém hơn ở bất kỳ tập nào. Kết quả này
+lần chạy; trên NuInsSeg count-only đạt $R^2$ trung bình cao hơn và ổn định hơn (độ lệch chuẩn nhỏ hơn); còn
+trên MoNuSeg --- một tập rất nhỏ ($37$ ảnh huấn luyện) khiến $R^2$ của \emph{cả hai} chế độ dao động mạnh giữa
+các hạt giống --- $R^2$ trung bình của count-only cao hơn nhưng chênh lệch ($\Delta = 0{,}10$) nằm gọn trong độ
+lệch chuẩn, nên hai chế độ được xem là tương đương. Ở tập kiểm tra đủ lớn và cố định (PanNuke), kiểm định bắt
+cặp trên từng ảnh là công cụ thích hợp; trên các tập nhỏ, phương sai giữa hạt giống chi phối và xếp hạng theo
+từng ảnh không ổn định giữa các tập con hạt giống, nên chúng tôi kết luận count-only \emph{không thua} thay vì
+tuyên bố ưu thế. Kết quả này
 cho thấy, đối với tác vụ đếm và trên cùng một kiến trúc, việc chuyển từ chú thích mặt nạ ở mức điểm ảnh sang một
 con số đếm cho mỗi ảnh --- rẻ hơn nhiều bậc --- không làm giảm độ chính xác. Cần nhấn mạnh rằng nhánh mask ở
 đây dùng \emph{cùng} kiến trúc với count-only một cách có chủ đích: mục tiêu là cô lập ảnh hưởng của \emph{loại
@@ -175,15 +180,15 @@ Mục~\ref{sec:paradigm}.
 
 \begin{table}[t]
 \centering
-\caption{Độ chính xác đếm dưới hai chế độ giám sát trên \emph{cùng} kiến trúc (trung bình 3 hạt giống).
-$\Delta R^2 = R^2_{\text{count}} - R^2_{\text{mask}}$; $p$ là kiểm định Wilcoxon bắt cặp trên từng ảnh (sai số
-lấy trung bình qua các hạt giống).}\label{tab:parity}
+\caption{Độ chính xác đếm dưới hai chế độ giám sát trên \emph{cùng} kiến trúc (PanNuke/NuInsSeg $3$ hạt giống,
+MoNuSeg $5$ hạt giống với thuật toán tất định). $\Delta R^2 = R^2_{\text{count}} - R^2_{\text{mask}}$; $p$ là
+kiểm định Wilcoxon bắt cặp trên từng ảnh (sai số lấy trung bình qua các hạt giống).}\label{tab:parity}
 \begin{tabular}{@{}lccccl@{}}
 \toprule
 Tập dữ liệu & count-only ($R^2$) & mask ($R^2$) & $\Delta R^2$ & $p$ & Diễn giải \\
 \midrule
 PanNuke & $0{,}930\pm0{,}009$ & $0{,}925\pm0{,}009$ & $+0{,}005$ & \pending & tương đương \\
-MoNuSeg & $0{,}656\pm0{,}102$ & $0{,}548\pm0{,}124$ & $+0{,}108$ & \pending & count-only không thua \\
+MoNuSeg$^{\ddagger}$ & $0{,}459\pm0{,}194$ & $0{,}362\pm0{,}154$ & $+0{,}097$ & --- & tương đương (trong dao động) \\
 NuInsSeg$^{\dagger}$ & $0{,}921\pm0{,}016$ & $0{,}847\pm0{,}054$ & $+0{,}074$ & --- & count-only không thua \\
 \bottomrule
 \end{tabular}
@@ -191,6 +196,10 @@ NuInsSeg$^{\dagger}$ & $0{,}921\pm0{,}016$ & $0{,}847\pm0{,}054$ & $+0{,}074$ & 
 định giữa các lần chạy; do đó chúng tôi báo cáo tính nhất quán theo từng chia thay vì một kiểm định gộp: sai số
 tuyệt đối của count-only thấp hơn ở $2/3$ chia (đạt $p<0{,}05$ ở $1/3$). Chúng tôi vì vậy \emph{không} tuyên bố
 ưu thế có ý nghĩa thống kê nhất quán, mà chỉ kết luận count-only không thua và đạt $R^2$ cao hơn, ổn định hơn.}
+\footnotetext{$^{\ddagger}$ MoNuSeg rất nhỏ ($37$ ảnh huấn luyện) nên $R^2$ dao động mạnh giữa các hạt giống ở
+\emph{cả hai} chế độ; số liệu lấy trung bình $5$ hạt giống với thuật toán huấn luyện tất định. Vì $|\Delta R^2|$
+nhỏ hơn độ lệch chuẩn và xếp hạng theo từng ảnh không ổn định giữa các tập con hạt giống, chúng tôi diễn giải là
+tương đương (count-only không thua) và \emph{không} tuyên bố ưu thế.}
 \end{table}
 
 \subsection{So sánh với ba paradigm nhãn-đắt}\label{sec:paradigm}
