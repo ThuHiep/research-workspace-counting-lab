@@ -83,6 +83,17 @@ def occlude(img, remove_masks):
         return out
 
 
+def save_panel(path, panes):
+    """panes = [(ảnh uint8, tiêu đề), ...] -> 1 hàng ảnh cạnh nhau kèm count dự đoán.
+    Để MẮT kiểm: gỡ nhân thì count có tụt? sham (gỡ nền) có làm count tụt oan? inpaint có để lại
+    vệt giống nhân? — trả lời được bằng cách NHÌN, không chỉ bằng số."""
+    n = len(panes)
+    fig, axes = plt.subplots(1, n, figsize=(3.1 * n, 3.5))
+    for a, (im, t) in zip(np.atleast_1d(axes).ravel(), panes):
+        a.imshow(im); a.set_title(t, fontsize=8); a.axis("off")
+    fig.tight_layout(); fig.savefig(path, dpi=150); plt.close(fig)
+
+
 def r2_mae(pred, gt):
     ss = ((gt - pred) ** 2).sum(); st = ((gt - gt.mean()) ** 2).sum()
     return (1 - ss / st if st > 0 else float("nan")), float(np.abs(pred - gt).mean())
@@ -111,7 +122,14 @@ def main():
     ap.add_argument("--ckpt", default="",
                     help="đường dẫn .pt: có sẵn -> NẠP (khỏi train lại ~1h); chưa có -> train rồi LƯU. "
                          "Cho phép chạy lại phân tích ② nhiều lần trên ĐÚNG một model.")
-    ap.add_argument("--out_dir", default="evidence_out")
+    ap.add_argument("--out_dir", default="evidence_out",
+                    help="nơi lưu PNG/npz. ĐẶT NGOÀI repo (vd /kaggle/working/evidence_out) — mặc định tương đối "
+                         "nên rơi VÀO repo và bị 'rm -rf <repo>' xóa mất hình.")
+    ap.add_argument("--n_vis", type=int, default=12,
+                    help="số ảnh lưu PANEL minh họa vào <out_dir>/samples/ (gốc | gỡ 30%% | gỡ hết | sham) "
+                         "kèm count dự đoán -> xem MẮT THẤY model phản ứng thế nào. 0 = tắt.")
+    ap.add_argument("--zip", action="store_true",
+                    help="nén <out_dir> thành .zip cạnh nó (tiện tải 1 lần từ Kaggle).")
     ap.add_argument("--work_dir", default="work",
                     help="cache GT-density. ĐẶT NGOÀI repo (vd /kaggle/working/pannuke_cache) để tái dùng "
                          "cache sup_compare đã build + không bị 'rm -rf <repo>' xóa.")
@@ -119,7 +137,13 @@ def main():
                     help="bật cuDNN tất định — CHẬM hơn nhiều với efflite0 trên PanNuke lớn. Mặc định TẮT.")
     args = ap.parse_args()
     dev = "cuda" if torch.cuda.is_available() else "cpu"
-    os.makedirs(args.out_dir, exist_ok=True); os.makedirs(args.work_dir, exist_ok=True)
+    args.out_dir = os.path.abspath(args.out_dir)         # in đường dẫn TUYỆT ĐỐI, kẻo không tìm ra hình
+    vis_dir = os.path.join(args.out_dir, "samples")
+    os.makedirs(vis_dir, exist_ok=True); os.makedirs(args.work_dir, exist_ok=True)
+    if args.out_dir.startswith(_REPO + os.sep):
+        print(f"[CẢNH BÁO] out_dir nằm TRONG repo ({args.out_dir}) -> 'rm -rf <repo>' lần clone sau sẽ XÓA "
+              f"hết hình. Nên dùng --out_dir /kaggle/working/evidence_out")
+    print(f"[out] hình + npz sẽ lưu vào: {args.out_dir}  (panel ảnh: {vis_dir})")
 
     np.random.seed(args.seed); torch.manual_seed(args.seed); torch.cuda.manual_seed_all(args.seed)
     if args.deterministic:
@@ -195,6 +219,7 @@ def main():
     idx_occ = np.linspace(0, len(pf) - 1, min(args.n_occ, len(pf))).astype(int)
     fracs = [float(x) for x in args.fracs.split(",")]
     rng = np.random.default_rng(args.seed)
+    vrng = np.random.default_rng(args.seed + 1000)   # rng riêng cho panel minh họa
     rows = []   # (img_id, frac, N, remaining_true, pred, full_pred, pred_sham, n_sham_placed)
     for c, i in enumerate(idx_occ):
         s = pf[int(i)]
@@ -209,6 +234,21 @@ def main():
         for b in inst:
             uni |= b
         full_pred = predict_count(model, img, dev)
+
+        # ---- panel ảnh minh họa (rng RIÊNG -> không làm lệch chuỗi ngẫu nhiên của phép đo chính) ----
+        if c < args.n_vis:
+            panes = [(img, f"gốc: GT={N}  pred={full_pred:.1f}")]
+            for fv in (0.3, 1.0):
+                kk = int(round(fv * N))
+                s2 = vrng.choice(N, size=kk, replace=False) if kk else np.array([], int)
+                oc = occlude(img, [inst[j] for j in s2])
+                panes.append((oc, f"gỡ {fv*100:.0f}% NHÂN (còn {N-kk})\npred={predict_count(model, oc, dev):.1f}"))
+            if not args.no_sham:
+                shm = [m for m in (shift_to_background(b, uni, vrng) for b in inst) if m is not None]
+                oc = occlude(img, shm)
+                panes.append((oc, f"SHAM: gỡ {len(shm)} vùng NỀN (nhân còn {N})\npred={predict_count(model, oc, dev):.1f}"))
+            save_panel(os.path.join(vis_dir, f"panel_{int(i):04d}.png"), panes)
+
         for frac in fracs:
             krm = int(round(frac * N))
             for _ in range(args.reps if 0 < frac < 1 else 1):   # frac 0/1 xác định -> khỏi lặp
@@ -294,7 +334,17 @@ def main():
     plt.xlim(-0.03, 1.03); plt.ylim(-0.03, 1.1); plt.legend(fontsize=7)
     plt.tight_layout(); plt.savefig(f"{args.out_dir}/doseresp.png", dpi=160); plt.close()
 
-    print(f"\n[xuất] {args.out_dir}/scatter.png, bland_altman.png, doseresp.png, preds.npz, occlusion.npz")
+    n_panel = len([f for f in os.listdir(vis_dir) if f.endswith(".png")])
+    print(f"\n[xuất] {args.out_dir}/")
+    for f in sorted(os.listdir(args.out_dir)):
+        p = os.path.join(args.out_dir, f)
+        if os.path.isfile(p):
+            print(f"    {f:22s} {os.path.getsize(p)/1024:8.1f} KB")
+    print(f"    samples/               {n_panel} panel ảnh (gốc | gỡ 30% | gỡ hết | sham)")
+    if args.zip:
+        import shutil
+        z = shutil.make_archive(args.out_dir, "zip", args.out_dir)
+        print(f"[zip] {z} ({os.path.getsize(z)/1e6:.1f} MB) — tải 1 lần là đủ")
     print("ĐỌC (①): scatter bám chéo + R² từng cơ quan > 0 + bias≈0 = đếm đúng, không thiên vị hệ thống.")
     print("ĐỌC (②): CHỈ được kết luận nhân-quả nếu (a) dốc TRONG-ẢNH ≈1 VÀ (b) Δ/nhân ≈1 VÀ (c) sham "
           "tụt ÍT hơn rõ rệt (p<0.05). Nếu 'tụt-do-NHÂN' nhỏ -> phần lớn là ARTIFACT inpaint, KHÔNG "
