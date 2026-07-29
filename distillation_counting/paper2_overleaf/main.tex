@@ -42,13 +42,12 @@ xác?} Thay vì đề xuất một kiến trúc mới, chúng tôi thực hiện
 trúc được giữ cố định và chỉ loại giám sát thay đổi, nhằm cô lập đóng góp thực sự của \emph{chú thích} khỏi
 đóng góp của mô hình. Chúng tôi thu được ba kết quả chính. Thứ nhất, giám sát \emph{chỉ bằng số đếm mức ảnh}
 (count-only) đạt độ chính xác đếm \emph{không phân biệt được về mặt thống kê} với --- và không bao giờ thua ---
-giám sát bằng mặt nạ, trên [ba] tập dữ liệu độc lập, dù chi phí chú thích rẻ hơn nhiều bậc. Thứ hai, và bất
-ngờ, mô hình count-only \emph{tự phát} sinh ra biểu diễn không gian định vị nhân \emph{sắc nét hơn} cả giám sát
-mật độ điểm ảnh tường minh, cho thấy đếm chính xác không đòi hỏi --- mà còn cảm sinh --- sự định vị. Thứ ba,
-một bộ đếm nhẹ count-only vượt cả ba dòng phương pháp nhãn-đắt (phân vùng, phát hiện, ước lượng mật độ) ngay
-trên tác vụ đếm, trong đó phương pháp phát hiện suy sụp có hệ thống ở vùng nhân dày đặc. Kèm theo một đầu định
-lượng bất định được hiệu chuẩn cho triển khai tin cậy, các kết quả này thách thức giả định phổ biến rằng cần
-chú thích dày đặc để định lượng nhân chính xác.
+giám sát bằng mặt nạ, trên ba tập dữ liệu độc lập, dù chi phí chú thích rẻ hơn nhiều bậc. Thứ hai, một bộ đếm
+nhẹ count-only vượt cả ba dòng phương pháp nhãn-đắt (phân vùng, phát hiện, ước lượng mật độ) ngay trên tác vụ
+đếm, trong đó phương pháp phát hiện suy sụp có hệ thống ở vùng nhân dày đặc --- bằng chứng cơ học cho hiện
+tượng chen chúc. Thứ ba, chỉ một phần tư ngân sách chú thích đã đạt phần lớn hiệu năng đầy đủ. Kèm theo một đầu
+định lượng bất định được hiệu chuẩn cho triển khai tin cậy, các kết quả này thách thức giả định phổ biến rằng
+cần chú thích dày đặc để định lượng nhân chính xác.
 }
 \keywords{đếm nhân tế bào, hiệu quả chú thích, giám sát yếu, biểu diễn tự phát, định lượng bất định,
 conformal prediction, mô bệnh học tính toán}
@@ -79,12 +78,9 @@ nằm ở các phát hiện khoa học và hệ quả thực tiễn.
 
 \paragraph{Đóng góp.}
 \begin{enumerate}
-\item \textbf{Ngang bằng về chú thích (Mục~\ref{sec:parity}).} Trên [ba] tập dữ liệu độc lập, giám sát
+\item \textbf{Ngang bằng về chú thích (Mục~\ref{sec:parity}).} Trên ba tập dữ liệu độc lập, giám sát
 count-only đạt độ chính xác đếm \emph{không phân biệt được về mặt thống kê} với giám sát mặt nạ (kiểm định
 signed-rank bắt cặp trên từng ảnh), và không bao giờ thua, dù chú thích rẻ hơn nhiều bậc.
-\item \textbf{Sự tự phát của định vị (Mục~\ref{sec:emergence}).} Bất ngờ, bản đồ mật độ của mô hình count-only
-tập trung lên nhân \emph{sắc nét hơn} cả mô hình được giám sát mật độ tường minh --- định vị không gian
-\emph{tự nổi} từ tín hiệu đếm, dù chưa từng thấy nhãn không gian.
 \item \textbf{So sánh bốn paradigm công bằng (Mục~\ref{sec:paradigm}).} Bộ đếm nhẹ count-only vượt cả phân
 vùng, phát hiện và ước lượng mật độ trên tác vụ đếm; phát hiện suy sụp có hệ thống ở vùng đông đúc --- bằng
 chứng cơ học cho hiện tượng \emph{chen chúc}.
@@ -134,12 +130,6 @@ $\mathcal{L} = w_d\mathcal{L}_{density} + w_c\mathcal{L}_{count} + w_{nll}\mathc
 thực. Một neo đếm nhỏ được giữ để ổn định tối ưu (xem Mục~\ref{sec:setup}).
 \end{itemize}
 $\mathcal{L}_{nll}$ là $\beta$-NLL huấn luyện $\sigma$.
-
-\subsection{Định vị: đo bằng nồng độ khối mật độ}
-Để kiểm tra mô hình có \emph{định vị} nhân hay không, ta so bản đồ mật độ dự đoán với vị trí nhân thực. Với mỗi
-ảnh, gọi $c$ là tỉ lệ điểm ảnh thuộc nhân; \emph{nồng độ} $\rho = \big(\sum_{p\in\text{nhân}}
-\hat d_p\big)\big/\sum_p \hat d_p$ là tỉ lệ khối mật độ dự đoán rơi lên điểm ảnh nhân. Tỉ số $\rho/c$ bằng $1$
-khi mật độ dàn đều (không định vị) và tiến tới $1/c$ khi tập trung hoàn hảo lên nhân.
 
 \subsection{Hiệu chuẩn bất định}
 Sau huấn luyện, split-conformal trên tập hiệu chuẩn cho khoảng $[\mu - q\sigma, \mu + q\sigma]$ đạt mức phủ mục
@@ -191,40 +181,6 @@ theo mỗi chia; count-only có sai số tuyệt đối nhỏ hơn ở $2/3$ chi
 \emph{không} tuyên bố ưu thế có ý nghĩa thống kê nhất quán, mà chỉ khẳng định count-only \emph{không thua} và
 đạt $R^2$ cao hơn, ổn định hơn (độ lệch chuẩn nhỏ hơn) so với giám sát mặt nạ trên tập này.}
 \end{table}
-
-\subsection{Định vị không gian tự phát từ giám sát đếm}\label{sec:emergence}
-
-Bảng~\ref{tab:emergence} đo nồng độ khối mật độ (Mục~\ref{sec:method}). Với density dàn đều, tỉ số nồng độ bằng
-$1{,}0\times$; định vị hoàn hảo đạt $1/c \approx 5{,}9\times$. Đáng chú ý, mô hình \emph{count-only} --- chưa
-từng thấy nhãn không gian --- đạt nồng độ \emph{cao hơn} mô hình được giám sát mật độ tường minh: khối mật độ
-của nó tập trung sắc nét lên nhân, trong khi giám sát mật độ MSE trên bản đồ thưa lại cho dự đoán \emph{mờ}
-(hồi quy về trung bình). Nói cách khác, đếm chính xác không những không đòi hỏi mà còn \emph{cảm sinh} định vị.
-Hình~\ref{fig:emergence} minh họa trực quan (\pending).
-
-\begin{table}[t]
-\centering
-\caption{Định vị tự phát (PanNuke fold~3). Nồng độ $=\rho/c$; $>1\times$ nghĩa là mật độ tập trung lên nhân.
-Số sơ bộ ($n{=}1$ seed); xác nhận 3-seed \pending.}\label{tab:emergence}
-\begin{tabular}{@{}lccc@{}}
-\toprule
-Giám sát & Nồng độ ($\rho/c$) $\uparrow$ & count-$R^2$ & Diễn giải \\
-\midrule
-count-only & $4{,}43\times$ & $0{,}933$ & định vị sắc lên nhân \\
-mask (mật độ GT) & $1{,}63\times$ & $0{,}934$ & mật độ mờ (MSE về trung bình) \\
-\midrule
-\emph{tham chiếu}: dàn đều & $1{,}0\times$ & --- & không định vị \\
-\emph{tham chiếu}: GT hoàn hảo & $5{,}9\times$ & --- & định vị lý tưởng \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{figure}[t]
-\centering
-% \includegraphics[width=\linewidth]{fig_emergence.pdf}   % <<< chèn khi có localize_examples.npz
-\fbox{\parbox[c][3cm][c]{0.9\linewidth}{\centering \pending\ Figure định vị: ảnh H\&E $\mid$ nhân GT $\mid$
-mật độ count-only (sắc) $\mid$ mật độ mask (mờ) --- vài mô đại diện.}}
-\caption{Định vị tự phát: mô hình count-only đặt khối mật độ đúng lên nhân dù không có nhãn không gian.}\label{fig:emergence}
-\end{figure}
 
 \subsection{So sánh bốn paradigm}\label{sec:paradigm}
 
@@ -282,10 +238,6 @@ trong khi không tạo khác biệt trên dải hẹp. Thêm đầu $\sigma$ kh�
 %%============================================================%%
 \section{Thảo luận và Hạn chế}\label{sec:discuss}
 
-\paragraph{Đếm mà không định vị-hay đếm nhờ định vị?} Kết quả Mục~\ref{sec:emergence} cho thấy count-only tạo
-biểu diễn định vị sắc nét, gợi ý rằng tín hiệu đếm đủ để cảm sinh cấu trúc không gian --- một cơ chế giải thích
-vì sao chú thích dày đặc là dư thừa cho tác vụ đếm.
-
 \paragraph{Chuyển giao ngoài miền.} Khi kiểm tra không-điều-chỉnh trên miền khác, mức phủ của khoảng tin cậy
 \emph{chuyển giao được} sau hiệu chuẩn lại, nhưng độ chính xác điểm không chuyển giao khi dải số đếm hoặc độ
 phóng đại lệch nhiều. Bảo đảm phủ đến từ tầng conformal phi-phân phối, nên độ rộng khoảng đóng vai trò tín hiệu
@@ -297,13 +249,13 @@ phát hiện về hiệu quả chú thích và cơ chế định vị tự phát
 %%============================================================%%
 \section{Kết luận}\label{sec:conclusion}
 
-Qua một nghiên cứu có kiểm soát trên [ba] tập dữ liệu mô bệnh học độc lập, chúng tôi cho thấy giám sát chỉ bằng
-số đếm mức ảnh đạt độ chính xác đếm không phân biệt được về mặt thống kê so với giám sát mặt nạ ở mức điểm ảnh,
-trong khi đòi hỏi chi phí chú thích rẻ hơn nhiều bậc; hơn nữa, mô hình count-only tự phát sinh biểu diễn định
-vị nhân sắc nét hơn cả giám sát mật độ tường minh. Những kết quả này thách thức giả định phổ biến rằng chú
-thích dày đặc là cần thiết để định lượng nhân chính xác, và mở ra hướng định lượng mô bệnh học hiệu quả về chú
-thích. Hướng phát triển gồm khắc phục phụ thuộc độ phân giải bằng học đa tỉ lệ và mở rộng đầu bất định để nắm
-bắt sai số do dịch chuyển miền.
+Qua một nghiên cứu có kiểm soát trên ba tập dữ liệu mô bệnh học độc lập, chúng tôi cho thấy giám sát chỉ bằng
+số đếm mức ảnh đạt độ chính xác đếm không phân biệt được về mặt thống kê so với --- và không bao giờ thua ---
+giám sát mặt nạ ở mức điểm ảnh, trong khi đòi hỏi chi phí chú thích rẻ hơn nhiều bậc; đồng thời vượt cả ba dòng
+phương pháp nhãn-đắt ngay trên tác vụ đếm. Những kết quả này thách thức giả định phổ biến rằng chú thích dày
+đặc là cần thiết để định lượng nhân chính xác, và mở ra hướng định lượng mô bệnh học hiệu quả về chú thích.
+Hướng phát triển gồm khắc phục phụ thuộc độ phân giải bằng học đa tỉ lệ và mở rộng đầu bất định để nắm bắt sai
+số do dịch chuyển miền.
 
 %%============================================================%%
 \backmatter
