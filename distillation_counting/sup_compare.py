@@ -66,7 +66,7 @@ def main():
     # → collapse về ~0 nếu w_count=0 (đúng recipe density-counting chuẩn; số cũ NuInsSeg 0.881 dùng vậy).
     configs = [("count-only", 0.0, 1.0), ("GT-density (mask)", 1.0, args.w_count_mask)]
     rows = []
-    per_img = {}   # per-image preds ở seed đầu -> Wilcoxon bắt cặp
+    per_img = {name: [] for name, _, _ in configs}   # preds MỖI seed (fold3 cố định) -> Wilcoxon gộp-seed
     gt_te = np.array([data[i]["gt"] for i in te])
     for name, wd, wc in configs:
         r2s, maes = [], []
@@ -77,8 +77,7 @@ def main():
                           wd, wc, 0.01, 0.5, 16, True, "poisson", args.backbone)
             r2, mae = eval_r2_mae(model, data, te, dev)
             r2s.append(r2); maes.append(mae)
-            if sd == seeds[0]:
-                per_img[name] = _per_image_pred(model, data, te, dev)
+            per_img[name].append(_per_image_pred(model, data, te, dev))
             print(f"    [{name:16s}] seed {sd}: R² {r2:+.4f}  MAE {mae:.2f}")   # per-seed để bắt collapse
         rows.append((name, np.mean(r2s), np.std(r2s), np.mean(maes), np.std(maes)))
         print(f"  {name:20s} R² {np.mean(r2s):+.4f}±{np.std(r2s):.3f}  MAE {np.mean(maes):.3f}±{np.std(maes):.3f}")
@@ -90,8 +89,9 @@ def main():
     d = rows[0][1] - rows[1][1]
     print(f"\n  Δ(count-only − GT-density) = {d:+.4f} R²")
 
-    # per-image Wilcoxon (bắt cặp trên từng ảnh, seed{seeds[0]}) -> parity/significance
-    ec = np.abs(gt_te - per_img["count-only"]); em = np.abs(gt_te - per_img["GT-density (mask)"])
+    # per-image Wilcoxon GỘP-SEED: trung bình |err| từng ảnh qua các seed (fold3 cố định) -> robust
+    ec = np.mean([np.abs(gt_te - p) for p in per_img["count-only"]], axis=0)
+    em = np.mean([np.abs(gt_te - p) for p in per_img["GT-density (mask)"]], axis=0)
     from scipy.stats import wilcoxon
     try:
         _, p = wilcoxon(ec, em)
@@ -100,8 +100,8 @@ def main():
     dm = float((ec - em).mean())
     verdict = ("PARITY (p>0.05)" if p > 0.05 else
                ("count-only THẮNG (p<0.05, lỗi ít hơn)" if dm < 0 else "count-only THUA (p<0.05)"))
-    print(f"  per-image |err| (seed{seeds[0]}, n={len(te)}): count-only {ec.mean():.2f} vs mask {em.mean():.2f} "
-          f"| Wilcoxon p={p:.4g} -> {verdict}")
+    print(f"  per-image |err| (gộp {len(seeds)} seed, n={len(te)}): count-only {ec.mean():.2f} vs "
+          f"mask {em.mean():.2f} | Wilcoxon p={p:.4g} -> {verdict}")
     print("  ĐỌC: count-only ≥ GT-density → ĐẾM KHÔNG CẦN pixel; cái thắng đến từ SUPERVISION, không phải kiến trúc.")
 
 

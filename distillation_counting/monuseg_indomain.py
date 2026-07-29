@@ -171,7 +171,8 @@ def main():
         configs.append(("mask (GT-density)", 1.0, args.w_count_mask))
 
     results = {}
-    per_img = {}   # per-image preds ở seed đầu (official: te cố định) -> Wilcoxon bắt cặp
+    per_img = {name: [] for name, _, _ in configs}   # preds mỗi seed (official test cố định) -> Wilcoxon gộp-seed
+    yt_ref = None
     for name, w_d, w_c in configs:
         r2s, maes = [], []
         for seed in seeds:
@@ -181,8 +182,8 @@ def main():
                           w_d, w_c, 0.01, 0.5, 16, True, "poisson", args.backbone)
             r2, mae, pr, yt = eval_r2(model, data, te, dev, return_pred=True)
             r2s.append(r2); maes.append(mae)
-            if seed == seeds[0]:
-                per_img[name] = (pr, yt)
+            if args.split == "official":       # te cố định -> gộp per-image qua seed hợp lệ
+                per_img[name].append(pr); yt_ref = yt
             print(f"  [{name:18s} seed{seed}] split={args.split} test {len(te)} patch  "
                   f"R² {r2:+.4f}  MAE {mae:.3f}")
         results[name] = (np.nanmean(r2s), np.nanstd(r2s), np.nanmean(maes), np.nanstd(maes))
@@ -193,18 +194,19 @@ def main():
     if args.parity and len(results) == 2:
         dc = results["count-only"][0] - results["mask (GT-density)"][0]
         print(f"\n  Δ(count-only − mask) R² = {dc:+.4f}  -> parity nếu |Δ| < std")
-        pr_c, yt = per_img["count-only"]; pr_m, _ = per_img["mask (GT-density)"]
-        ec = np.abs(yt - pr_c); em = np.abs(yt - pr_m)
-        from scipy.stats import wilcoxon
-        try:
-            _, p = wilcoxon(ec, em)
-        except Exception as e:
-            p = float("nan"); print(f"[wilcoxon lỗi] {e}")
-        dm = float((ec - em).mean())
-        verdict = ("PARITY (p>0.05)" if p > 0.05 else
-                   ("count-only THẮNG (p<0.05)" if dm < 0 else "count-only THUA (p<0.05)"))
-        print(f"  per-image |err| (seed{seeds[0]}, n={len(yt)} patch): count-only {ec.mean():.2f} "
-              f"vs mask {em.mean():.2f} | Wilcoxon p={p:.4g} -> {verdict}")
+        if args.split == "official" and per_img["count-only"]:
+            ec = np.mean([np.abs(yt_ref - p) for p in per_img["count-only"]], axis=0)
+            em = np.mean([np.abs(yt_ref - p) for p in per_img["mask (GT-density)"]], axis=0)
+            from scipy.stats import wilcoxon
+            try:
+                _, p = wilcoxon(ec, em)
+            except Exception as e:
+                p = float("nan"); print(f"[wilcoxon lỗi] {e}")
+            dm = float((ec - em).mean())
+            verdict = ("PARITY (p>0.05)" if p > 0.05 else
+                       ("count-only THẮNG (p<0.05)" if dm < 0 else "count-only THUA (p<0.05)"))
+            print(f"  per-image |err| (gộp {len(seeds)} seed, n={len(yt_ref)} patch): count-only {ec.mean():.2f} "
+                  f"vs mask {em.mean():.2f} | Wilcoxon p={p:.4g} -> {verdict}")
     print(f"  -> so PanNuke 0.920 / NuInsSeg 0.854 (in-domain cùng giao thức)")
 
 
