@@ -44,6 +44,27 @@ def enumerate_instances(masks):
     return inst
 
 
+def shift_to_background(b, uni, rng, tries=40):
+    """SHAM-CONTROL: dịch mask nhân b sang vị trí NỀN (không đè nhân nào), GIỮ NGUYÊN hình dạng+diện tích.
+    Dùng để tách "model đáp ứng NỘI DUNG NHÂN" khỏi "model đáp ứng ARTIFACT của inpaint":
+    gỡ cùng số vùng, cùng diện tích, cùng kiểu inpaint — chỉ khác vị trí có/không có nhân.
+    None nếu ảnh quá dày nhân, không còn chỗ nền."""
+    ys, xs = np.where(b)
+    if len(ys) == 0:
+        return None
+    y0, y1, x0, x1 = ys.min(), ys.max(), xs.min(), xs.max()
+    patch = b[y0:y1 + 1, x0:x1 + 1]
+    h, w = patch.shape; H, W = b.shape
+    if h >= H or w >= W:
+        return None
+    for _ in range(tries):
+        ny = int(rng.integers(0, H - h + 1)); nx = int(rng.integers(0, W - w + 1))
+        if not (uni[ny:ny + h, nx:nx + w] & patch).any():
+            out = np.zeros_like(b); out[ny:ny + h, nx:nx + w] = patch
+            return out
+    return None
+
+
 def occlude(img, remove_masks):
     """Gỡ các nhân trong remove_masks: inpaint (Telea) bằng mô xung quanh -> tự nhiên, tránh
     tạo mảng phẳng làm model phản ứng nhầm. Fallback: điền màu nền trung vị."""
@@ -80,8 +101,16 @@ def main():
     ap.add_argument("--preload", action="store_true",
                     help="đẩy tập train lên GPU 1 lần -> train nhanh ~5-15x (PanNuke fold12 ~2.4GB, vừa T4).")
     ap.add_argument("--n_occ", type=int, default=300, help="số ảnh test dùng cho phân tích gỡ-nhân (trải đều)")
-    ap.add_argument("--fracs", default="0,0.25,0.5,0.75,1.0", help="tỉ lệ nhân bị gỡ")
+    ap.add_argument("--fracs", default="0,0.1,0.2,0.3,0.5,0.75,1.0",
+                    help="tỉ lệ nhân bị gỡ. CÓ liều NHỎ (0.1-0.3): ở đó ảnh còn gần phân phối train nên "
+                         "độ nhạy/nhân đáng tin; liều 1.0 gỡ 30-40%% diện tích -> lệch phân phối mạnh.")
     ap.add_argument("--reps", type=int, default=3, help="số tập con ngẫu nhiên mỗi tỉ lệ (giảm nhiễu)")
+    ap.add_argument("--no_sham", action="store_true",
+                    help="tắt sham-control (gỡ vùng NỀN cùng diện tích/hình dạng). MẶC ĐỊNH BẬT — không có nó "
+                         "thì không tách được đáp-ứng-nhân khỏi artifact inpaint (count gỡ-hết 0.705 vô nghĩa).")
+    ap.add_argument("--ckpt", default="",
+                    help="đường dẫn .pt: có sẵn -> NẠP (khỏi train lại ~1h); chưa có -> train rồi LƯU. "
+                         "Cho phép chạy lại phân tích ② nhiều lần trên ĐÚNG một model.")
     ap.add_argument("--out_dir", default="evidence_out")
     ap.add_argument("--work_dir", default="work",
                     help="cache GT-density. ĐẶT NGOÀI repo (vd /kaggle/working/pannuke_cache) để tái dùng "
@@ -109,8 +138,16 @@ def main():
     data = list(train_data) + list(test_data)
     tr = list(range(len(train_data))); te = list(range(len(train_data), len(data)))
     print(f"[data] train fold{tr_folds}={len(tr)} / test fold{args.test_fold}={len(te)}")
-    model = train(data, dev, args.epochs, args.ch, args.lr, tr,
-                  0.0, 1.0, 0.01, 0.5, 16, True, "poisson", args.backbone, preload=args.preload)  # count-only
+    if args.ckpt and os.path.exists(args.ckpt):
+        from distill_student_r2 import DensitySigmaUNet
+        model = DensitySigmaUNet(args.ch, "poisson", args.backbone).to(dev)
+        model.load_state_dict(torch.load(args.ckpt, map_location=dev))
+        print(f"[ckpt] NẠP {args.ckpt} (bỏ qua train)")
+    else:
+        model = train(data, dev, args.epochs, args.ch, args.lr, tr,
+                      0.0, 1.0, 0.01, 0.5, 16, True, "poisson", args.backbone, preload=args.preload)  # count-only
+        if args.ckpt:
+            torch.save(model.state_dict(), args.ckpt); print(f"[ckpt] LƯU {args.ckpt}")
     model.eval()
 
     # ---------- ① scatter Pred-vs-GT + per-organ ----------
@@ -158,7 +195,7 @@ def main():
     idx_occ = np.linspace(0, len(pf) - 1, min(args.n_occ, len(pf))).astype(int)
     fracs = [float(x) for x in args.fracs.split(",")]
     rng = np.random.default_rng(args.seed)
-    rows = []   # (frac, N, remaining_true, pred, full_pred)
+    rows = []   # (img_id, frac, N, remaining_true, pred, full_pred, pred_sham, n_sham_placed)
     for c, i in enumerate(idx_occ):
         s = pf[int(i)]
         if s["masks"] is None:            # masks.npy đã xoá -> không gỡ-nhân được
@@ -168,45 +205,100 @@ def main():
         N = len(inst)
         if N == 0:
             continue
+        uni = np.zeros(img.shape[:2], bool)
+        for b in inst:
+            uni |= b
         full_pred = predict_count(model, img, dev)
         for frac in fracs:
             krm = int(round(frac * N))
             for _ in range(args.reps if 0 < frac < 1 else 1):   # frac 0/1 xác định -> khỏi lặp
                 sel = rng.choice(N, size=krm, replace=False) if krm > 0 else np.array([], int)
-                occ = occlude(img, [inst[j] for j in sel])
-                p = predict_count(model, occ, dev)
-                rows.append((frac, N, N - krm, p, full_pred))
+                p = predict_count(model, occlude(img, [inst[j] for j in sel]), dev)
+                # SHAM: gỡ cùng số vùng, cùng hình dạng/diện tích, cùng inpaint — nhưng ở NỀN
+                p_sh, n_sh = full_pred, 0
+                if not args.no_sham and krm > 0:
+                    shm = [m for m in (shift_to_background(inst[j], uni, rng) for j in sel) if m is not None]
+                    n_sh = len(shm)
+                    p_sh = predict_count(model, occlude(img, shm), dev) if n_sh else float("nan")
+                rows.append((c, frac, N, N - krm, p, full_pred, p_sh, n_sh))
         if (c + 1) % 50 == 0:
             print(f"  [occ] {c+1}/{len(idx_occ)} ảnh")
     rows = np.array(rows, float)
-    frac_a, N_a, rem_a, pred_a, full_a = rows.T
+    img_a, frac_a, N_a, rem_a, pred_a, full_a, sham_a, nsh_a = rows.T
+    ok = full_a > 1e-6
+    norm = np.where(ok, pred_a / np.where(ok, full_a, 1), np.nan)      # count sau gỡ NHÂN / count gốc
+    norm_s = np.where(ok, sham_a / np.where(ok, full_a, 1), np.nan)    # ... sau gỡ NỀN (sham)
+    keep = 1 - frac_a
+    print(f"\n② Dose-response gỡ nhân (n_ảnh={len(set(img_a.astype(int)))}, {len(rows)} phép đo):")
 
-    # độ dốc pred vs remaining_true (gộp mọi ảnh & tỉ lệ); faithful => ~1
+    # (a) ĐỘ DỐC TRONG-ẢNH — thống kê QUYẾT ĐỊNH. (Hồi quy GỘP mọi ảnh bị chi phối bởi biến thiên N
+    #     GIỮA các ảnh -> chỉ lặp lại finding ①, KHÔNG đo nhân quả. Xem (d), chỉ để tham chiếu.)
+    sl_in = []
+    for g in sorted(set(img_a)):
+        m = (img_a == g) & np.isfinite(norm)
+        if len(set(keep[m])) >= 3:
+            A = np.vstack([keep[m], np.ones(m.sum())]).T
+            sl_in.append(np.linalg.lstsq(A, norm[m], rcond=None)[0][0])
+    sl_in = np.array(sl_in)
+    print(f"  (a) độ dốc TRONG-ẢNH (norm vs tỉ lệ nhân còn lại) = {sl_in.mean():.3f}±{sl_in.std():.3f} "
+          f"(n={len(sl_in)} ảnh)  |  ĐẾM TRUNG THỰC => 1.0")
+
+    # (b) độ nhạy MỖI NHÂN ở liều NHỎ (frac<=0.3: ảnh còn gần phân phối train -> đáng tin nhất)
+    sm = (frac_a > 0) & (frac_a <= 0.3) & np.isfinite(norm)
+    krm_a = N_a - rem_a
+    sens = ((full_a - pred_a) / np.maximum(krm_a, 1))[sm]
+    print(f"  (b) Δcount MỖI nhân bị gỡ (liều nhỏ ≤30%) = {sens.mean():+.3f}±{sens.std():.3f}  "
+          f"(=1.0 nghĩa gỡ 1 nhân thì count tụt đúng 1)")
+
+    # (c) SHAM-CONTROL: tách đáp-ứng-NHÂN khỏi artifact inpaint
+    print(f"  (c) sham-control (gỡ NỀN cùng diện tích) theo liều:")
+    print(f"      {'gỡ':>5s} {'nhân(norm)':>12s} {'nền/sham':>12s} {'tụt-do-NHÂN':>13s}")
+    xs = sorted(set(keep)); mean_norm, sd_norm, mean_sh = [], [], []
+    for k in xs:
+        m = (keep == k)
+        a = np.nanmean(norm[m]); b = np.nanmean(norm_s[m])
+        mean_norm.append(a); sd_norm.append(np.nanstd(norm[m])); mean_sh.append(b)
+        print(f"      {1-k:5.2f} {a:12.3f} {b:12.3f} {b - a:13.3f}")
+    at_zero = float(np.nanmean(norm[frac_a == 1.0])) if (frac_a == 1.0).any() else float("nan")
+    at_zero_s = float(np.nanmean(norm_s[frac_a == 1.0])) if (frac_a == 1.0).any() else float("nan")
+    plc = nsh_a[frac_a == 1.0].sum() / max(N_a[frac_a == 1.0].sum(), 1)
+    print(f"      gỡ HẾT nhân: count còn {at_zero:.3f} | sham cùng diện tích còn {at_zero_s:.3f} "
+          f"-> tụt DO NHÂN = {at_zero_s - at_zero:.3f} (tỉ lệ đặt được sham {plc:.2f})")
+    msh = (frac_a > 0) & np.isfinite(norm) & np.isfinite(norm_s)
+    if msh.any() and not args.no_sham:
+        from scipy.stats import wilcoxon
+        try:
+            _, pw = wilcoxon(norm[msh], norm_s[msh])
+        except Exception:
+            pw = float("nan")
+        print(f"      Wilcoxon (gỡ-nhân vs gỡ-nền, n={msh.sum()}): p={pw:.4g} "
+              f"-> {'ĐẶC HIỆU với nhân' if pw < 0.05 else 'KHÔNG đặc hiệu (chỉ là artifact inpaint)'}")
+
+    # (d) hồi quy gộp — GIỮ để tham chiếu, KHÔNG dùng cho claim (confound giữa-ảnh)
     A = np.vstack([rem_a, np.ones_like(rem_a)]).T
     slope, intercept = np.linalg.lstsq(A, pred_a, rcond=None)[0]
     corr = float(np.corrcoef(rem_a, pred_a)[0, 1])
-    # đường chuẩn hóa trung bình theo tỉ lệ còn lại
-    keep = 1 - frac_a
-    norm = np.divide(pred_a, full_a, out=np.zeros_like(pred_a), where=full_a > 1e-6)
-    xs = sorted(set(keep)); mean_norm = [norm[keep == k].mean() for k in xs]; sd_norm = [norm[keep == k].std() for k in xs]
-    at_zero = norm[frac_a == 1.0].mean() if (frac_a == 1.0).any() else float("nan")
-    print(f"\n② Dose-response gỡ nhân (n_ảnh={len(idx_occ)}, {len(rows)} phép đo):")
-    print(f"  độ dốc pred vs (số nhân còn lại) = {slope:.3f}  (≈1 = đếm trung thực theo nhân)  |  corr={corr:.3f}")
-    print(f"  count chuẩn hóa khi GỠ HẾT nhân (frac=1) = {at_zero:.3f}  (≈0 = không đếm từ cue phi-nhân)")
-    np.savez(f"{args.out_dir}/occlusion.npz", frac=frac_a, N=N_a, remaining=rem_a,
-             pred=pred_a, full=full_a, slope=slope, intercept=intercept, corr=corr)
+    print(f"  (d) [THAM CHIẾU, ĐỪNG claim] hồi quy GỘP pred~số-nhân-còn-lại: dốc {slope:.3f}, "
+          f"chặn {intercept:+.2f}, corr {corr:.3f} — bị chi phối bởi biến thiên GIỮA ảnh, không phải nhân quả.")
+    np.savez(f"{args.out_dir}/occlusion.npz", img=img_a, frac=frac_a, N=N_a, remaining=rem_a,
+             pred=pred_a, full=full_a, sham=sham_a, n_sham=nsh_a,
+             slope_within=sl_in, sens_small=sens, slope_pooled=slope, corr=corr)
 
     plt.figure(figsize=(5, 4))
-    plt.errorbar(xs, mean_norm, yerr=sd_norm, fmt="o-", color="darkorange", capsize=3, label="count-only (chuẩn hóa)")
+    plt.errorbar(xs, mean_norm, yerr=sd_norm, fmt="o-", color="darkorange", capsize=3, label="gỡ NHÂN")
+    if not args.no_sham:
+        plt.plot(xs, mean_sh, "s--", color="steelblue", label="sham: gỡ NỀN cùng diện tích")
     plt.plot([0, 1], [0, 1], "k--", lw=1, label="đếm trung thực (y=x)")
     plt.xlabel("Tỉ lệ nhân CÒN LẠI (1 − k)"); plt.ylabel("Count dự đoán / count đầy đủ")
-    plt.title(f"Gỡ nhân → count tụt theo\nđộ dốc(abs)={slope:.2f}, gỡ-hết={at_zero:.2f}")
+    plt.title(f"Gỡ nhân vs sham\ndốc trong-ảnh={sl_in.mean():.2f}, gỡ-hết={at_zero:.2f} (sham {at_zero_s:.2f})")
     plt.xlim(-0.03, 1.03); plt.ylim(-0.03, 1.1); plt.legend(fontsize=7)
     plt.tight_layout(); plt.savefig(f"{args.out_dir}/doseresp.png", dpi=160); plt.close()
 
     print(f"\n[xuất] {args.out_dir}/scatter.png, bland_altman.png, doseresp.png, preds.npz, occlusion.npz")
-    print("ĐỌC: scatter bám chéo = đếm đúng; độ dốc gỡ-nhân ≈1 & gỡ-hết≈0 = ĐANG ĐẾM NHÂN (nhân quả), "
-          "không phải localization mà là đáp ứng nội dung nhân.")
+    print("ĐỌC (①): scatter bám chéo + R² từng cơ quan > 0 + bias≈0 = đếm đúng, không thiên vị hệ thống.")
+    print("ĐỌC (②): CHỈ được kết luận nhân-quả nếu (a) dốc TRONG-ẢNH ≈1 VÀ (b) Δ/nhân ≈1 VÀ (c) sham "
+          "tụt ÍT hơn rõ rệt (p<0.05). Nếu 'tụt-do-NHÂN' nhỏ -> phần lớn là ARTIFACT inpaint, KHÔNG "
+          "phải bằng chứng; báo trung thực là bất định, đừng dùng làm claim.")
 
 
 if __name__ == "__main__":
