@@ -50,6 +50,9 @@ def main():
     ap.add_argument("--seeds", default="42,43,44,45,46", help="mỗi seed 1 split -> per-image Wilcoxon; xem nhất quán")
     ap.add_argument("--w_count_mask", type=float, default=0.1)
     ap.add_argument("--work_dir", default="work")
+    ap.add_argument("--deterministic", action="store_true",
+                    help="bật cuDNN tất định — CHẬM hơn nhiều với efflite0. NuInsSeg nhỏ+ổn định KHÔNG cần "
+                         "-> mặc định TẮT (benchmark=True) cho nhanh.")
     args = ap.parse_args()
     dev = "cuda" if torch.cuda.is_available() else "cpu"
     os.makedirs(args.work_dir, exist_ok=True)
@@ -68,10 +71,12 @@ def main():
         gt = np.array([data[i]["gt"] for i in te])
         preds = {}
         for name, wd, wc in [("count-only", 0.0, 1.0), ("mask (GT-density)", 1.0, args.w_count_mask)]:
-            # DETERMINISM (nhất quán monuseg/sup_compare): cuDNN tất định -> mỗi seed tái lập được.
             np.random.seed(seed); torch.manual_seed(seed); torch.cuda.manual_seed_all(seed)
-            torch.backends.cudnn.deterministic = True; torch.backends.cudnn.benchmark = False
-            torch.use_deterministic_algorithms(True, warn_only=True)
+            if args.deterministic:
+                torch.backends.cudnn.deterministic = True; torch.backends.cudnn.benchmark = False
+                torch.use_deterministic_algorithms(True, warn_only=True)
+            else:
+                torch.backends.cudnn.benchmark = True   # NHANH; NuInsSeg nhỏ+ổn định nên không cần tất định
             model = train(data, dev, args.epochs, args.ch, 1e-3, list(tr),
                           wd, wc, 0.01, 0.5, 16, True, "poisson", args.backbone)
             preds[name] = per_image_pred(model, data, te, dev)
