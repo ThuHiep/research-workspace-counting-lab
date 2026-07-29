@@ -45,8 +45,9 @@ hơn nhiều bậc. Trong một so sánh công bằng theo cùng giao thức kh�
 số) huấn luyện count-only vượt các đại diện của cả ba dòng phương pháp nhãn-đắt (phân vùng, phát hiện, ước lượng
 mật độ) trên chính tác vụ đếm, trong đó phương pháp phát hiện suy giảm có hệ thống theo mật độ nhân. Bộ đếm kèm
 một đầu định lượng bất định được hiệu chuẩn, cung cấp khoảng dự đoán đạt mức phủ mục tiêu ở cả cấp độ biên lẫn
-theo từng cơ quan. Các kết quả này cho thấy chú thích dày đặc ở mức điểm ảnh không phải là điều kiện cần để đếm
-nhân chính xác, và ủng hộ hướng định lượng mô bệnh học hiệu quả về chú thích.
+theo từng cơ quan. Trong phạm vi thiết lập có kiểm soát của chúng tôi, các kết quả này cho thấy chú thích dày
+đặc ở mức điểm ảnh không phải là điều kiện cần để đếm nhân chính xác, và ủng hộ hướng định lượng mô bệnh học
+hiệu quả về chú thích.
 }
 \keywords{đếm nhân tế bào, hiệu quả chú thích, giám sát yếu, định lượng bất định, conformal prediction,
 mô bệnh học tính toán}
@@ -166,7 +167,11 @@ Bảng~\ref{tab:parity} so sánh hai chế độ giám sát trên cùng một ki
 lần chạy, trong khi trên MoNuSeg và NuInsSeg count-only đạt $R^2$ trung bình cao hơn và ổn định hơn (độ lệch
 chuẩn nhỏ hơn). Kiểm định bắt cặp trên từng ảnh không cho thấy count-only kém hơn ở bất kỳ tập nào. Kết quả này
 cho thấy, đối với tác vụ đếm và trên cùng một kiến trúc, việc chuyển từ chú thích mặt nạ ở mức điểm ảnh sang một
-con số đếm cho mỗi ảnh --- rẻ hơn nhiều bậc --- không làm giảm độ chính xác.
+con số đếm cho mỗi ảnh --- rẻ hơn nhiều bậc --- không làm giảm độ chính xác. Cần nhấn mạnh rằng nhánh mask ở
+đây dùng \emph{cùng} kiến trúc với count-only một cách có chủ đích: mục tiêu là cô lập ảnh hưởng của \emph{loại
+giám sát}, chứ không phải so bộ đếm với một kiến trúc phân vùng được tối ưu riêng. Câu hỏi thứ hai --- liệu
+count-only có cạnh tranh được với các kiến trúc chuyên dụng, nhãn-đắt hay không --- được xét tách biệt ở
+Mục~\ref{sec:paradigm}.
 
 \begin{table}[t]
 \centering
@@ -264,6 +269,15 @@ quan sát của chúng tôi nhưng chưa được kiểm chứng trực tiếp, 
 đại lệch nhiều so với miền huấn luyện. Bảo đảm mức phủ đến từ tầng conformal phi-phân phối; do đó độ rộng khoảng
 có thể được sử dụng như một tín hiệu cảnh báo khi mẫu nằm ngoài miền tin cậy.
 
+\paragraph{Hạn chế và phạm vi khái quát.} Các phát hiện của chúng tôi được thiết lập cho một họ kiến trúc cụ
+thể --- bộ mã hóa nhẹ ghép bộ giải mã U-Net --- và cho tác vụ đếm. Vì thiết kế có kiểm soát cố định kiến trúc
+nhằm cô lập biến giám sát, kết luận về tính đủ của giám sát count-only, một cách chặt chẽ, gắn với họ kiến trúc
+này; việc nó có mở rộng sang các họ khác (chẳng hạn bộ mã hóa dạng transformer hay các mạng phân vùng nhân
+chuyên dụng) hay không là một câu hỏi thực nghiệm mở mà bài báo chưa giải quyết. Tương tự, nhánh mask được đánh
+giá dưới cùng kiến trúc bộ đếm nên đo lợi ích của \emph{tín hiệu giám sát}, không phải năng lực tối đa của một
+quy trình phân vùng được tối ưu riêng; so sánh với các kiến trúc chuyên dụng ở Mục~\ref{sec:paradigm} bổ khuyết
+một phần cho khía cạnh này.
+
 \paragraph{Phạm vi đóng góp.} Kiến trúc được sử dụng là một tổ hợp tiêu chuẩn; đóng góp của bài báo không nằm ở
 thiết kế mô hình mà ở thiết kế thí nghiệm có kiểm soát, ở bằng chứng nhất quán trên nhiều tập dữ liệu về tính đủ
 của giám sát count-only, và ở độ tin cậy triển khai.
@@ -276,8 +290,9 @@ Qua một nghiên cứu có kiểm soát trên ba tập dữ liệu mô bệnh h
 đòi hỏi chi phí chú thích thấp hơn nhiều bậc; đồng thời, một bộ đếm count-only nhẹ vượt các đại diện của ba dòng
 phương pháp nhãn-đắt trên tác vụ đếm. Kèm theo một đầu định lượng bất định được hiệu chuẩn, các kết quả này cho
 thấy chú thích dày đặc ở mức điểm ảnh không phải là điều kiện cần để đếm nhân chính xác. Các hướng phát triển
-gồm kiểm chứng cơ chế đứng sau tính đủ của giám sát count-only, khắc phục sự phụ thuộc độ phân giải bằng học đa
-tỉ lệ, và mở rộng đầu bất định để nắm bắt sai số do dịch chuyển miền.
+gồm kiểm chứng tính khái quát của phát hiện qua nhiều họ kiến trúc (bao gồm bộ mã hóa dạng transformer và các
+mạng phân vùng chuyên dụng), kiểm chứng cơ chế đứng sau tính đủ của giám sát count-only, khắc phục sự phụ thuộc
+độ phân giải bằng học đa tỉ lệ, và mở rộng đầu bất định để nắm bắt sai số do dịch chuyển miền.
 
 %%============================================================%%
 \backmatter
