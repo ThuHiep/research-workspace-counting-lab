@@ -36,7 +36,7 @@ Một nghiên cứu có kiểm soát về hiệu quả giám sát trong mô bệ
 Định lượng số lượng nhân tế bào trên tiêu bản mô bệnh học nhuộm H\&E là một tác vụ cơ bản trong bệnh học tính
 toán, song hầu hết phương pháp hiện đại đều dựa trên chú thích ở mức điểm ảnh --- mặt nạ phân vùng hoặc bản đồ
 điểm --- loại nhãn tốn công chuyên gia và khó mở rộng sang mô, cơ quan hay trung tâm mới. Bài báo kiểm định
-trực tiếp câu hỏi liệu mức chú thích tốn kém đó có thực sự cần thiết cho việc đếm hay không. Chúng tôi thực
+trực tiếp câu hỏi liệu mức chú thích tốn kém đó có thực sự cần thiết cho việc đếm hay không. Bài báo thực
 hiện một nghiên cứu có kiểm soát trong đó kiến trúc mạng, dữ liệu và quy trình đánh giá được giữ nguyên và chỉ
 \emph{loại giám sát} thay đổi, nhằm cô lập đóng góp của chú thích khỏi đóng góp của mô hình. Trên ba tập dữ
 liệu độc lập (PanNuke, NuInsSeg, MoNuSeg), giám sát chỉ bằng một con số đếm cho mỗi ảnh đạt độ chính xác đếm
@@ -45,7 +45,7 @@ hơn nhiều bậc. Trong một so sánh công bằng theo cùng giao thức kh�
 số) huấn luyện count-only vượt các đại diện của cả ba dòng phương pháp nhãn-đắt (phân vùng, phát hiện, ước lượng
 mật độ) trên chính tác vụ đếm, trong đó phương pháp phát hiện suy giảm có hệ thống theo mật độ nhân. Bộ đếm kèm
 một đầu định lượng bất định được hiệu chuẩn, cung cấp khoảng dự đoán đạt mức phủ mục tiêu ở cả cấp độ biên lẫn
-theo từng cơ quan. Trong phạm vi thiết lập có kiểm soát của chúng tôi, các kết quả này cho thấy chú thích dày
+theo từng cơ quan. Trong phạm vi thiết lập có kiểm soát này, các kết quả cho thấy chú thích dày
 đặc ở mức điểm ảnh không phải là điều kiện cần để đếm nhân chính xác, và ủng hộ hướng định lượng mô bệnh học
 hiệu quả về chú thích.
 }
@@ -69,22 +69,22 @@ tâm mới.
 mức ảnh (\emph{count-only}) đã được sử dụng rộng rãi; tuy nhiên trong đếm nhân mô bệnh học, mặt nạ và điểm vẫn
 là mặc định. Do đó, mức giám sát tối thiểu thực sự cần cho việc đếm vẫn là một câu hỏi mở.
 
-Chúng tôi tiếp cận câu hỏi này bằng một \emph{thí nghiệm có kiểm soát}: giữ cố định kiến trúc (một bộ mã hóa
+Câu hỏi này được tiếp cận bằng một \emph{thí nghiệm có kiểm soát}: giữ cố định kiến trúc (một bộ mã hóa
 nhẹ tiêu chuẩn ghép bộ giải mã U-Net), dữ liệu và quy trình đánh giá, và chỉ thay đổi loại giám sát --- từ mặt
 nạ ở mức điểm ảnh sang một con số đếm duy nhất cho mỗi ảnh. Nhờ thiết kế này, mọi khác biệt quan sát được có thể
-quy cho \emph{chú thích} thay vì cho sức mạnh mô hình. Chúng tôi lưu ý rằng bài báo không đề xuất một kiến trúc
+quy cho \emph{chú thích} thay vì cho sức mạnh mô hình. Cần lưu ý rằng bài báo không đề xuất một kiến trúc
 mới; kiến trúc đóng vai trò một nền được kiểm soát, và đóng góp nằm ở các phát hiện thực nghiệm cùng hệ quả
 thực tiễn của chúng.
 
 Các đóng góp chính của bài báo như sau.
 \begin{itemize}
-\item Trên ba tập dữ liệu độc lập, chúng tôi cho thấy giám sát count-only đạt độ chính xác đếm không thua giám
+\item Trên ba tập dữ liệu độc lập, kết quả cho thấy giám sát count-only đạt độ chính xác đếm không thua giám
 sát bằng mặt nạ trên cùng kiến trúc; sự khác biệt nằm trong khoảng dao động giữa các lần chạy, và một kiểm định
 signed-rank bắt cặp trên từng ảnh không cho thấy count-only kém hơn (Mục~\ref{sec:parity}).
 \item Trong một so sánh công bằng theo cùng giao thức không rò rỉ, bộ đếm count-only nhẹ vượt các đại diện của
 ba dòng phương pháp nhãn-đắt trên tác vụ đếm; đáng chú ý, phương pháp phát hiện suy giảm có hệ thống ở vùng nhân
 dày đặc (Mục~\ref{sec:paradigm}).
-\item Chúng tôi định lượng hiệu quả chú thích qua đường cong học theo tỉ lệ nhãn, và trang bị một đầu định lượng
+\item Hiệu quả chú thích được định lượng qua đường cong học theo tỉ lệ nhãn, và bộ đếm được trang bị một đầu định lượng
 bất định được hiệu chuẩn cho triển khai tin cậy (Mục~\ref{sec:label},~\ref{sec:uq}).
 \end{itemize}
 
@@ -121,7 +121,7 @@ nền phương sai Poisson và $\mu$ được tách gradient khỏi nhánh $\sig
 tham số.
 
 \subsection{Các chế độ giám sát}
-Chúng tôi cô lập biến giám sát bằng cách giữ nguyên kiến trúc, dữ liệu và đánh giá, chỉ thay đổi trọng số hàm
+Biến giám sát được cô lập bằng cách giữ nguyên kiến trúc, dữ liệu và đánh giá, chỉ thay đổi trọng số hàm
 mất mát $\mathcal{L} = w_d\,\mathcal{L}_{\text{mật độ}} + w_c\,\mathcal{L}_{\text{đếm}}
 + w_{n}\,\mathcal{L}_{\text{NLL}}$:
 \begin{itemize}
@@ -134,27 +134,27 @@ $\mathcal{L}_{\text{NLL}}$ là hàm hợp lý âm dạng $\beta$-NLL~\cite{bnll}
 $\mu$.
 
 \subsection{Hiệu chuẩn khoảng dự đoán}
-Sau huấn luyện, chúng tôi áp dụng conformal prediction theo lối chia (split-conformal)~\cite{vovk,cqr} trên một
+Sau huấn luyện, conformal prediction theo lối chia (split-conformal)~\cite{vovk,cqr} được áp dụng trên một
 tập hiệu chuẩn để thu khoảng $[\mu - q\sigma,\ \mu + q\sigma]$ đạt mức phủ mục tiêu $1-\alpha$. Ba sơ đồ được xem xét: một
 ngưỡng chung (global), một ngưỡng riêng cho mỗi cơ quan (mondrian) và một ngưỡng theo nhóm độ khó (cluster).
 
 %%============================================================%%
 \section{Thiết lập thực nghiệm}\label{sec:setup}
 
-\paragraph{Dữ liệu.} Chúng tôi đánh giá trên ba tập độc lập, khác nhau về nguồn: PanNuke~\cite{pannuke} (đa loại ung thư,
+\paragraph{Dữ liệu.} Việc đánh giá được thực hiện trên ba tập độc lập, khác nhau về nguồn: PanNuke~\cite{pannuke} (đa loại ung thư,
 $256\times256$, 19 loại mô; huấn luyện trên fold~1--2, kiểm tra trên fold~3 theo giao thức không rò rỉ),
 NuInsSeg~\cite{nuinsseg} (đa cơ quan) và MoNuSeg~2018~\cite{monuseg} (đa cơ quan từ TCGA; ảnh $1000\times1000$
 được cắt thành các mảnh $256$ ở độ phân giải gốc, dùng đúng phân chia huấn luyện/kiểm tra chính thức). Một tập
 cryosection (CryoNuSeg~\cite{cryonuseg}) được dùng riêng cho phân tích giới hạn chuyển giao.
 
 \paragraph{Giao thức.} Mọi phương pháp so sánh được huấn luyện lại từ đầu trên cùng tập huấn luyện và đánh giá
-trên cùng tập kiểm tra; mỗi cấu hình lặp lại với ba hạt giống ngẫu nhiên và chúng tôi báo cáo trung bình cùng
+trên cùng tập kiểm tra; mỗi cấu hình lặp lại với nhiều hạt giống ngẫu nhiên, báo cáo trung bình cùng
 độ lệch chuẩn. Do giám sát mật độ trên bản đồ mục tiêu thưa có xu hướng suy về nghiệm hằng số khi trọng số đếm
-quá nhỏ, đối với mỗi tập dữ liệu chúng tôi chọn $w_c$ cho chế độ mask ở giá trị đem lại mô hình hội tụ ổn định
+quá nhỏ, đối với mỗi tập dữ liệu, $w_c$ cho chế độ mask được chọn ở giá trị đem lại mô hình hội tụ ổn định
 tốt nhất, nhằm bảo đảm baseline được so sánh ở trạng thái thuận lợi nhất của nó.
 
 \paragraph{Chỉ số và kiểm định.} Độ chính xác đếm được đo bằng $R^2$ và sai số tuyệt đối trung bình (MAE). Để
-so sánh hai chế độ giám sát, chúng tôi dùng kiểm định Wilcoxon signed-rank bắt cặp trên sai số tuyệt đối của
+so sánh hai chế độ giám sát, kiểm định Wilcoxon signed-rank bắt cặp được dùng trên sai số tuyệt đối của
 từng ảnh, trong đó sai số mỗi ảnh được lấy trung bình qua các hạt giống trên tập kiểm tra cố định; giá trị
 $p>0{,}05$ được diễn giải là không phát hiện khác biệt. Chất lượng khoảng dự đoán được đo bằng mức phủ biên,
 mức phủ của cơ quan có mức phủ thấp nhất, độ rộng khoảng và điểm Winkler.
@@ -172,7 +172,7 @@ trên MoNuSeg --- một tập rất nhỏ ($37$ ảnh huấn luyện) khiến $R
 các hạt giống --- $R^2$ trung bình của count-only cao hơn nhưng chênh lệch ($\Delta = 0{,}10$) nằm gọn trong độ
 lệch chuẩn, nên hai chế độ được xem là tương đương. Ở tập kiểm tra đủ lớn và cố định (PanNuke), kiểm định bắt
 cặp trên từng ảnh là công cụ thích hợp; trên các tập nhỏ, phương sai giữa hạt giống chi phối và xếp hạng theo
-từng ảnh không ổn định giữa các tập con hạt giống, nên chúng tôi kết luận count-only \emph{không thua} thay vì
+từng ảnh không ổn định giữa các tập con hạt giống, nên có thể kết luận count-only \emph{không thua} thay vì
 tuyên bố ưu thế. Kết quả này
 cho thấy, đối với tác vụ đếm và trên cùng một kiến trúc, việc chuyển từ chú thích mặt nạ ở mức điểm ảnh sang một
 con số đếm cho mỗi ảnh --- rẻ hơn nhiều bậc --- không làm giảm độ chính xác. Cần nhấn mạnh rằng nhánh mask ở
@@ -196,14 +196,14 @@ NuInsSeg$^{\dagger}$ & $0{,}913\pm0{,}022$ & $0{,}892\pm0{,}017$ & $+0{,}021$ & 
 \bottomrule
 \end{tabular}
 \footnotetext{$^{\dagger}$ Vì NuInsSeg dùng chia ngẫu nhiên khác nhau theo hạt giống, tập kiểm tra không cố
-định giữa các lần chạy và nhỏ (${\sim}26$ ảnh/chia); do đó chúng tôi báo cáo tính nhất quán theo từng chia
+định giữa các lần chạy và nhỏ (${\sim}26$ ảnh/chia); do đó tính nhất quán theo từng chia được báo cáo
 ($5$ hạt giống) thay vì một kiểm định gộp: sai số tuyệt đối của count-only thấp hơn ở $4/5$ chia nhưng
 \emph{không} đạt $p<0{,}05$ ở bất kỳ chia nào ($0/5$). Kết quả này nhất quán với tương đương --- count-only
 không thua mask, và không có khác biệt có ý nghĩa thống kê theo từng ảnh.}
 \footnotetext{$^{\ddagger}$ MoNuSeg rất nhỏ ($37$ ảnh huấn luyện) nên $R^2$ dao động mạnh giữa các hạt giống ở
 \emph{cả hai} chế độ; số liệu lấy trung bình $5$ hạt giống với thuật toán huấn luyện tất định. Vì $|\Delta R^2|$
-nhỏ hơn độ lệch chuẩn và xếp hạng theo từng ảnh không ổn định giữa các tập con hạt giống, chúng tôi diễn giải là
-tương đương (count-only không thua) và \emph{không} tuyên bố ưu thế.}
+nhỏ hơn độ lệch chuẩn và xếp hạng theo từng ảnh không ổn định giữa các tập con hạt giống, kết quả được diễn giải
+là tương đương (count-only không thua), \emph{không} tuyên bố ưu thế.}
 \end{table}
 
 \subsection{So sánh với ba paradigm nhãn-đắt}\label{sec:paradigm}
@@ -231,7 +231,7 @@ DeNuC & $4{,}37$M & hộp/điểm & phát hiện & 0,455 & 9,64 \\
 \end{table}
 
 \subsection{Hiệu quả chú thích}\label{sec:label}
-Chúng tôi đo đường cong học của bộ đếm count-only theo tỉ lệ nhãn huấn luyện trên PanNuke. Với chỉ $25\%$ nhãn,
+Đường cong học của bộ đếm count-only theo tỉ lệ nhãn huấn luyện được đo trên PanNuke. Với chỉ $25\%$ nhãn,
 mô hình đạt $R^2 = 0{,}85 \pm 0{,}03$; với toàn bộ nhãn, $R^2 = 0{,}92 \pm 0{,}01$. Như vậy khoảng $93\%$ hiệu
 năng ở mức nhãn đầy đủ đã đạt được với một phần tư ngân sách chú thích, cho thấy độ chính xác đếm không suy giảm
 nhanh khi cắt giảm nhãn --- một đặc tính có giá trị thực tiễn khi ngân sách gán nhãn hạn chế.
@@ -273,12 +273,12 @@ cluster & 0,906 & 14,8 & \textbf{20,0} & 0,859 & 0/19 \\
 %%============================================================%%
 \section{Thảo luận}\label{sec:discuss}
 
-\paragraph{Vì sao chú thích mức-ảnh là đủ.} Kết quả của chúng tôi chỉ ra rằng, đối với đếm, giám sát ở mức điểm
+\paragraph{Vì sao chú thích mức-ảnh là đủ.} Kết quả chỉ ra rằng, đối với đếm, giám sát ở mức điểm
 ảnh không mang lại lợi ích đo được so với giám sát count-only. Một cách diễn giải khả dĩ, cần được kiểm chứng
 trong nghiên cứu tương lai, là đếm nhân có thể được giải quyết chủ yếu như một bài toán \emph{hồi quy toàn cục}
 dựa trên các dấu hiệu ở mức ảnh (chẳng hạn lượng chất nhuộm nhân, kết cấu và độ đầy tế bào) hơn là một bài toán
-\emph{phát hiện} từng đối tượng. Chúng tôi trình bày giả thuyết này một cách thận trọng: nó nhất quán với các
-quan sát của chúng tôi nhưng chưa được kiểm chứng trực tiếp, và việc xác nhận sẽ đòi hỏi các thí nghiệm riêng
+\emph{phát hiện} từng đối tượng. Giả thuyết này được trình bày một cách thận trọng: nó nhất quán với các
+quan sát nhưng chưa được kiểm chứng trực tiếp, và việc xác nhận sẽ đòi hỏi các thí nghiệm riêng
 (ví dụ phân tích tương quan với cường độ nhuộm, hay các nghiên cứu che khuất và chuẩn hóa nhuộm).
 
 \paragraph{Chuyển giao ngoài miền.} Khi đánh giá không điều chỉnh trên một miền khác, mức phủ của khoảng dự đoán
@@ -286,7 +286,7 @@ quan sát của chúng tôi nhưng chưa được kiểm chứng trực tiếp, 
 đại lệch nhiều so với miền huấn luyện. Bảo đảm mức phủ đến từ tầng conformal phi-phân phối; do đó độ rộng khoảng
 có thể được sử dụng như một tín hiệu cảnh báo khi mẫu nằm ngoài miền tin cậy.
 
-\paragraph{Hạn chế và phạm vi khái quát.} Các phát hiện của chúng tôi được thiết lập cho một họ kiến trúc cụ
+\paragraph{Hạn chế và phạm vi khái quát.} Các phát hiện được thiết lập cho một họ kiến trúc cụ
 thể --- bộ mã hóa nhẹ ghép bộ giải mã U-Net --- và cho tác vụ đếm. Vì thiết kế có kiểm soát cố định kiến trúc
 nhằm cô lập biến giám sát, kết luận về tính đủ của giám sát count-only, một cách chặt chẽ, gắn với họ kiến trúc
 này; việc nó có mở rộng sang các họ khác (chẳng hạn bộ mã hóa dạng transformer hay các mạng phân vùng nhân
@@ -302,7 +302,7 @@ của giám sát count-only, và ở độ tin cậy triển khai.
 %%============================================================%%
 \section{Kết luận}\label{sec:conclusion}
 
-Qua một nghiên cứu có kiểm soát trên ba tập dữ liệu mô bệnh học độc lập, chúng tôi cho thấy giám sát chỉ bằng số
+Qua một nghiên cứu có kiểm soát trên ba tập dữ liệu mô bệnh học độc lập, kết quả cho thấy giám sát chỉ bằng số
 đếm ở mức ảnh đạt độ chính xác đếm không thua giám sát bằng mặt nạ ở mức điểm ảnh trên cùng kiến trúc, trong khi
 đòi hỏi chi phí chú thích thấp hơn nhiều bậc; đồng thời, một bộ đếm count-only nhẹ vượt các đại diện của ba dòng
 phương pháp nhãn-đắt trên tác vụ đếm. Kèm theo một đầu định lượng bất định được hiệu chuẩn, các kết quả này cho
