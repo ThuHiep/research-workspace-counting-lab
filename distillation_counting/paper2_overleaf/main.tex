@@ -166,7 +166,8 @@ mức phủ của cơ quan có mức phủ thấp nhất, độ rộng khoảng 
 
 Bảng~\ref{tab:parity} so sánh hai chế độ giám sát trên cùng một kiến trúc. Trên cả ba tập dữ liệu, độ chính xác
 đếm của count-only không thấp hơn của mask: trên PanNuke hai chế độ tương đương trong phạm vi dao động giữa các
-lần chạy; trên NuInsSeg count-only đạt $R^2$ trung bình cao hơn và ổn định hơn (độ lệch chuẩn nhỏ hơn); còn
+lần chạy; trên NuInsSeg count-only đạt $R^2$ trung bình nhỉnh hơn nhưng chênh lệch nằm trong độ lệch chuẩn và
+không có khác biệt có ý nghĩa theo từng ảnh ở bất kỳ chia nào (tương đương); còn
 trên MoNuSeg --- một tập rất nhỏ ($37$ ảnh huấn luyện) khiến $R^2$ của \emph{cả hai} chế độ dao động mạnh giữa
 các hạt giống --- $R^2$ trung bình của count-only cao hơn nhưng chênh lệch ($\Delta = 0{,}10$) nằm gọn trong độ
 lệch chuẩn, nên hai chế độ được xem là tương đương. Ở tập kiểm tra đủ lớn và cố định (PanNuke), kiểm định bắt
@@ -182,22 +183,23 @@ Mục~\ref{sec:paradigm}.
 
 \begin{table}[t]
 \centering
-\caption{Độ chính xác đếm dưới hai chế độ giám sát trên \emph{cùng} kiến trúc (PanNuke/NuInsSeg $3$ hạt giống,
-MoNuSeg $5$ hạt giống với thuật toán tất định). $\Delta R^2 = R^2_{\text{count}} - R^2_{\text{mask}}$; $p$ là
-kiểm định Wilcoxon bắt cặp trên từng ảnh (sai số lấy trung bình qua các hạt giống).}\label{tab:parity}
+\caption{Độ chính xác đếm dưới hai chế độ giám sát trên \emph{cùng} kiến trúc (PanNuke $3$; NuInsSeg và MoNuSeg
+$5$ hạt giống). $\Delta R^2 = R^2_{\text{count}} - R^2_{\text{mask}}$; $p$ là kiểm định Wilcoxon bắt cặp trên
+từng ảnh (sai số lấy trung bình qua các hạt giống).}\label{tab:parity}
 \begin{tabular}{@{}lccccl@{}}
 \toprule
 Tập dữ liệu & count-only ($R^2$) & mask ($R^2$) & $\Delta R^2$ & $p$ & Diễn giải \\
 \midrule
 PanNuke & $0{,}930\pm0{,}009$ & $0{,}925\pm0{,}009$ & $+0{,}005$ & \pending & tương đương \\
 MoNuSeg$^{\ddagger}$ & $0{,}459\pm0{,}194$ & $0{,}362\pm0{,}154$ & $+0{,}097$ & --- & tương đương (trong dao động) \\
-NuInsSeg$^{\dagger}$ & $0{,}921\pm0{,}016$ & $0{,}847\pm0{,}054$ & $+0{,}074$ & --- & count-only không thua \\
+NuInsSeg$^{\dagger}$ & $0{,}913\pm0{,}022$ & $0{,}892\pm0{,}017$ & $+0{,}021$ & --- & tương đương \\
 \bottomrule
 \end{tabular}
 \footnotetext{$^{\dagger}$ Vì NuInsSeg dùng chia ngẫu nhiên khác nhau theo hạt giống, tập kiểm tra không cố
-định giữa các lần chạy; do đó chúng tôi báo cáo tính nhất quán theo từng chia thay vì một kiểm định gộp: sai số
-tuyệt đối của count-only thấp hơn ở $2/3$ chia (đạt $p<0{,}05$ ở $1/3$). Chúng tôi vì vậy \emph{không} tuyên bố
-ưu thế có ý nghĩa thống kê nhất quán, mà chỉ kết luận count-only không thua và đạt $R^2$ cao hơn, ổn định hơn.}
+định giữa các lần chạy và nhỏ (${\sim}26$ ảnh/chia); do đó chúng tôi báo cáo tính nhất quán theo từng chia
+($5$ hạt giống) thay vì một kiểm định gộp: sai số tuyệt đối của count-only thấp hơn ở $4/5$ chia nhưng
+\emph{không} đạt $p<0{,}05$ ở bất kỳ chia nào ($0/5$). Kết quả này nhất quán với tương đương --- count-only
+không thua mask, và không có khác biệt có ý nghĩa thống kê theo từng ảnh.}
 \footnotetext{$^{\ddagger}$ MoNuSeg rất nhỏ ($37$ ảnh huấn luyện) nên $R^2$ dao động mạnh giữa các hạt giống ở
 \emph{cả hai} chế độ; số liệu lấy trung bình $5$ hạt giống với thuật toán huấn luyện tất định. Vì $|\Delta R^2|$
 nhỏ hơn độ lệch chuẩn và xếp hạng theo từng ảnh không ổn định giữa các tập con hạt giống, chúng tôi diễn giải là
