@@ -46,6 +46,9 @@ def main():
     ap.add_argument("--seeds", default="42,43,44")
     ap.add_argument("--bs", type=int, default=16,
                     help="batch size. Tăng (48/64) để GPU no hơn (T4 15GB thừa) -> nhanh hơn nhiều/epoch.")
+    ap.add_argument("--preload", action="store_true",
+                    help="đẩy toàn tập train lên GPU 1 lần (bỏ nghẽn CPU stack/copy mỗi batch) -> nhanh ~5-15x. "
+                         "PanNuke fold12 ~2.4GB GPU, vừa T4. TẮT nếu OOM.")
     ap.add_argument("--w_count_mask", type=float, default=0.1,
                     help="neo count cho mask (0.1 ổn định; 0.01 cũ có thể sập theo seed)")
     ap.add_argument("--lr", type=float, default=1e-3,
@@ -91,7 +94,7 @@ def main():
                 torch.backends.cudnn.benchmark = True   # NHANH; PanNuke lớn+ổn định nên không cần tất định
             # train(data, device, epochs, ch, lr, train_idx, w_density, w_count, w_nll, beta, bs, detach_mu, sigma_mode, backbone)
             model = train(data, dev, args.epochs, args.ch, args.lr, tr,
-                          wd, wc, 0.01, 0.5, args.bs, True, "poisson", args.backbone)
+                          wd, wc, 0.01, 0.5, args.bs, True, "poisson", args.backbone, preload=args.preload)
             r2, mae = eval_r2_mae(model, data, te, dev)
             r2s.append(r2); maes.append(mae)
             per_img[name].append(_per_image_pred(model, data, te, dev))

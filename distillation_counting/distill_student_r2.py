@@ -254,23 +254,39 @@ def build_teacher_density(samples, device, cache, use_gt=False):
 
 # ===================== Phase B: train =====================
 def train(data, device, epochs, ch, lr, train_idx, w_density, w_count, w_nll, beta, bs,
-          detach_mu=False, sigma_mode="poisson", backbone="tinyunet", head_k=1, head_d=1, attn="none"):
+          detach_mu=False, sigma_mode="poisson", backbone="tinyunet", head_k=1, head_d=1, attn="none",
+          preload=False):
     model = DensitySigmaUNet(ch, sigma_mode=sigma_mode, backbone=backbone, head_k=head_k, head_d=head_d, attn=attn).to(device)
     print(f"[B] DensitySigmaUNet backbone={backbone} ch={ch} params={sum(p.numel() for p in model.parameters())/1e6:.3f}M "
           f"w=(dens {w_density}, count {w_count}, nll {w_nll}) beta={beta} detach_mu={detach_mu} sigma_mode={sigma_mode}")
     opt = torch.optim.Adam(model.parameters(), lr=lr)
     model.train()
+    # PRELOAD (opt-in): đẩy TOÀN tập train lên GPU 1 lần -> index trên GPU, bỏ stack numpy + copy H2D mỗi batch
+    # (nút cổ chai làm epoch chậm ~10-20x trên dataset lớn). OOM nếu tập quá lớn -> chỉ bật khi vừa VRAM.
+    if preload:
+        _imgs = torch.from_numpy(np.stack([data[j]["img"] for j in train_idx])).to(device)     # (N,H,W,3) uint8
+        _dens = torch.from_numpy(np.stack([data[j]["density"] for j in train_idx])).to(device)  # (N,H,W) f32
+        _gt = torch.tensor([data[j]["gt"] for j in train_idx], device=device, dtype=torch.float32)
+        _pos = {j: k for k, j in enumerate(train_idx)}
+        print(f"[B] preload GPU: imgs {tuple(_imgs.shape)} dens {tuple(_dens.shape)} "
+              f"(~{(_imgs.numel()+_dens.numel()*4)/1e9:.1f}GB) -> epoch không còn nghẽn CPU")
     for ep in range(epochs):
         np.random.shuffle(train_idx)
         logs = {"loss": [], "L_density": [], "L_count": [], "L_nll": [], "sigma": []}
         for i in range(0, len(train_idx), bs):
             idxs = train_idx[i:i + bs]
-            imgs = torch.from_numpy(
-                np.stack([data[j]["img"] for j in idxs]).astype(np.float32) / 255.0
-            ).permute(0, 3, 1, 2).to(device)
-            dT = torch.from_numpy(
-                np.stack([data[j]["density"] for j in idxs]))[:, None].to(device)
-            gt = torch.tensor([data[j]["gt"] for j in idxs], device=device, dtype=torch.float32)
+            if preload:
+                rows = torch.as_tensor([_pos[j] for j in idxs], device=device)
+                imgs = _imgs[rows].permute(0, 3, 1, 2).float() / 255.0
+                dT = _dens[rows][:, None]
+                gt = _gt[rows]
+            else:
+                imgs = torch.from_numpy(
+                    np.stack([data[j]["img"] for j in idxs]).astype(np.float32) / 255.0
+                ).permute(0, 3, 1, 2).to(device)
+                dT = torch.from_numpy(
+                    np.stack([data[j]["density"] for j in idxs]))[:, None].to(device)
+                gt = torch.tensor([data[j]["gt"] for j in idxs], device=device, dtype=torch.float32)
             dens_S, log_sigma = model(imgs)
             out = r2_loss(dens_S, dT, log_sigma, gt, w_density, w_count, w_nll, beta, detach_mu)
             opt.zero_grad(); out["loss"].backward()
