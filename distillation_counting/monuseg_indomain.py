@@ -177,7 +177,12 @@ def main():
         r2s, maes = [], []
         for seed in seeds:
             tr, te = split_idx(seed)
-            np.random.seed(seed); torch.manual_seed(seed)
+            # DETERMINISM: seed np/torch KHÔNG đủ (cuDNN chọn thuật toán conv ngẫu nhiên) ->
+            # chạy lại cùng seed vẫn lệch. Khóa cuDNN để mỗi seed tái lập được; phương sai còn lại
+            # là phương sai SEED thật (không phải nhiễu run-to-run). Chậm hơn chút — chấp nhận trên MoNuSeg nhỏ.
+            np.random.seed(seed); torch.manual_seed(seed); torch.cuda.manual_seed_all(seed)
+            torch.backends.cudnn.deterministic = True; torch.backends.cudnn.benchmark = False
+            torch.use_deterministic_algorithms(True, warn_only=True)
             model = train(data, dev, args.epochs, 32, 1e-3, list(tr),
                           w_d, w_c, 0.01, 0.5, 16, True, "poisson", args.backbone)
             r2, mae, pr, yt = eval_r2(model, data, te, dev, return_pred=True)
