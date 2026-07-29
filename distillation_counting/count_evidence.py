@@ -77,6 +77,8 @@ def main():
     ap.add_argument("--epochs", type=int, default=60)
     ap.add_argument("--lr", type=float, default=1e-3)
     ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--preload", action="store_true",
+                    help="đẩy tập train lên GPU 1 lần -> train nhanh ~5-15x (PanNuke fold12 ~2.4GB, vừa T4).")
     ap.add_argument("--n_occ", type=int, default=300, help="số ảnh test dùng cho phân tích gỡ-nhân (trải đều)")
     ap.add_argument("--fracs", default="0,0.25,0.5,0.75,1.0", help="tỉ lệ nhân bị gỡ")
     ap.add_argument("--reps", type=int, default=3, help="số tập con ngẫu nhiên mỗi tỉ lệ (giảm nhiễu)")
@@ -108,7 +110,7 @@ def main():
     tr = list(range(len(train_data))); te = list(range(len(train_data), len(data)))
     print(f"[data] train fold{tr_folds}={len(tr)} / test fold{args.test_fold}={len(te)}")
     model = train(data, dev, args.epochs, args.ch, args.lr, tr,
-                  0.0, 1.0, 0.01, 0.5, 16, True, "poisson", args.backbone)  # count-only
+                  0.0, 1.0, 0.01, 0.5, 16, True, "poisson", args.backbone, preload=args.preload)  # count-only
     model.eval()
 
     # ---------- ① scatter Pred-vs-GT + per-organ ----------
