@@ -47,7 +47,7 @@ def main():
     ap.add_argument("--backbone", default="efficientnet_lite0")
     ap.add_argument("--ch", type=int, default=32)
     ap.add_argument("--epochs", type=int, default=60)
-    ap.add_argument("--seeds", default="42,43,44", help="mỗi seed 1 split -> per-image Wilcoxon; xem nhất quán")
+    ap.add_argument("--seeds", default="42,43,44,45,46", help="mỗi seed 1 split -> per-image Wilcoxon; xem nhất quán")
     ap.add_argument("--w_count_mask", type=float, default=0.1)
     ap.add_argument("--work_dir", default="work")
     args = ap.parse_args()
