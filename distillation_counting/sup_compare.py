@@ -49,16 +49,19 @@ def main():
     ap.add_argument("--lr", type=float, default=1e-3,
                     help="Adam LR; efflite0/CNN dùng 1e-3. Backbone transformer (pvt/swin) có thể cần "
                          "hạ (3e-4/1e-4) nếu 1e-3 phá feature pretrained -> sập hằng số.")
+    ap.add_argument("--work_dir", default="work",
+                    help="nơi lưu cache GT-density. ĐẶT NGOÀI repo (vd /kaggle/working/pannuke_cache) "
+                         "để 'rm -rf <repo>' mỗi lần clone KHÔNG xóa cache -> khỏi build lại (rất chậm).")
     args = ap.parse_args()
     dev = "cuda" if torch.cuda.is_available() else "cpu"
 
-    os.makedirs("work", exist_ok=True)   # nơi lưu cache GT-density (kẻo build xong không save được)
+    os.makedirs(args.work_dir, exist_ok=True)   # nơi lưu cache GT-density (kẻo build xong không save được)
     tr_folds = [int(x) for x in args.train_folds.split(",")]
     fstr = "".join(str(x) for x in sorted(tr_folds))
     train_data = build_pannuke_density(args.pannuke_root, tr_folds, dev,
-                                       f"work/gt_density_pannuke_f{fstr}.pkl", use_gt=True)
+                                       f"{args.work_dir}/gt_density_pannuke_f{fstr}.pkl", use_gt=True)
     test_data = build_pannuke_density(args.pannuke_root, [int(args.test_fold)], dev,
-                                      f"work/gt_density_pannuke_f{args.test_fold}.pkl", use_gt=True)
+                                      f"{args.work_dir}/gt_density_pannuke_f{args.test_fold}.pkl", use_gt=True)
     data = list(train_data) + list(test_data)
     tr = list(range(len(train_data))); te = list(range(len(train_data), len(data)))
     print(f"[data] train fold{tr_folds}={len(tr)} / test fold{args.test_fold}={len(te)} "
