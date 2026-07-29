@@ -55,7 +55,10 @@ def main():
                          "-> mặc định TẮT (benchmark=True) cho nhanh.")
     args = ap.parse_args()
     dev = "cuda" if torch.cuda.is_available() else "cpu"
-    os.makedirs(args.work_dir, exist_ok=True)
+    try:                                       # work_dir có thể là dataset /kaggle/input READ-ONLY
+        os.makedirs(args.work_dir, exist_ok=True)
+    except OSError as e:
+        print(f"[work_dir] không tạo được ({e}) — chỉ ĐỌC cache, ok nếu pkl đã có sẵn")
     from scipy.stats import wilcoxon
 
     samples = build_index(args.nuinsseg_root or find_root())

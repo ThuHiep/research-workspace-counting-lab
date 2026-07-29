@@ -76,7 +76,10 @@ def main():
     ap.add_argument("--work_dir", default="work")
     args = ap.parse_args()
     dev = "cuda" if torch.cuda.is_available() else "cpu"
-    os.makedirs(args.work_dir, exist_ok=True)
+    try:                                       # work_dir có thể là dataset /kaggle/input READ-ONLY
+        os.makedirs(args.work_dir, exist_ok=True)
+    except OSError as e:
+        print(f"[work_dir] không tạo được ({e}) — chỉ ĐỌC cache, ok nếu pkl đã có sẵn")
 
     tr_folds = [int(x) for x in args.train_folds.split(",")]
     fstr = "".join(str(x) for x in sorted(tr_folds))

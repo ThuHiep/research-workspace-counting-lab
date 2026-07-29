@@ -139,7 +139,11 @@ def main():
     dev = "cuda" if torch.cuda.is_available() else "cpu"
     args.out_dir = os.path.abspath(args.out_dir)         # in đường dẫn TUYỆT ĐỐI, kẻo không tìm ra hình
     vis_dir = os.path.join(args.out_dir, "samples")
-    os.makedirs(vis_dir, exist_ok=True); os.makedirs(args.work_dir, exist_ok=True)
+    os.makedirs(vis_dir, exist_ok=True)
+    try:                                       # work_dir có thể là dataset /kaggle/input READ-ONLY
+        os.makedirs(args.work_dir, exist_ok=True)   # (cache pkl có sẵn -> chỉ đọc, không cần ghi)
+    except OSError as e:
+        print(f"[work_dir] không tạo được ({e}) — chỉ ĐỌC cache, ok nếu pkl đã có sẵn")
     if args.out_dir.startswith(_REPO + os.sep):
         print(f"[CẢNH BÁO] out_dir nằm TRONG repo ({args.out_dir}) -> 'rm -rf <repo>' lần clone sau sẽ XÓA "
               f"hết hình. Nên dùng --out_dir /kaggle/working/evidence_out")
