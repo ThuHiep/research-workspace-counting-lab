@@ -10,6 +10,7 @@ Số mặc định = PanNuke fold3 5 hạt giống mỗi nhánh (n=2722, số nh
 Chạy:  python fig_equivalence.py --out paper2_overleaf/figures/fig_equivalence.pdf
 """
 import argparse
+import os
 
 import matplotlib
 matplotlib.use("Agg")
@@ -62,6 +63,7 @@ def main():
     ax.tick_params(axis="x", colors=INK, labelsize=8)
 
     fig.tight_layout()
+    os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
     fig.savefig(a.out, bbox_inches="tight")
     print(f"[OUT] {a.out}")
     print(f"  CI {'KHONG chua' if a.lo > 0 else 'chua'} 0 -> khac biet {'CO' if a.lo > 0 else 'KHONG'} y nghia")
