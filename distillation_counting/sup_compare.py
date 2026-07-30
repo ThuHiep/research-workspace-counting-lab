@@ -216,6 +216,8 @@ def main():
     if args.dump_preds:
         # preds là thứ ĐẮT nhất (mỗi arm ~1h/seed). Lưu NGAY để: (i) tính lại Wilcoxon khỏi train lại,
         # (ii) gộp arm chạy ở notebook khác qua --load_preds.
+        d = os.path.dirname(os.path.abspath(args.dump_preds))
+        os.makedirs(d, exist_ok=True)   # đừng để hỏng bước ghi sau nhiều giờ train vì thiếu thư mục
         np.savez(args.dump_preds, gt=gt_te, seeds=np.array(seeds),
                  **{f"pred__{n.replace(' ', '_')}": np.array(v) for n, v in per_img.items() if len(v)},
                  **{f"r2__{n.replace(' ', '_')}": np.array(r[7]) for n, r in zip([x[0] for x in rows], rows)})
