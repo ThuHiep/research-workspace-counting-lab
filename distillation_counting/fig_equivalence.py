@@ -25,38 +25,40 @@ def main():
     ap.add_argument("--lo", type=float, default=0.1555, help="cận dưới CI 90%%")
     ap.add_argument("--hi", type=float, default=0.2673, help="cận trên CI 90%% (= δ*)")
     ap.add_argument("--gt_mean", type=float, default=24.49, help="số nhân trung bình/ảnh")
-    ap.add_argument("--fracs", default="0.01,0.02,0.05", help="các biên δ, theo tỉ lệ số nhân TB")
+    ap.add_argument("--fracs", default="0.01,0.02", help="các biên δ, theo tỉ lệ số nhân TB")
     ap.add_argument("--out", default="paper2_overleaf/figures/fig_equivalence.pdf")
     a = ap.parse_args()
 
+    # Chỉ vẽ các biên ĐÁNG KỂ (1%, 2%). Thêm 5% chỉ làm trục giãn ra 2,5 lần và
+    # bóp khoảng tin cậy thành một vạch không đọc được; 5% để trong phần chữ.
     fracs = [float(x) for x in a.fracs.split(",")]
     deltas = [f * a.gt_mean for f in fracs]
-    lim = max(deltas) * 1.25
+    lim = max(deltas) * 1.45
 
-    fig, ax = plt.subplots(figsize=(6.4, 2.1))
+    fig, ax = plt.subplots(figsize=(6.4, 2.0))
 
-    # vùng tương đương của biên rộng nhất, làm nền
     ax.axvspan(-deltas[-1], deltas[-1], color=ACCENT, alpha=0.06, lw=0)
-    for f, d in zip(fracs, deltas):
+    # Nhãn δ xếp so le theo CHIỀU DỌC và chỉ đặt bên phải -> không cụm nào đè cụm nào.
+    for i, (f, d) in enumerate(zip(fracs, deltas)):
         for s in (-1, 1):
             ax.axvline(s * d, color=MUTED, ls=(0, (4, 3)), lw=1.0)
         # '%' KHONG duoc nam trong $...$ (mathtext coi la loi cu phap) -> de ngoai phan toan
-        ax.annotate(f"$\\delta$ = {f:.0%}\n({d:.2f})", xy=(d, 0.62), fontsize=7.5,
-                    color=MUTED, ha="center", va="bottom", linespacing=1.25)
+        ax.annotate(f"$\\delta$ = {f:.0%} ({d:.2f})", xy=(d + lim * 0.02, 0.72 - 0.30 * i),
+                    fontsize=7.5, color=MUTED, ha="left", va="center")
     ax.axvline(0, color=INK, lw=1.2)
 
     ax.errorbar(a.dm, 0, xerr=[[a.dm - a.lo], [a.hi - a.dm]], fmt="o", color=ACCENT,
                 ecolor=ACCENT, elinewidth=2.0, capsize=4, markersize=7, zorder=5)
-    ax.annotate(f"$\\Delta = {a.dm:+.2f}$ nhân  ({100 * a.dm / a.gt_mean:.2f}%)\n"
-                f"CI 90% [{a.lo:.2f}; {a.hi:.2f}],  $\\delta^\\star={a.hi:.2f}$",
-                xy=(a.dm, -0.30), fontsize=8, color=INK, ha="center", va="top", linespacing=1.4)
 
+    # Số liệu (Δ, CI, δ*) nằm trong chú thích hình, không nhồi vào khung vẽ.
     ax.set_xlim(-lim, lim)
     ax.set_ylim(-1.0, 1.0)
     ax.set_yticks([])
-    ax.set_xlabel("$\\Delta$ sai số tuyệt đối theo từng ảnh, count-only $-$ mask (nhân)", fontsize=9)
-    ax.annotate("count-only sai ít hơn", xy=(-lim * 0.97, 0.88), fontsize=7.5, color=MUTED, ha="left")
-    ax.annotate("mask sai ít hơn", xy=(lim * 0.97, 0.88), fontsize=7.5, color=MUTED, ha="right")
+    ax.set_xlabel("$\\Delta$ per-image absolute error,  count-only $-$ mask  (nuclei)", fontsize=9)
+    ax.annotate("count-only errs less", xy=(-lim * 0.97, -0.78), fontsize=7.5, color=MUTED,
+                ha="left", va="center")
+    ax.annotate("mask errs less", xy=(lim * 0.97, -0.78), fontsize=7.5, color=MUTED,
+                ha="right", va="center")
     for s in ("top", "right", "left"):
         ax.spines[s].set_visible(False)
     ax.spines["bottom"].set_color(MUTED)
