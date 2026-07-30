@@ -43,8 +43,8 @@ $R^2$ nằm trong độ lệch chuẩn giữa các hạt giống ($0{,}913$ so v
 không rò rỉ trên PanNuke, một bộ đếm $3{,}62$ triệu tham số huấn luyện count-only đạt $R^2 = 0{,}920$ và
 MAE $= 3{,}61$, vượt các đại diện của phân vùng ($0{,}841$), ước lượng mật độ ($0{,}804$) và phát hiện ($0{,}455$)
 trên chính tác vụ đếm. Một thí nghiệm gỡ nhân có đối chứng giả cho thấy số đếm phản hồi nhân quả và đặc hiệu với
-nội dung nhân: gỡ toàn bộ nhân được chú thích làm số đếm giảm còn $0{,}43$ lần, còn gỡ mô không chứa nhân với
-cùng diện tích giữ số đếm ở $1{,}03$ lần. Phản hồi dưới tuyến tính với hệ số cố định ${\approx}0{,}60$, cho thấy
+nội dung nhân: gỡ toàn bộ nhân được chú thích làm số đếm giảm còn $0{,}37$ lần, còn gỡ mô không chứa nhân với
+cùng diện tích giữ số đếm ở $1{,}02$ lần. Phản hồi dưới tuyến tính với hệ số cố định $0{,}64 \pm 0{,}04$, cho thấy
 mô hình tích hợp bằng chứng về nhân trên toàn ảnh thay vì cộng từng thực thể, qua đó lý giải vì sao giám sát mức
 ảnh đủ để đếm mà không sinh ra khả năng định vị. Tầng conformal cho mức phủ biên $0{,}90$ và mức phủ của cơ quan
 thấp nhất $0{,}906$. Các kết quả cho thấy chú thích dày đặc ở mức điểm ảnh không phải là điều kiện cần để đếm
@@ -222,9 +222,9 @@ chưa nói mô hình dựa vào bằng chứng nào để đếm. Một mô hìn
 có thể khai thác tương quan toàn cục (loại mô, mật độ tế bào, đặc trưng nhuộm) thay vì chính các nhân. Hai phân
 tích dưới đây kiểm tra khả năng đó trên PanNuke fold~3 ($n=2722$ mảnh, số nhân trung bình $24{,}5$).
 
-\paragraph{Độ chính xác giữ được trên toàn bộ 19 loại mô.} Trên toàn tập kiểm tra, mô hình count-only đạt
-$R^2 = 0{,}934$ và MAE $= 3{,}40$ nhân, với các dự đoán nằm sát đường đếm đúng tuyệt đối trên toàn dải số nhân
-(Hình~\ref{fig:agreement}a). Khi phân tách theo loại mô (Bảng~\ref{tab:perorgan}), $R^2$ dương ở
+\paragraph{Độ chính xác giữ được trên toàn bộ 19 loại mô.} Trên toàn tập kiểm tra, ba mô hình count-only huấn
+luyện độc lập đạt $R^2 = 0{,}929 \pm 0{,}005$ và MAE $= 3{,}45 \pm 0{,}13$ nhân, với các dự đoán nằm sát đường
+đếm đúng tuyệt đối trên toàn dải số nhân (Hình~\ref{fig:agreement}a). Khi phân tách theo loại mô (Bảng~\ref{tab:perorgan}), $R^2$ dương ở
 \emph{cả} $19/19$ loại, dao động từ $0{,}704$ (Ovarian, $n=52$) đến $0{,}976$ (Cervix, $n=86$); hai giá trị thấp
 nhất đều thuộc các loại mô có ít mảnh kiểm tra nhất. Phân tích Bland--Altman cho độ chệch $+0{,}70$ nhân, tức
 khoảng $3\%$ của số nhân trung bình, với giới hạn tương hợp $\pm10{,}2$ nhân (Hình~\ref{fig:agreement}b); nghĩa
@@ -250,9 +250,10 @@ giữa hai điều kiện, $p<10^{-300}$); riêng ở các liều nhỏ ($\le 30
 kết luận không đổi. Đáp ứng do đó \emph{đặc hiệu} với nhân chứ không phải với việc ảnh bị can thiệp.
 
 Tuy nhiên đáp ứng là \emph{dưới tuyến tính} một cách nhất quán: tỉ số giữa mức sụt quan sát được và mức sụt của
-một bộ đếm cộng dồn trung thực xấp xỉ $0{,}60$ ở \emph{mọi} liều từ $10\%$ đến $100\%$ (cột cuối
-Bảng~\ref{tab:doseresp}). Gỡ một nhân chỉ làm số đếm giảm khoảng $0{,}6$ thay vì $1{,}0$, và mức thiếu hụt này
-không phải hiệu ứng bão hoà ở liều cao mà là một hệ số cố định. Diễn giải phù hợp nhất là mô hình \emph{tích hợp
+một bộ đếm cộng dồn trung thực nằm trong khoảng $0{,}62$--$0{,}65$ ở \emph{mọi} liều từ $10\%$ đến $100\%$ (cột
+cuối Bảng~\ref{tab:doseresp}), và trung bình trên ba mô hình huấn luyện độc lập là $0{,}64 \pm 0{,}04$. Gỡ một
+nhân chỉ làm số đếm giảm khoảng $0{,}6$ thay vì $1{,}0$, và mức thiếu hụt này không phải hiệu ứng bão hoà ở liều
+cao mà là một hệ số cố định. Diễn giải phù hợp nhất là mô hình \emph{tích hợp
 bằng chứng liên quan tới nhân trên toàn ảnh} thay vì phát hiện rồi cộng từng thực thể. Cách đọc này nhất quán với
 một phép đo độc lập: bản đồ mật độ của mô hình count-only \emph{không} định vị được nhân. Khối lượng mật độ nằm
 trong vùng nhân thực chỉ gấp $1{,}25\pm0{,}36$ lần mức của một bản đồ phân bố đều ($1{,}0$ ứng với
@@ -260,13 +261,16 @@ không định vị gì), và tương quan không gian với bản đồ mật �
 cùng chỉ về một cơ chế, và giải thích vì sao giám sát mức ảnh đủ cho tác vụ \emph{đếm} nhưng không sinh ra khả năng
 định vị: đại lượng được giám sát là một tổng, nên nghiệm mà mô hình tìm được cũng chỉ cần đúng ở mức tổng.
 
-Hệ số $0{,}60$ là một giới hạn dưới của độ nhạy thực, vì phép gỡ chỉ tác động lên các nhân \emph{được chú thích}
+Việc mặt nạ chú thích phủ chưa hết nhân không giải thích được phần thiếu hụt này: nở mặt nạ $4$ điểm ảnh thay
+vì $2$, tức tăng diện tích can thiệp từ $25\%$ lên $31\%$ ảnh, chỉ đổi hệ số từ $0{,}60$ thành $0{,}61$ trên cùng
+một mô hình, trong khi làm mức khớp diện tích của đối chứng giả xấu đi rõ rệt.
+
+Hệ số $0{,}64$ là một giới hạn dưới của độ nhạy thực, vì phép gỡ chỉ tác động lên các nhân \emph{được chú thích}
 còn những nhân mà chú thích bỏ sót vẫn tiếp tục đóng góp vào số đếm (Hình~\ref{fig:qualitative}c). Lấy phần dự
 đoán vượt quá số nhân được chú thích trên ảnh nguyên vẹn làm chỉ dấu cho mức bỏ sót, số đếm còn lại sau khi gỡ
 toàn bộ tăng đơn điệu từ $0{,}36$ ở các mảnh không có dấu hiệu bỏ sót lên $0{,}70$ ở nhóm bỏ sót nhiều nhất
 (tương quan $+0{,}31$, $n=286$). Quy mô của yếu tố này nhỏ: mức vượt trung bình là $3{,}5\%$ số nhân so với số đếm
-còn lại $42{,}5\%$, nên phần lớn lượng còn lại không quy được cho chú thích bỏ sót. Hệ số đáp ứng theo ba hạt
-giống: \pending
+còn lại $37{,}4\%$, nên phần lớn lượng còn lại không quy được cho chú thích bỏ sót.
 
 \begin{figure}[t]
 \centering
@@ -281,8 +285,8 @@ dưới tại các mảnh nhiều nhân cho thấy khuynh hướng \emph{đếm 
 
 \begin{table}[t]
 \centering
-\caption{Độ chính xác đếm của mô hình count-only theo từng loại mô trên PanNuke fold~3. $R^2$ dương ở toàn bộ
-$19/19$ loại mô.}\label{tab:perorgan}
+\caption{Độ chính xác đếm theo từng loại mô trên PanNuke fold~3, cho một trong ba mô hình count-only
+(Hình~\ref{fig:agreement} vẽ cùng mô hình này). $R^2$ dương ở toàn bộ $19/19$ loại mô.}\label{tab:perorgan}
 \begin{tabular}{@{}lccc@{\hspace{2em}}lccc@{}}
 \toprule
 Loại mô & $n$ & $R^2$ & MAE & Loại mô & $n$ & $R^2$ & MAE \\
@@ -309,7 +313,7 @@ khi gỡ $30\%$ rồi toàn bộ nhân được chú thích: mỗi nhân đượ
 chứa nhân của chính ảnh đó, nên kết cấu mô được giữ nhưng nội dung nhân bị loại; số đếm dự đoán giảm theo
 ($20{,}7 \rightarrow 16{,}3 \rightarrow 7{,}5$). \textbf{(d)} Đối chứng giả áp dụng đúng phép thao tác đó lên $22$
 vùng \emph{không chứa nhân}, giữ nguyên toàn bộ nhân: ảnh bị can thiệp ở mức trông thấy rõ, nhưng số đếm hầu như
-không đổi ($19{,}6$). Mảnh ảnh tiêu biểu, với hệ số đáp ứng riêng $0{,}65$ so với trung bình toàn tập $0{,}60$.
+không đổi ($19{,}6$). Mảnh ảnh tiêu biểu, với hệ số đáp ứng riêng $0{,}65$ so với trung bình toàn tập $0{,}64$.
 Vài nhân sẫm màu còn lại ở (c) là các nhân không có trong chú thích.}
 \label{fig:qualitative}
 \end{figure}
@@ -328,19 +332,19 @@ thấp đi gần một nửa.}
 \begin{table}[t]
 \centering
 \caption{Đáp ứng của số đếm dự đoán khi gỡ nhân, so với đối chứng giả gỡ mô không chứa nhân cùng diện tích. Các
-giá trị được chuẩn hoá theo số đếm trên ảnh nguyên vẹn (trung bình trên $286$ ảnh, $4862$ phép đo). ``Hệ số đáp
-ứng'' là mức sụt quan sát được chia cho mức sụt của một bộ đếm cộng dồn trung thực; giá trị $1{,}0$ ứng với đếm
-trung thực.}\label{tab:doseresp}
+giá trị được chuẩn hoá theo số đếm trên ảnh nguyên vẹn, lấy trung bình trên $286$ ảnh ($4862$ phép đo) rồi trên
+$3$ mô hình huấn luyện độc lập; độ lệch chuẩn ghi kèm là độ lệch giữa ba mô hình. ``Hệ số đáp ứng'' là mức sụt
+quan sát được chia cho mức sụt của một bộ đếm cộng dồn trung thực; giá trị $1{,}0$ ứng với đếm trung thực.}\label{tab:doseresp}
 \begin{tabular}{@{}cccccc@{}}
 \toprule
 Tỉ lệ nhân bị gỡ & Gỡ nhân & Đối chứng giả & Sụt do nhân & Diện tích khớp & Hệ số đáp ứng \\
 \midrule
-$10\%$  & $0{,}941$ & $1{,}004$ & $0{,}063$ & $0{,}94$ & $0{,}59$ \\
-$20\%$  & $0{,}878$ & $1{,}007$ & $0{,}130$ & $0{,}91$ & $0{,}61$ \\
-$30\%$  & $0{,}821$ & $1{,}011$ & $0{,}190$ & $0{,}89$ & $0{,}60$ \\
-$50\%$  & $0{,}697$ & $1{,}014$ & $0{,}317$ & $0{,}85$ & $0{,}61$ \\
-$75\%^{\ast}$  & $0{,}544$ & $1{,}015$ & $0{,}471$ & $0{,}78$ & $0{,}61$ \\
-$100\%^{\ast}$ & $0{,}425$ & $1{,}028$ & $0{,}602$ & $0{,}74$ & $0{,}58$ \\
+$10\%$  & $0{,}938\pm0{,}002$ & $1{,}003$ & $0{,}065$ & $0{,}94$ & $0{,}62$ \\
+$20\%$  & $0{,}872\pm0{,}004$ & $1{,}004$ & $0{,}131$ & $0{,}91$ & $0{,}64$ \\
+$30\%$  & $0{,}805\pm0{,}012$ & $1{,}007$ & $0{,}202$ & $0{,}89$ & $0{,}65$ \\
+$50\%$  & $0{,}678\pm0{,}014$ & $1{,}011$ & $0{,}333$ & $0{,}84$ & $0{,}64$ \\
+$75\%^{\ast}$  & $0{,}519\pm0{,}020$ & $1{,}012$ & $0{,}494$ & $0{,}78$ & $0{,}64$ \\
+$100\%^{\ast}$ & $0{,}374\pm0{,}051$ & $1{,}018$ & $0{,}644$ & $0{,}73$ & $0{,}63$ \\
 \bottomrule
 \end{tabular}
 \footnotetext{$^{\ast}$ Ở các liều cao, mô bệnh học dày nhân không còn đủ chỗ trống để đặt các vùng đối chứng
@@ -422,7 +426,7 @@ cluster & 0,906 & 14,8 & \textbf{20,0} & 0,859 & 0/19 \\
 vùng cơ chế đứng sau điều đó. Một mặt, số đếm dự đoán \emph{không} phải sản phẩm của
 tương quan toàn cục thuần túy: nó giảm đơn điệu khi nhân bị gỡ và \emph{không} đổi khi một diện tích mô tương
 đương không chứa nhân bị gỡ, nên đáp ứng là đặc hiệu với chính nội dung nhân. Mặt khác, đáp ứng chỉ đạt khoảng
-$60\%$ mức của một bộ đếm cộng dồn trung thực, với hệ số gần như không đổi qua mọi liều, và bản đồ mật độ của mô
+$64\%$ mức của một bộ đếm cộng dồn trung thực, với hệ số gần như không đổi qua mọi liều, và bản đồ mật độ của mô
 hình gần như không định vị được nhân. Hai quan sát này cùng loại trừ cả hai thái cực: mô hình không đơn thuần
 đoán theo bối cảnh, nhưng cũng không phát hiện rồi cộng từng thực thể. Cách đọc phù hợp là mô hình học một
 \emph{phép tích hợp} bằng chứng liên quan tới nhân trên toàn ảnh, tức một nghiệm chỉ cần đúng ở mức tổng, đúng như
