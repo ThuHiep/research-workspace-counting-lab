@@ -41,16 +41,15 @@ giờ công chuyên gia và khó mở rộng sang loại mô, cơ quan hoặc tr
 lượng số đếm thông qua phân vùng, phát hiện hoặc định vị nhân, hàm ý rằng giám sát không gian dày đặc là điều
 kiện cần cho độ chính xác đếm cao. Giả định này được kiểm định bằng một thí nghiệm có kiểm soát: kiến trúc, dữ
 liệu và giao thức đánh giá được giữ nguyên, chỉ thay mức giám sát từ mặt nạ điểm ảnh sang một nhãn đếm duy nhất
-cho mỗi ảnh. Trên ba bộ dữ liệu độc lập (PanNuke, NuInsSeg và MoNuSeg), giám sát count-only đạt độ chính xác đếm
-tương đương giám sát bằng mặt nạ: trên tập lớn nhất, giám sát mặt nạ nhỉnh hơn một lượng bị chặn trên bởi
-$1{,}1\%$ số nhân trung bình mỗi ảnh, còn trên hai tập còn lại count-only nhỉnh hơn. Một can thiệp có đối chứng xác nhận đáp ứng của mô hình đặc hiệu với
-nội dung nhân: thay toàn bộ nhân được chú thích bằng mô không chứa nhân trong khi giữ nguyên hình dạng và diện
-tích làm số đếm dự đoán giảm còn $0{,}37$ lần, trong khi đối chứng giả duy trì ở mức $1{,}02$ lần. Trên PanNuke,
-bộ đếm $3{,}62$ triệu tham số huấn luyện với giám sát count-only đạt $R^2 = 0{,}918$ và vượt các đại diện của
-phân vùng, ước lượng mật độ và phát hiện trên cùng tác vụ đếm; hiệu chuẩn conformal theo từng cơ quan cho khoảng
-dự đoán không bỏ sót loại mô nào trong số $19$ loại. Một nhãn đếm ở mức ảnh rẻ hơn ít nhất tám lần so với
-khoanh viền đầy đủ, nên giám sát không gian dày đặc không phải là điều kiện cần để đếm nhân chính xác, và các
-tập dữ liệu đếm quy mô lớn trở nên khả thi với ngân sách chú thích hạn chế.
+cho mỗi ảnh. Trên ba bộ dữ liệu độc lập (PanNuke, NuInsSeg và MoNuSeg), hai chế độ giám sát cho độ chính xác đếm
+tương đương: trên tập lớn nhất, giám sát mặt nạ nhỉnh hơn một lượng bị chặn trên bởi $1{,}1\%$ số nhân trung
+bình mỗi ảnh, còn trên hai tập còn lại count-only nhỉnh hơn. Một can thiệp có đối chứng giả xác nhận đáp ứng của
+mô hình đặc hiệu với nội dung nhân: thay toàn bộ nhân bằng mô không chứa nhân, giữ nguyên hình dạng và diện
+tích, làm số đếm dự đoán giảm còn $0{,}37$ lần, trong khi đối chứng giả duy trì ở mức $1{,}02$ lần. Trên PanNuke,
+bộ đếm $3{,}62$ triệu tham số huấn luyện count-only đạt $R^2 = 0{,}918$, vượt các đại diện của phân vùng, ước
+lượng mật độ và phát hiện trên cùng tác vụ đếm, và hiệu chuẩn conformal theo từng cơ quan cho khoảng dự đoán
+không bỏ sót loại mô nào trong số $19$ loại. Vì nhãn đếm ở mức ảnh rẻ hơn ít nhất tám lần so với khoanh viền
+đầy đủ, giám sát không gian dày đặc không phải là điều kiện cần để đếm nhân chính xác.
 }
 \keywords{đếm nhân tế bào, hiệu quả chú thích, giám sát yếu, định lượng bất định, conformal prediction,
 mô bệnh học tính toán}
@@ -622,10 +621,22 @@ Thông tin, ĐHQG-HCM.
 
 \textbf{Tính nguyên bản.} Đây là công trình gốc, chưa được công bố và không nộp đồng thời ở nơi khác.
 
-\textbf{Tính sẵn có của dữ liệu.} Nghiên cứu sử dụng các tập dữ liệu công khai PanNuke, NuInsSeg và MoNuSeg,
-truy cập được qua các công bố gốc tương ứng.
+\textbf{Chấp thuận đạo đức.} Không áp dụng. Nghiên cứu chỉ sử dụng các tập dữ liệu ảnh mô bệnh học công khai,
+đã ẩn danh và đã được công bố trước đó; không thu thập dữ liệu mới từ người tham gia hay động vật.
 
-\textbf{Tính sẵn có của mã nguồn.} Mã nguồn sẽ được công bố khi bài báo được chấp nhận.
+\textbf{Đồng ý tham gia và đồng ý công bố.} Không áp dụng, vì lý do nêu trên.
+
+\textbf{Đóng góp của tác giả.} Thi Thu Hiep Dinh: xây dựng ý tưởng, thiết kế thí nghiệm, cài đặt phần mềm,
+phân tích số liệu, viết bản thảo đầu tiên. Viet Hang Duong: xây dựng ý tưởng, hướng dẫn phương pháp luận,
+thẩm định kết quả, chỉnh sửa và biên tập bản thảo, giám sát chung. Cả hai tác giả đã đọc và chấp thuận bản
+thảo cuối cùng.
+
+\textbf{Tính sẵn có của dữ liệu.} Nghiên cứu chỉ dùng dữ liệu công khai:
+PanNuke~\cite{pannuke}, NuInsSeg~\cite{nuinsseg} và MoNuSeg~2018~\cite{monuseg}, truy cập được qua các công bố
+gốc tương ứng. Không có dữ liệu mới nào được tạo ra.
+
+\textbf{Tính sẵn có của mã nguồn.} Mã nguồn dùng để huấn luyện, đánh giá và tái lập mọi bảng và hình trong bài
+sẽ được công bố công khai khi bài báo được chấp nhận.
 
 \bibliography{references}
 \end{document}
