@@ -51,6 +51,17 @@ def main():
                          "PanNuke fold12 ~2.4GB GPU, vừa T4. TẮT nếu OOM.")
     ap.add_argument("--w_count_mask", type=float, default=0.1,
                     help="neo count cho mask (0.1 ổn định; 0.01 cũ có thể sập theo seed)")
+    ap.add_argument("--arms", default="count,mask",
+                    help="arm nào chạy: 'count', 'mask', hoặc 'count,mask'. TÁCH RA để khỏi train lại arm "
+                         "đã có kết quả (mỗi arm ~1h/seed) — vd sweep w_count_mask chỉ cần --arms mask.")
+    ap.add_argument("--dump_preds", default="",
+                    help="lưu preds per-image từng arm/seed vào .npz. LUÔN BẬT cho run đắt: mất preds là mất "
+                         "cả run (không tính lại Wilcoxon được). Gộp 2 notebook bằng --load_preds.")
+    ap.add_argument("--load_preds", default="",
+                    help=".npz từ --dump_preds của arm KHÁC -> gộp vào để tính Wilcoxon giữa 2 lần chạy riêng.")
+    ap.add_argument("--collapse_thr", type=float, default=0.5,
+                    help="R² dưới ngưỡng này = seed SẬP tối ưu hoá (density-MSE bị background chi phối). "
+                         "Báo riêng số seed sập + median, vì mean bị 1 seed sập kéo lệch vô nghĩa.")
     ap.add_argument("--lr", type=float, default=1e-3,
                     help="Adam LR; efflite0/CNN dùng 1e-3. Backbone transformer (pvt/swin) có thể cần "
                          "hạ (3e-4/1e-4) nếu 1e-3 phá feature pretrained -> sập hằng số.")
@@ -81,10 +92,20 @@ def main():
     seeds = [int(s) for s in args.seeds.split(",")]
     # GT-density cần neo count NHỎ (0.01) để train được — density MSE thuần bị background(0) chi phối
     # → collapse về ~0 nếu w_count=0 (đúng recipe density-counting chuẩn; số cũ NuInsSeg 0.881 dùng vậy).
-    configs = [("count-only", 0.0, 1.0), ("GT-density (mask)", 1.0, args.w_count_mask)]
+    _ARM = {"count": ("count-only", 0.0, 1.0), "mask": ("GT-density (mask)", 1.0, args.w_count_mask)}
+    arms = [a.strip() for a in args.arms.split(",") if a.strip()]
+    assert all(a in _ARM for a in arms), f"--arms chỉ nhận count/mask, nhận được {arms}"
+    configs = [_ARM[a] for a in arms]
     rows = []
     per_img = {name: [] for name, _, _ in configs}   # preds MỖI seed (fold3 cố định) -> Wilcoxon gộp-seed
     gt_te = np.array([data[i]["gt"] for i in te])
+    if args.load_preds:                              # gộp arm đã chạy ở notebook khác
+        z = np.load(args.load_preds, allow_pickle=True)
+        for k in z.files:
+            if k.startswith("pred__"):
+                nm = str(k[6:]).replace("_", " ")
+                per_img.setdefault(nm, []).extend(list(z[k]))
+                print(f"[load_preds] nạp '{nm}': {len(z[k])} seed × {len(z[k][0])} ảnh từ {args.load_preds}")
     for name, wd, wc in configs:
         r2s, maes = [], []
         for sd in seeds:
@@ -102,15 +123,39 @@ def main():
             r2s.append(r2); maes.append(mae)
             per_img[name].append(_per_image_pred(model, data, te, dev))
             print(f"    [{name:16s}] seed {sd}: R² {r2:+.4f}  MAE {mae:.2f}")   # per-seed để bắt collapse
-        rows.append((name, np.mean(r2s), np.std(r2s), np.mean(maes), np.std(maes)))
-        print(f"  {name:20s} R² {np.mean(r2s):+.4f}±{np.std(r2s):.3f}  MAE {np.mean(maes):.3f}±{np.std(maes):.3f}")
+        nc = int(np.sum(np.array(r2s) < args.collapse_thr))
+        rows.append((name, np.mean(r2s), np.std(r2s), np.mean(maes), np.std(maes),
+                     float(np.median(r2s)), nc, list(r2s)))
+        print(f"  {name:20s} R² {np.mean(r2s):+.4f}±{np.std(r2s):.3f}  MAE {np.mean(maes):.3f}±{np.std(maes):.3f}"
+              f"  | median R² {np.median(r2s):+.4f}, SẬP {nc}/{len(r2s)} seed (R²<{args.collapse_thr})")
 
-    print(f"\n=== SUPERVISION head-to-head (CÙNG {args.backbone} ch{args.ch}, lr{args.lr:g}, {len(seeds)} seed, PanNuke fold{args.test_fold}) ===")
-    print(f"  {'supervision':20s} {'R² ↑':>16s} {'MAE ↓':>14s}")
-    for name, r2m, r2s, mm, ms in rows:
-        print(f"  {name:20s} {r2m:+.4f}±{r2s:.3f}   {mm:6.2f}±{ms:.2f}")
-    d = rows[0][1] - rows[1][1]
-    print(f"\n  Δ(count-only − GT-density) = {d:+.4f} R²")
+    if args.dump_preds:
+        # preds là thứ ĐẮT nhất (mỗi arm ~1h/seed). Lưu NGAY để: (i) tính lại Wilcoxon khỏi train lại,
+        # (ii) gộp arm chạy ở notebook khác qua --load_preds.
+        np.savez(args.dump_preds, gt=gt_te, seeds=np.array(seeds),
+                 **{f"pred__{n.replace(' ', '_')}": np.array(v) for n, v in per_img.items() if len(v)},
+                 **{f"r2__{n.replace(' ', '_')}": np.array(r[7]) for n, r in zip([x[0] for x in rows], rows)})
+        print(f"[dump_preds] LƯU {args.dump_preds} — backup ngay, đừng để mất")
+
+    print(f"\n=== SUPERVISION head-to-head (CÙNG {args.backbone} ch{args.ch}, lr{args.lr:g}, {len(seeds)} seed, "
+          f"PanNuke fold{args.test_fold}, w_count_mask={args.w_count_mask:g}) ===")
+    print(f"  {'supervision':20s} {'R² mean ↑':>16s} {'R² median':>11s} {'sập':>6s} {'MAE ↓':>14s}")
+    for name, r2m, r2sd, mm, ms, r2med, nc, _ in rows:
+        print(f"  {name:20s} {r2m:+.4f}±{r2sd:.3f} {r2med:+11.4f} {nc:4d}/{len(seeds)}   {mm:6.2f}±{ms:.2f}")
+    if any(r[6] for r in rows):
+        print("  ⚠ CÓ seed SẬP -> mean VÔ NGHĨA (1 seed sập kéo lệch cả bảng). Baseline sập là do TỐI ƯU HOÁ "
+              "(density-MSE bị background chi phối), KHÔNG phải giới hạn của mask-supervision: phải sửa cấu "
+              "hình (w_count_mask) rồi chạy lại, KHÔNG được báo con số này như năng lực của mask.")
+
+    have = [n for n in ("count-only", "GT-density (mask)") if len(per_img.get(n, []))]
+    if len(have) < 2:
+        print(f"\n  [1 arm] chỉ có '{have[0] if have else 'không'}' -> BỎ QUA Δ và Wilcoxon. "
+              f"Dùng --dump_preds rồi --load_preds để gộp với arm kia.")
+        return
+    d = dict((r[0], r[1]) for r in rows)
+    if len(rows) == 2:
+        print(f"\n  Δ(count-only − GT-density) = {rows[0][1] - rows[1][1]:+.4f} R² (mean) | "
+              f"{rows[0][5] - rows[1][5]:+.4f} (median, bền hơn khi có seed sập)")
 
     # per-image Wilcoxon GỘP-SEED: trung bình |err| từng ảnh qua các seed (fold3 cố định) -> robust
     ec = np.mean([np.abs(gt_te - p) for p in per_img["count-only"]], axis=0)
@@ -125,7 +170,10 @@ def main():
                ("count-only THẮNG (p<0.05, lỗi ít hơn)" if dm < 0 else "count-only THUA (p<0.05)"))
     print(f"  per-image |err| (gộp {len(seeds)} seed, n={len(te)}): count-only {ec.mean():.2f} vs "
           f"mask {em.mean():.2f} | Wilcoxon p={p:.4g} -> {verdict}")
-    print("  ĐỌC: count-only ≥ GT-density → ĐẾM KHÔNG CẦN pixel; cái thắng đến từ SUPERVISION, không phải kiến trúc.")
+    if any(r[6] for r in rows):
+        print("  ⚠ Wilcoxon này KHÔNG dùng được: nó đang đo mấy seed sập, không đo supervision.")
+    else:
+        print("  ĐỌC: count-only ≥ GT-density → ĐẾM KHÔNG CẦN pixel; cái thắng đến từ SUPERVISION, không phải kiến trúc.")
 
 
 if __name__ == "__main__":
