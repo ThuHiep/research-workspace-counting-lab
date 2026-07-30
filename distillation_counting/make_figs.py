@@ -20,12 +20,34 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 SERIES = ["#2a78d6", "#eb6834", "#1baf7a"]     # slot 1,2,3 — thứ tự cố định, đã kiểm CVD
+MARK = ["o", "^", "D"]                         # marker riêng -> phân biệt được cả khi in đen trắng
 INK, INK2, GRID = "#0b0b0b", "#52514e", "#d8d7d2"
 
 
-def vn(x, nd=2):
-    """số kiểu Việt: dấu phẩy thập phân, cho khớp phần chữ của paper."""
-    return f"{x:+.{nd}f}".replace(".", ",") if x < 0 or str(x)[0] == "+" else f"{x:.{nd}f}".replace(".", ",")
+# Nhãn theo ngôn ngữ. Hình dùng cho bản NỘP nên mặc định tiếng Anh; caption trong main.tex vẫn tiếng Việt.
+L = {
+  "en": dict(gt="Ground-truth count", pred="Predicted count",
+             t_a="(a) Agreement with ground truth", t_b="(b) Bland–Altman",
+             ba_x="Mean of (predicted, ground truth)", ba_y="Predicted $-$ ground truth",
+             bias="bias", loa="95% limits of agreement",
+             keep="Fraction of nuclei retained", norm="Predicted count (normalised)",
+             ideal="faithful tallying ($y=x$)", rm="nucleus removal",
+             sham="sham: nucleus-free tissue removed", sham_s="sham control", dec="."),
+  "vi": dict(gt="So nhan thuc", pred="So nhan du doan",
+             t_a="(a) Tuong hop du doan-thuc", t_b="(b) Bland–Altman",
+             ba_x="Trung binh cua (du doan, thuc)", ba_y="Du doan $-$ thuc",
+             bias="do chech", loa="gioi han tuong hop",
+             keep="Ti le nhan con lai trong anh", norm="So dem du doan (chuan hoa)",
+             ideal="dem cong don trung thuc ($y=x$)", rm="go nhan",
+             sham="doi chung gia: go mo khong co nhan", sham_s="doi chung gia", dec=","),
+}
+LANG = "en"
+
+
+def num(x, nd=2, sign=False):
+    """định dạng số theo ngôn ngữ hiện hành (dấu thập phân . hoặc ,)."""
+    t = f"{x:+.{nd}f}" if sign else f"{x:.{nd}f}"
+    return t.replace(".", L[LANG]["dec"])
 
 
 def style():
@@ -52,9 +74,10 @@ def fig_agreement(preds_npz, out):
     a1.plot([0, lim], [0, lim], ls="--", lw=1.0, color=INK2, zorder=1)
     a1.scatter(gt, pred, s=4, alpha=0.22, color=SERIES[0], linewidths=0, zorder=2)
     a1.set_xlim(0, lim); a1.set_ylim(0, lim); a1.set_aspect("equal")
-    a1.set_xlabel("Số nhân thực"); a1.set_ylabel("Số nhân dự đoán")
-    a1.set_title("(a) Tương hợp dự đoán–thực", loc="left")
-    a1.text(0.04, 0.95, f"$R^2$ = {vn(r2, 3)}\nMAE = {vn(mae)}\n$n$ = {len(gt)}",
+    t = L[LANG]
+    a1.set_xlabel(t["gt"]); a1.set_ylabel(t["pred"])
+    a1.set_title(t["t_a"], loc="left")
+    a1.text(0.04, 0.95, f"$R^2$ = {num(r2, 3)}\nMAE = {num(mae)}\n$n$ = {len(gt)}",
             transform=a1.transAxes, va="top", ha="left", color=INK, fontsize=7.5)
     a1.annotate("$y = x$", xy=(lim * 0.72, lim * 0.72), xytext=(lim * 0.82, lim * 0.52),
                 color=INK2, fontsize=6.8, ha="center",
@@ -65,13 +88,13 @@ def fig_agreement(preds_npz, out):
     for y, ls in [(bias, "-"), (bias + 1.96 * sd, "--"), (bias - 1.96 * sd, "--")]:
         a2.axhline(y, ls=ls, lw=1.0, color=SERIES[1])
     xr = a2.get_xlim()[1]
-    a2.text(xr * 0.99, bias, f"độ chệch {vn(bias)}", va="bottom", ha="right", color=INK2, fontsize=6.8)
-    a2.text(xr * 0.99, bias + 1.96 * sd, f"giới hạn tương hợp {vn(bias + 1.96 * sd, 1)}",
+    a2.text(xr * 0.99, bias, f'{t["bias"]} {num(bias, 2, True)}', va="bottom", ha="right", color=INK2, fontsize=6.8)
+    a2.text(xr * 0.99, bias + 1.96 * sd, f'{t["loa"]} {num(bias + 1.96 * sd, 1, True)}',
             va="bottom", ha="right", color=INK2, fontsize=6.8)
-    a2.text(xr * 0.99, bias - 1.96 * sd, f"{vn(bias - 1.96 * sd, 1)}",
+    a2.text(xr * 0.99, bias - 1.96 * sd, num(bias - 1.96 * sd, 1, True),
             va="top", ha="right", color=INK2, fontsize=6.8)
-    a2.set_xlabel("Trung bình của (dự đoán, thực)"); a2.set_ylabel("Dự đoán $-$ thực")
-    a2.set_title("(b) Bland–Altman", loc="left")
+    a2.set_xlabel(t["ba_x"]); a2.set_ylabel(t["ba_y"])
+    a2.set_title(t["t_b"], loc="left")
 
     fig.tight_layout(w_pad=2.0); fig.savefig(out); plt.close(fig)
     print(f"[hình 1] {out}  (R²={r2:.4f} MAE={mae:.3f} chệch={bias:+.3f} 1.96σ={1.96*sd:.2f})")
@@ -96,7 +119,8 @@ def fig_doseresp(occs, out):
     fig, ax = plt.subplots(figsize=(3.5, 3.0))
     ax.plot([0, 1], [0, 1], ls="--", lw=1.0, color=INK2, zorder=1)
     # nhãn nằm DỌC theo đường tham chiếu -> khỏi cần mũi tên chỉ, đỡ rối
-    ax.text(0.60, 0.555, "đếm cộng dồn trung thực", color=INK2, fontsize=6.5,
+    t = L[LANG]
+    ax.text(0.60, 0.555, t["ideal"], color=INK2, fontsize=6.5,
             rotation=38, rotation_mode="anchor", ha="center", va="top")
     sham_done = False
     for i, (label, npz) in enumerate(occs):
@@ -104,21 +128,19 @@ def fig_doseresp(occs, out):
         c = SERIES[i % len(SERIES)]
         if i == 0:   # dải ±1sd CHỈ cho đường chính; vẽ cho mọi đường thì các dải chồng nhau, không đọc được
             ax.fill_between(keep, m - sd, m + sd, color=c, alpha=0.13, linewidth=0, zorder=2)
-        ax.plot(keep, m, "-o", lw=2.0, ms=4.5, color=c, zorder=4,
-                label=f"gỡ nhân ({label})" if len(occs) > 1 else "gỡ nhân")
+        ax.plot(keep, m, "-", marker=MARK[i % len(MARK)], lw=2.0, ms=4.5, color=c, zorder=4,
+                label=f'{t["rm"]} ({label})' if len(occs) > 1 else t["rm"])
         if not sham_done and np.isfinite(ms).any():
-            ax.plot(keep, ms, "-s", lw=2.0, ms=4.0, color=SERIES[2], zorder=3,
-                    label="đối chứng giả: gỡ mô không có nhân")
-            ax.text(0.05, ms[0] + 0.045, "đối chứng giả", color=INK2, fontsize=6.8, ha="left", va="bottom")
+            ax.plot(keep, ms, "-", marker="s", lw=2.0, ms=4.0, color=SERIES[2], zorder=3,
+                    label=t["sham"])
             sham_done = True
-        # nhãn trực tiếp neo vào ĐẦU TRÁI (gỡ hết nhân) — nơi các đường tách xa nhau nhất
-        ax.text(0.05, m[0] - 0.04, f"gỡ nhân ({label})" if len(occs) > 1 else "gỡ nhân",
-                color=INK2, fontsize=6.8, ha="left", va="top")
+        # KHÔNG ghi nhãn trực tiếp: tên chuỗi tiếng Anh dài, đặt cạnh đường thì đè lên chính đường đó
+        # và đè nhãn y=x. Danh tính đã có legend + MARKER riêng cho từng chuỗi (không chỉ dựa vào màu).
     from matplotlib.ticker import FuncFormatter
-    comma = FuncFormatter(lambda v, _: f"{v:g}".replace(".", ","))   # thống nhất dấu phẩy thập phân
+    comma = FuncFormatter(lambda v, _: f"{v:g}".replace(".", L[LANG]["dec"]))
     ax.xaxis.set_major_formatter(comma); ax.yaxis.set_major_formatter(comma)
     ax.set_xlim(-0.03, 1.03); ax.set_ylim(0, 1.12)
-    ax.set_xlabel("Tỉ lệ nhân còn lại trong ảnh"); ax.set_ylabel("Số đếm dự đoán (chuẩn hoá)")
+    ax.set_xlabel(t["keep"]); ax.set_ylabel(t["norm"])
     ax.legend(loc="lower right", handlelength=1.5, labelspacing=0.3, borderpad=0.2)
     fig.tight_layout(); fig.savefig(out); plt.close(fig)
     for label, npz in occs:
@@ -135,7 +157,13 @@ def main():
     ap.add_argument("--occ", action="append", default=[],
                     help='"nhãn=đường/dẫn/occlusion.npz"; lặp lại để so nhiều cách gỡ (cái ĐẦU = chính)')
     ap.add_argument("--out_dir", default="paper2_overleaf/figures")
+    ap.add_argument("--lang", default="en", choices=["en", "vi"],
+                    help="ngôn ngữ nhãn TRONG hình. Mặc định en (hình dùng cho bản nộp); caption ở main.tex "
+                         "vẫn tiếng Việt. Đổi luôn dấu thập phân . / ,")
+    ap.add_argument("--panel", default="", help="panel_*.png -> hình định tính")
     args = ap.parse_args()
+    global LANG
+    LANG = args.lang
     os.makedirs(args.out_dir, exist_ok=True)
     style()
     if args.preds:
@@ -143,10 +171,10 @@ def main():
     if args.occ:
         occs = [tuple(x.split("=", 1)) for x in args.occ]
         fig_doseresp(occs, os.path.join(args.out_dir, "fig_doseresp.pdf"))
+    if args.panel:
+        fig_qualitative(args.panel, QUAL[LANG], os.path.join(args.out_dir, "fig_qualitative.pdf"))
 
 
-if __name__ == "__main__":
-    main()
 
 
 def fig_qualitative(panel_png, labels, out):
@@ -172,3 +200,19 @@ def fig_qualitative(panel_png, labels, out):
         ax.set_title(lab, fontsize=7, color=INK, linespacing=1.35)
     fig.tight_layout(w_pad=0.8); fig.savefig(out); plt.close(fig)
     print(f"[hình 3] {out}  ({len(xs)} tile, mỗi tile {xs[0][1]-xs[0][0]}×{y1-y0+1} px)")
+
+
+QUAL = {
+  "en": ["(a) Original image\n13 annotated nuclei\npredicted 16.3",
+         "(b) 30% of nuclei removed\n9 nuclei remain\npredicted 15.7",
+         "(c) All nuclei removed\n0 nuclei remain\npredicted 10.9",
+         "(d) Sham control\n13 nucleus-free regions, nuclei intact\npredicted 16.6"],
+  "vi": ["(a) \u1ea2nh g\u1ed1c\n13 nh\xe2n \u0111\u01b0\u1ee3c ch\xfa th\xedch\nd\u1ef1 \u0111o\xe1n 16,3",
+         "(b) G\u1ee1 30% nh\xe2n\nc\xf2n 9 nh\xe2n\nd\u1ef1 \u0111o\xe1n 15,7",
+         "(c) G\u1ee1 to\xe0n b\u1ed9 nh\xe2n\nc\xf2n 0 nh\xe2n\nd\u1ef1 \u0111o\xe1n 10,9",
+         "(d) \u0110\u1ed1i ch\u1ee9ng gi\u1ea3\n13 v\xf9ng N\u1ec0N, nh\xe2n c\xf2n nguy\xean\nd\u1ef1 \u0111o\xe1n 16,6"],
+}
+
+
+if __name__ == "__main__":
+    main()
