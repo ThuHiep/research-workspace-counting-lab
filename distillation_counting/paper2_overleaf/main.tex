@@ -146,25 +146,29 @@ trực tiếp các câu hỏi trên.
 
 \subsection{Kiến trúc và đầu ra}
 Mô hình, ký hiệu \texttt{DensitySigmaUNet}, gồm một bộ mã hóa EfficientNet-lite0~\cite{efficientnet} tiền huấn
-luyện trên ImageNet ghép với một bộ giải mã kiểu U-Net~\cite{unet} và hai đầu ra. Đầu \emph{mật độ} sinh một bản đồ
-không âm; số đếm dự đoán là
-tổng toàn ảnh $\mu = \sum_p \hat d_p$. Đầu \emph{bất định} sinh độ lệch chuẩn theo dạng neo-Poisson
-$\sigma = \sqrt{\max(\mu,1)}\,\exp\!\big(\mathrm{clamp}(\log s,-2,2)\big)$, trong đó phần tán xạ được học trên
-nền phương sai Poisson và $\mu$ được tách gradient khỏi nhánh $\sigma$. Cấu hình sử dụng cho $3{,}62$ triệu
-tham số.
+luyện trên ImageNet ghép với một bộ giải mã kiểu U-Net~\cite{unet}. Mạng có hai đầu ra.
+
+Đầu \emph{mật độ} sinh một bản đồ không âm, và số đếm dự đoán là tổng toàn ảnh $\mu = \sum_p \hat d_p$. Đầu
+\emph{bất định} dự đoán độ lệch chuẩn của số đếm, được tham số hóa quanh nền phương sai Poisson:
+\begin{equation}
+\sigma = \sqrt{\max(\mu,1)}\;\exp\!\big(\mathrm{clamp}(\log s,-2,2)\big).
+\end{equation}
+Với phân phối Poisson thì $\sigma = \sqrt{\mu}$; thừa số mũ cho phép mạng học mức tán xạ lệch khỏi nền đó, còn
+$\mu$ được tách gradient khỏi nhánh $\sigma$. Cấu hình sử dụng cho $3{,}62$ triệu tham số.
 
 \subsection{Các chế độ giám sát}
 Biến giám sát được cô lập bằng cách giữ nguyên kiến trúc, dữ liệu và đánh giá, chỉ thay đổi trọng số hàm
 mất mát $\mathcal{L} = w_d\,\mathcal{L}_{\text{mật độ}} + w_c\,\mathcal{L}_{\text{đếm}}
 + w_{n}\,\mathcal{L}_{\text{NLL}}$:
 \begin{itemize}
-\item \textbf{count-only} ($w_d{=}0,\ w_c{=}1$): mô hình chỉ được giám sát bởi một con số đếm cho mỗi ảnh, không
-sử dụng bản đồ mục tiêu ở mức điểm ảnh.
+\item \textbf{count-only} ($w_d{=}0,\ w_c{=}1$): mô hình chỉ dùng nhãn đếm ở mức ảnh làm tín hiệu huấn luyện,
+không dùng bản đồ mục tiêu ở mức điểm ảnh.
 \item \textbf{mask} ($w_d{=}1$): mô hình học khớp bản đồ mật độ dựng từ mặt nạ thực; một trọng số đếm nhỏ $w_c$
-được giữ để ổn định quá trình tối ưu.
+được giữ để tránh nghiệm suy biến của hàm mất mát mật độ, với giá trị và cách chọn nêu ở Mục~\ref{sec:setup}.
 \end{itemize}
 $\mathcal{L}_{\text{NLL}}$ là hàm hợp lý âm dạng $\beta$-NLL~\cite{bnll}, huấn luyện $\sigma$ mà không ảnh hưởng
-$\mu$.
+$\mu$. Đầu bất định vì thế được huấn luyện trước bằng $\beta$-NLL, còn các khoảng dự đoán cuối cùng được hiệu
+chuẩn hậu nghiệm như trình bày dưới đây.
 
 \subsection{Hiệu chuẩn khoảng dự đoán}
 Sau huấn luyện, conformal prediction theo lối chia (split-conformal)~\cite{vovk,cqr} được áp dụng trên một
@@ -444,9 +448,9 @@ Khoảng dự đoán được hiệu chuẩn không chỉ ở cấp độ biên 
 phủ biên đạt mục tiêu $0{,}90$, và sơ đồ mondrian nâng mức phủ của cơ quan thấp nhất lên $0{,}906$ mà không để cơ
 quan nào thiếu phủ.
 
-Tham số hóa $\sigma$ theo neo-Poisson quan trọng khi dải số đếm rộng. So với một $\sigma$ hằng số, dạng neo-Poisson
-thu hẹp đáng kể độ rộng khoảng và điểm Winkler ở cùng mức phủ trên dữ liệu dải rộng, trong khi không tạo khác
-biệt trên dải hẹp. Đầu $\sigma$ không làm giảm độ chính xác đếm, vì $\mu$ được tách khỏi nhánh bất định.
+Việc neo $\sigma$ vào nền phương sai Poisson quan trọng khi dải số đếm rộng. So với một $\sigma$ hằng số, dạng
+này thu hẹp đáng kể độ rộng khoảng và điểm Winkler ở cùng mức phủ trên dữ liệu dải rộng, trong khi không tạo
+khác biệt trên dải hẹp. Đầu $\sigma$ không làm giảm độ chính xác đếm, vì $\mu$ được tách khỏi nhánh bất định.
 
 \begin{table}[t]
 \centering
