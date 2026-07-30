@@ -219,8 +219,24 @@ Scaling **bão hoà ở 3.6M** (lớn hơn tệ đi) = lập luận **efficiency
   không phải merge 5-seed leak-free → **SUPERSEDED**, đừng trích lại.
 - Nguyên nhân mask khá lên: chính ta đã đổi w_c 0,01→0,1 để cho baseline **cấu hình hội tụ tốt nhất** (§Thiết lập).
   Đây là hệ quả đúng của nguyên tắc đó, không phải hồi quy chất lượng.
-- **Claim tương đương của bài KHÔNG dựa trên R² mà dựa trên TOST sai số |lỗi| từng ảnh (đơn vị nhân).**
-  ⏳ CÒN THIẾU: khối MAE + Wilcoxon + TOST (δ*) của chính run này → ô `\pending` ở Bảng 1.
+**★★ TOST XONG 2026-07-31 — số CHỐT của Bảng 1 (n=2722, số nhân TB = 24,49):**
+| | |
+|---|---|
+| MAE từng ảnh | count 3,5953 vs mask 3,3853 |
+| Δ (count − mask) | **+0,210 nhân = 0,86%** số nhân TB (se 0,0338) |
+| Wilcoxon | **p = 1,07e−13** → khác biệt CÓ thật |
+| CI 90% bootstrap | [+0,1555; +0,2673] |
+| **δ\*** | **0,2673 nhân = 1,09%** số nhân TB |
+| δ = 2% (0,490) | p_TOST = 8,86e−17 → **TƯƠNG ĐƯƠNG** |
+| δ = 1% (0,245) | p_TOST = 0,151 → chưa kết luận được |
+
+⇒ **Phát biểu chuẩn của bài (2 vế, phải đi cùng nhau):** khác biệt có thật (Wilcoxon) **VÀ** bị chặn trên bởi
+~1% số nhân/ảnh (TOST, δ*=0,27). Đừng viết vế nào một mình.
+- Không chạy TOST được ở biên 1% → **đừng nói "tương đương trong 1%"**, phải nói "δ* = 1,1%" hoặc "tương đương ở biên 2%".
+- Đã điền: Bảng 1 (bỏ `\pending` cuối cùng), §Thiết lập (mô tả TOST + δ*), §4.1 (đoạn 2 kiểm định), abstract,
+  gạch đầu dòng Giới thiệu, §4.1 đoạn cuối, Kết luận.
+- Nguồn: `hipinhththu/pannuke-5seed` + `hipinhththu/pannuke-mask` (cả 3 đều là **thư mục .npy đã bung**, không
+  còn là .npz → script nạp phải dò theo nội dung `gt.npy` + `pred__*.npy`, đừng glob theo đuôi `.npz`).
 - Bảng 4 paradigm (0,920/3,61) = mô hình hạt giống **trung vị** (0,9197 ≈ 0,920) → đã ghi rõ trong caption.
 
 **★ MoNuSeg in-domain dataset THỨ 3 (efflite0 count-only, `monuseg_indomain.py`, 2026-07-28):** đa cơ quan TCGA, ĐỘC LẬP PanNuke/NuInsSeg (KHÔNG trùng như Lizard/CoNIC). XML→centroid→patch256 native (resize 1000→1024, không co nhân), **split CHÍNH THỨC 37 train/14 test folder** (random WSI split cho 0.54±0.29 nhiễu → official cho **0.663±0.099** ổn). MAE 5.42±0.86. R² thấp hơn PanNuke/NuInsSeg (nhỏ+test count-variance thấp) nhưng MAE tốt. ⚠️ Q1 KHÔNG bán R² tuyệt đối → cần count-only-vs-mask MoNuSeg (rasterize polygon→density) để bán PARITY 3-dataset. Input Kaggle `hipinhththu/monuseg` (TestData có 14 xml). Xem [[paper2-q1-pivot]].

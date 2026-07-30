@@ -41,8 +41,8 @@ lượng số đếm thông qua phân vùng, phát hiện hoặc định vị nh
 kiện cần cho độ chính xác đếm cao. Giả định này được kiểm định bằng một thí nghiệm có kiểm soát: kiến trúc, dữ
 liệu và giao thức đánh giá được giữ nguyên, chỉ thay mức giám sát từ mặt nạ điểm ảnh sang một nhãn đếm duy nhất
 cho mỗi ảnh. Trên ba bộ dữ liệu độc lập (PanNuke, NuInsSeg và MoNuSeg), giám sát count-only đạt độ chính xác đếm
-tương đương giám sát bằng mặt nạ: count-only cao hơn trên hai tập, và thấp hơn $0{,}013$ trên thang $R^2$ ở tập
-lớn nhất. Một can thiệp có đối chứng xác nhận đáp ứng của mô hình đặc hiệu với
+tương đương giám sát bằng mặt nạ: trên tập lớn nhất, sai số đếm của hai chế độ tương đương trong biên $1{,}1\%$
+số nhân trung bình mỗi ảnh, còn trên hai tập còn lại count-only nhỉnh hơn. Một can thiệp có đối chứng xác nhận đáp ứng của mô hình đặc hiệu với
 nội dung nhân: thay toàn bộ nhân được chú thích bằng mô không chứa nhân trong khi giữ nguyên hình dạng và diện
 tích làm số đếm dự đoán giảm còn $0{,}37$ lần, trong khi đối chứng giả duy trì ở mức $1{,}02$ lần. Trên PanNuke,
 bộ đếm $3{,}62$ triệu tham số huấn luyện với giám sát count-only đạt $R^2 = 0{,}920$ và vượt các đại diện của
@@ -80,8 +80,9 @@ sát: mặt nạ ở mức điểm ảnh, hoặc một nhãn đếm duy nhất c
 Các đóng góp chính của bài báo như sau.
 \begin{itemize}
 \item Trên ba tập dữ liệu độc lập, giám sát count-only đạt độ chính xác đếm tương đương giám sát bằng mặt nạ
-trên cùng kiến trúc. Chiều của chênh lệch không đồng nhất giữa các tập, và độ lớn lớn nhất trên tập kiểm tra cố
-định là $0{,}013$ trên thang $R^2$, kèm kiểm định tương đương bắt cặp trên từng ảnh (Mục~\ref{sec:parity}).
+trên cùng kiến trúc. Chiều của chênh lệch không đồng nhất giữa các tập, và trên tập kiểm tra cố định, kiểm định
+tương đương bắt cặp theo từng ảnh chặn chênh lệch ở mức $1{,}1\%$ số nhân trung bình mỗi ảnh
+(Mục~\ref{sec:parity}).
 \item Một thí nghiệm can thiệp có đối chứng giả kiểm tra liệu dự đoán của mô hình có phụ thuộc đặc hiệu vào nội
 dung nhân hay không, qua đó khoanh vùng cơ chế đứng sau kết quả tương đương (Mục~\ref{sec:fidelity}).
 \item Khi được huấn luyện lại và đánh giá trên cùng phân chia dữ liệu, bộ đếm count-only nhẹ vượt các đại diện
@@ -214,7 +215,16 @@ trung bình, nên trung vị và số hạt giống suy biến được báo cá
 so sánh hai chế độ giám sát, kiểm định Wilcoxon signed-rank bắt cặp được dùng trên sai số tuyệt đối của
 từng ảnh, trong đó sai số mỗi ảnh được lấy trung bình qua các hạt giống trên tập kiểm tra cố định; giá trị
 $p>0{,}05$ được hiểu là không đủ bằng chứng để bác bỏ giả thuyết không, chứ không phải bằng chứng cho sự tương
-đương. Chất lượng khoảng dự đoán được đo bằng mức phủ biên,
+đương.
+
+Vì vậy kết luận tương đương được thiết lập bằng một kiểm định riêng. Hai kiểm định một phía (TOST) chạy trên
+cùng các sai số bắt cặp đó bác bỏ giả thuyết không $|\Delta| \ge \delta$, với $\Delta$ là chênh lệch trung bình
+của sai số tuyệt đối theo từng ảnh, tính bằng đơn vị nhân. Tương đương được công nhận khi khoảng tin cậy
+bootstrap $90\%$ của $\Delta$ nằm gọn trong $(-\delta, +\delta)$. Mọi biên $\delta$ chọn trước đều có thể bị xem
+là chọn cho vừa dữ liệu, nên biên nhỏ nhất mà kết luận tương đương còn đứng vững, ký hiệu $\delta^\star$, được
+báo cáo kèm để người đọc tự áp ngưỡng của mình.
+
+Chất lượng khoảng dự đoán được đo bằng mức phủ biên,
 mức phủ của cơ quan có mức phủ thấp nhất, độ rộng khoảng và điểm Winkler.
 
 %%============================================================%%
@@ -233,14 +243,23 @@ giữa các hạt giống.
 
 Chiều của chênh lệch không đồng nhất giữa các tập: nhánh mask nhỉnh hơn trên PanNuke, còn count-only nhỉnh hơn
 trên NuInsSeg và MoNuSeg. Câu hỏi phù hợp do đó không phải là chênh lệch có khác không hay không, mà là nó có
-nhỏ hơn một ngưỡng đáng kể về mặt thực tiễn hay không. Trên tập kiểm tra đủ lớn và cố định, công cụ trả lời câu
-hỏi này là kiểm định tương đương bắt cặp theo từng ảnh. Trên các tập nhỏ, phương sai giữa hạt giống chi phối và
-xếp hạng theo từng ảnh không ổn định giữa các tập con hạt giống, nên một chênh lệch trung bình dương không đủ
-để tuyên bố ưu thế.
+nhỏ hơn một ngưỡng đáng kể về mặt thực tiễn hay không.
+
+Trên PanNuke, hai kiểm định trả lời hai nửa của câu hỏi đó. Kiểm định Wilcoxon bắt cặp bác bỏ giả thuyết hai chế
+độ sai số như nhau ($p = 1{,}1 \times 10^{-13}$, $n = 2722$): khoảng cách là có thật. Độ lớn của nó là $0{,}21$
+nhân trên mỗi ảnh, trên số đếm trung bình $24{,}5$ nhân, tức $0{,}86\%$. Kiểm định TOST bác bỏ giả thuyết ngược
+ở biên bằng $2\%$ số nhân trung bình ($p < 10^{-16}$), và biên nhỏ nhất mà kết luận tương đương còn đứng vững là
+$\delta^\star = 0{,}27$ nhân, tương đương $1{,}1\%$ số đếm trung bình. Với $n = 2722$, phép so sánh đủ nhạy để
+phát hiện chênh lệch cỡ một phần năm nhân, nên có ý nghĩa thống kê ở đây không đồng nghĩa với đáng kể về mặt
+thực tiễn. Phát biểu đầy đủ gồm cả hai vế: hai chế độ khác nhau một lượng đo được, và lượng đó bị chặn trên bởi
+khoảng $1\%$ số nhân mỗi ảnh.
+
+Trên các tập nhỏ, phương sai giữa hạt giống chi phối và xếp hạng theo từng ảnh không ổn định giữa các tập con
+hạt giống, nên một chênh lệch trung bình dương không đủ để tuyên bố ưu thế.
 
 Đối với tác vụ đếm và trên cùng một kiến trúc, việc hạ chú thích từ mặt nạ ở mức điểm ảnh xuống một con số đếm
-cho mỗi ảnh do đó đi kèm một mức suy giảm nhỏ và đo được trên PanNuke, còn trên hai tập kia thì không có suy
-giảm. Cần lưu ý phạm vi của phép so sánh này: nhánh mask dùng
+cho mỗi ảnh do đó đi kèm một mức suy giảm nhỏ và đo được trên PanNuke, bị chặn trên bởi khoảng $1\%$ số nhân
+mỗi ảnh, còn trên hai tập kia thì không có suy giảm. Cần lưu ý phạm vi của phép so sánh này: nhánh mask dùng
 \emph{cùng} kiến trúc với count-only nhằm cô lập ảnh hưởng của \emph{loại giám sát}, nên nó không đo năng lực của
 một kiến trúc phân vùng được tối ưu riêng. Mục~\ref{sec:paradigm} xét câu hỏi đó tách biệt.
 
@@ -253,7 +272,8 @@ từng ảnh (sai số lấy trung bình qua các hạt giống).}\label{tab:par
 \toprule
 Tập dữ liệu & count-only ($R^2$) & mask ($R^2$) & $\Delta R^2$ & $p$ & Diễn giải \\
 \midrule
-PanNuke & $0{,}918\pm0{,}011$ & $0{,}931\pm0{,}006$ & $-0{,}013$ & \pending & tương đương \\
+PanNuke & $0{,}918\pm0{,}011$ & $0{,}931\pm0{,}006$ & $-0{,}013$ & $1{,}1{\times}10^{-13}$ &
+tương đương ở $\delta^\star{=}0{,}27$ nhân ($1{,}1\%$) \\
 MoNuSeg$^{\ddagger}$ & $0{,}459\pm0{,}194$ & $0{,}362\pm0{,}154$ & $+0{,}097$ & --- & tương đương (trong dao động) \\
 NuInsSeg$^{\dagger}$ & $0{,}913\pm0{,}022$ & $0{,}892\pm0{,}017$ & $+0{,}021$ & --- & tương đương \\
 \bottomrule
@@ -529,8 +549,9 @@ của các hệ phân vùng nhân chuyên dụng; Mục~\ref{sec:paradigm} chỉ
 \section{Kết luận}\label{sec:conclusion}
 
 Trên ba tập dữ liệu mô bệnh học độc lập, giám sát chỉ bằng số đếm ở mức ảnh đạt độ chính xác đếm tương đương
-giám sát bằng mặt nạ ở mức điểm ảnh khi giữ nguyên kiến trúc, dữ liệu và giao thức đánh giá, trong khi chi phí
-chú thích thấp hơn khoảng một bậc độ lớn. Các thí nghiệm
+giám sát bằng mặt nạ ở mức điểm ảnh khi giữ nguyên kiến trúc, dữ liệu và giao thức đánh giá, với chênh lệch bị
+chặn trên bởi khoảng $1\%$ số nhân mỗi ảnh trên tập kiểm tra lớn nhất, trong khi chi phí chú thích thấp hơn
+khoảng một bậc độ lớn. Các thí nghiệm
 can thiệp cho thấy mô hình học cách tích hợp bằng chứng liên quan tới nhân trên toàn ảnh, thay vì dựa vào thông
 tin định vị tường minh. Ngoài ra, bộ đếm count-only nhẹ đạt $R^2$ và MAE tốt hơn các đại diện của ba dòng phương
 pháp dùng nhãn đắt trên tác vụ đếm, và có thể được trang bị khoảng dự đoán đã hiệu chuẩn cho triển khai. Đối với
