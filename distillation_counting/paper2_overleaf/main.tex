@@ -239,7 +239,8 @@ xếp hạng theo từng ảnh không ổn định giữa các tập con hạt g
 để tuyên bố ưu thế.
 
 Đối với tác vụ đếm và trên cùng một kiến trúc, việc hạ chú thích từ mặt nạ ở mức điểm ảnh xuống một con số đếm
-cho mỗi ảnh do đó không đi kèm suy giảm nào quan sát được về độ chính xác đếm. Cần lưu ý phạm vi của phép so sánh này: nhánh mask dùng
+cho mỗi ảnh do đó đi kèm một mức suy giảm nhỏ và đo được trên PanNuke, còn trên hai tập kia thì không có suy
+giảm. Cần lưu ý phạm vi của phép so sánh này: nhánh mask dùng
 \emph{cùng} kiến trúc với count-only nhằm cô lập ảnh hưởng của \emph{loại giám sát}, nên nó không đo năng lực của
 một kiến trúc phân vùng được tối ưu riêng. Mục~\ref{sec:paradigm} xét câu hỏi đó tách biệt.
 
@@ -528,8 +529,8 @@ của các hệ phân vùng nhân chuyên dụng; Mục~\ref{sec:paradigm} chỉ
 \section{Kết luận}\label{sec:conclusion}
 
 Trên ba tập dữ liệu mô bệnh học độc lập, giám sát chỉ bằng số đếm ở mức ảnh đạt độ chính xác đếm tương đương
-giám sát bằng mặt nạ ở mức điểm ảnh khi giữ nguyên kiến trúc, dữ liệu và giao thức đánh giá, với mọi chênh lệch
-nằm trong dao động giữa các lần chạy, trong khi chi phí chú thích thấp hơn khoảng một bậc độ lớn. Các thí nghiệm
+giám sát bằng mặt nạ ở mức điểm ảnh khi giữ nguyên kiến trúc, dữ liệu và giao thức đánh giá, trong khi chi phí
+chú thích thấp hơn khoảng một bậc độ lớn. Các thí nghiệm
 can thiệp cho thấy mô hình học cách tích hợp bằng chứng liên quan tới nhân trên toàn ảnh, thay vì dựa vào thông
 tin định vị tường minh. Ngoài ra, bộ đếm count-only nhẹ đạt $R^2$ và MAE tốt hơn các đại diện của ba dòng phương
 pháp dùng nhãn đắt trên tác vụ đếm, và có thể được trang bị khoảng dự đoán đã hiệu chuẩn cho triển khai. Đối với

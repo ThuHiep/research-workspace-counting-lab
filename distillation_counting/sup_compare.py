@@ -61,8 +61,11 @@ def compare(per_img, gt_te, seeds, args, rows=None):
           f"mask {em.mean():.2f} | Wilcoxon p={pw:.4g} -> {verdict}")
     if rows and any(r[6] for r in rows):
         print("  ⚠ Wilcoxon này KHÔNG dùng được: nó đang đo mấy seed sập, không đo supervision.")
-    else:
+    elif pw > 0.05 or dm < 0:
         print("  ĐỌC: count-only ≥ GT-density → ĐẾM KHÔNG CẦN pixel; cái thắng đến từ SUPERVISION, không phải kiến trúc.")
+    else:
+        print(f"  ĐỌC: mask nhỉnh hơn {dm:+.3f} nhân/ảnh, khác biệt CÓ ý nghĩa thống kê. Với n lớn, có-ý-nghĩa "
+              f"KHÔNG đồng nghĩa đáng-kể-thực-tiễn → phải đọc δ* của TOST bên dưới rồi mới kết luận.")
     # p>0.05 mới chỉ là "không bác bỏ được khác nhau". Claim TƯƠNG ĐƯƠNG cần TOST.
     try:
         from equivalence import report as tost_report
