@@ -37,15 +37,19 @@ def main():
 
     fig, ax = plt.subplots(figsize=(6.4, 2.0))
 
-    ax.axvspan(-deltas[-1], deltas[-1], color=ACCENT, alpha=0.06, lw=0)
-    # Nhãn δ xếp so le theo CHIỀU DỌC và chỉ đặt bên phải -> không cụm nào đè cụm nào.
+    # Đường dọc CHỈ chạy từ y=-0,55 lên: chừa hẳn dải đáy cho nhãn hướng, khỏi đè nhau.
+    TOP, BOT = 0.95, -0.55
+    ax.fill_betweenx([BOT, TOP], -deltas[-1], deltas[-1], color=ACCENT, alpha=0.06, lw=0)
+    # Nhãn δ xếp so le theo chiều dọc; nhãn ngoài cùng quay vào trong để không chạm mép phải.
     for i, (f, d) in enumerate(zip(fracs, deltas)):
         for s in (-1, 1):
-            ax.axvline(s * d, color=MUTED, ls=(0, (4, 3)), lw=1.0)
+            ax.vlines(s * d, BOT, TOP, color=MUTED, ls=(0, (4, 3)), lw=1.0)
+        inner = (i == len(fracs) - 1)
         # '%' KHONG duoc nam trong $...$ (mathtext coi la loi cu phap) -> de ngoai phan toan
-        ax.annotate(f"$\\delta$ = {f:.0%} ({d:.2f})", xy=(d + lim * 0.02, 0.72 - 0.30 * i),
-                    fontsize=7.5, color=MUTED, ha="left", va="center")
-    ax.axvline(0, color=INK, lw=1.2)
+        ax.annotate(f"$\\delta$ = {f:.0%} ({d:.2f})",
+                    xy=(d + lim * (-0.02 if inner else 0.02), 0.72 - 0.30 * i),
+                    fontsize=7.5, color=MUTED, ha="right" if inner else "left", va="center")
+    ax.vlines(0, BOT, TOP, color=INK, lw=1.2)
 
     ax.errorbar(a.dm, 0, xerr=[[a.dm - a.lo], [a.hi - a.dm]], fmt="o", color=ACCENT,
                 ecolor=ACCENT, elinewidth=2.0, capsize=4, markersize=7, zorder=5)
@@ -55,9 +59,9 @@ def main():
     ax.set_ylim(-1.0, 1.0)
     ax.set_yticks([])
     ax.set_xlabel("$\\Delta$ per-image absolute error,  count-only $-$ mask  (nuclei)", fontsize=9)
-    ax.annotate("count-only errs less", xy=(-lim * 0.97, -0.78), fontsize=7.5, color=MUTED,
+    ax.annotate("count-only errs less", xy=(-lim * 0.97, -0.80), fontsize=7.5, color=MUTED,
                 ha="left", va="center")
-    ax.annotate("mask errs less", xy=(lim * 0.97, -0.78), fontsize=7.5, color=MUTED,
+    ax.annotate("mask errs less", xy=(lim * 0.97, -0.80), fontsize=7.5, color=MUTED,
                 ha="right", va="center")
     for s in ("top", "right", "left"):
         ax.spines[s].set_visible(False)
