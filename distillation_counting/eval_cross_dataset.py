@@ -1,12 +1,12 @@
 """
 eval_cross_dataset.py — CROSS-DATASET TRANSFER (train trên dataset A -> predict dataset B).
 
-Câu hỏi Q1 (generalization của distillation): (μ, σ) mà student HỌC được từ distillation trên
-dataset A có CHUYỂN sang một dataset B khác (khác phòng lab, khác nhuộm, khác dải count) không —
-hay chỉ khớp riêng A? Đây là bằng chứng transfer mạnh cho một paper distillation.
+Câu hỏi: bộ đếm huấn luyện trên dataset A (mặc định count-only) chuyển sang một dataset B khác
+(khác phòng lab, khác nhuộm, khác dải count) được tới đâu — độ chính xác điểm và (μ, σ) còn dùng
+được không, hay chỉ khớp riêng A?
 
 Thiết kế (leak-free BẨM SINH: A và B là 2 dataset khác nhau -> không thể rò ảnh):
-  1. Train MỘT DensitySigmaUNet trên TOÀN BỘ dataset A (density teacher của A + count GT của A).
+  1. Train MỘT DensitySigmaUNet trên TOÀN BỘ dataset A (chỉ dùng count GT của A ở chế độ mặc định).
   2. Predict trên TOÀN BỘ dataset B -> pkl {preds:[{mu,sigma}], gts, organs} (schema chuẩn repo).
   3. Chấm bằng eval_r2_grouped.py trên pkl đó: split conformal HIỆU CHỈNH TRÊN CAL CỦA B
      (chuẩn domain-transfer: recalibrate ở target). -> đo MAE + Winkler + worst-org TRÊN B.
@@ -16,18 +16,19 @@ KHÔNG dùng nhãn B lúc train (chỉ dùng ở bước conformal-cal, đúng s
 
 ⚠️ Kích thước ảnh: cả 2 cache đều lưu ảnh 256×256 (build_*_density resize về IMG_SIZE=256) ->
    input đồng nhất, model train-A áp thẳng lên B được.
-⚠️ colon: nếu A HOẶC B là PanNuke, dùng --exclude_tissue colon y hệt bảng chính (leak teacher).
+Chạy (mặc định --supervision count = chế độ của bài):
+  # NuInsSeg -> CryoNuSeg (dataset OOD ngoài, qua folder ảnh + gt_counts.csv)
+  python prep_cryonuseg_counts.py --img_dir "<...>/tissue images" \
+      --mask_dir "<...>/Annotator 1 (biologist)/label masks modify" --out work/cryo
+  python eval_cross_dataset.py --train_dataset nuinsseg --detach_mu --seed 42 \
+      --test_images_dir work/cryo/images --test_gt_csv work/cryo/gt_counts.csv \
+      --out work/xfer_count_cryo_s42.pkl
+  python eval_r2_grouped.py --preds work/xfer_count_cryo_s42.pkl --seeds 20
 
-Chạy trên vast (2 chiều):
-  # PanNuke -> NuInsSeg
+  # NuInsSeg <-> PanNuke (hai chiều, dataset built-in)
   python eval_cross_dataset.py --train_dataset pannuke --test_dataset nuinsseg \
-      --exclude_tissue colon --detach_mu --out work/xfer_pannuke2nuinsseg.pkl
+      --detach_mu --out work/xfer_pannuke2nuinsseg.pkl
   python eval_r2_grouped.py --preds work/xfer_pannuke2nuinsseg.pkl --seeds 20 --n_clusters 5
-
-  # NuInsSeg -> PanNuke (chiều ngược lại)
-  python eval_cross_dataset.py --train_dataset nuinsseg --test_dataset pannuke \
-      --exclude_tissue colon --detach_mu --out work/xfer_nuinsseg2pannuke.pkl
-  python eval_r2_grouped.py --preds work/xfer_nuinsseg2pannuke.pkl --seeds 20 --n_clusters 3
 """
 from __future__ import annotations
 import argparse, os, pickle, sys
@@ -50,17 +51,19 @@ from distill_student_r2 import (  # noqa: E402
 
 
 def _load_dataset(name, args, device):
-    """Trả list mẫu {img, density, gt, organ, [fold]} cho dataset `name` (dùng ĐÚNG cache như bảng chính)."""
-    tag = "gt" if args.use_gt_density else "teacher"
+    """Trả list mẫu {img, density, gt, organ, [fold]} cho dataset `name` (dùng ĐÚNG cache như bảng chính).
+
+    Bản đồ density luôn dựng từ mặt nạ GT (cache `gt_density_*`). Ở chế độ count-only nó không
+    vào hàm mất mát (w_density=0), chỉ có `gt` được dùng."""
     wdir = getattr(args, "work_dir", None) or "work"   # Kaggle: relative work/, không dùng {REPO}
     os.makedirs(wdir, exist_ok=True)
     if name == "pannuke":
         folds = [int(x) for x in args.pannuke_folds.split(",")]
         fstr = "".join(str(x) for x in sorted(folds))
-        cache = f"{wdir}/{tag}_density_pannuke_f{fstr}.pkl"
-        data = build_pannuke_density(args.pannuke_root, folds, device, cache, use_gt=args.use_gt_density)
+        cache = f"{wdir}/gt_density_pannuke_f{fstr}.pkl"
+        data = build_pannuke_density(args.pannuke_root, folds, device, cache, use_gt=True)
     else:
-        cache = f"{wdir}/{tag}_density_nuinsseg.pkl"
+        cache = f"{wdir}/gt_density_nuinsseg.pkl"
         if os.path.exists(cache):
             samples = None
             print(f"[A/{name}] cache có sẵn -> bỏ qua build_index")
@@ -68,7 +71,7 @@ def _load_dataset(name, args, device):
             nroot = getattr(args, "nuinsseg_root", None) or find_root()
             samples = build_index(nroot)
             print(f"[A/{name}] indexed {len(samples)} pairs (root={nroot})")
-        data = build_teacher_density(samples, device, cache, use_gt=args.use_gt_density)
+        data = build_teacher_density(samples, device, cache, use_gt=True)
     # loại tissue (colon) nếu dataset này là PanNuke — y hệt bảng chính
     if args.exclude_tissue and name == "pannuke":
         ex = [t.strip().lower() for t in args.exclude_tissue.split(",") if t.strip()]
@@ -108,9 +111,11 @@ def main():
     ap.add_argument("--pannuke_root", default=f"{REPO}/data/pannuke")
     ap.add_argument("--pannuke_folds", default="1,2,3")
     ap.add_argument("--exclude_tissue", default=None,
-                    help="loại tissue (áp CHO PHÍA PanNuke), vd 'colon' — y hệt bảng chính (leak teacher).")
-    ap.add_argument("--use_gt_density", action="store_true",
-                    help="baseline SUPERVISED: density target từ GT thay vì teacher PathoSAM.")
+                    help="loại tissue (áp CHO PHÍA PanNuke), vd 'colon'.")
+    ap.add_argument("--supervision", choices=["count", "mask"], default="count",
+                    help="count = count-only (w_density 0, w_count 1) — chế độ của bài. "
+                         "mask = giám sát mật độ dựng từ mặt nạ GT (w_density 1, w_count 0.1). "
+                         "Đặt --w_density/--w_count tường minh sẽ ĐÈ lên lựa chọn này.")
     # train (mirror distill_student_r2 -> cùng công thức bảng chính)
     ap.add_argument("--epochs", type=int, default=80)
     ap.add_argument("--student_ch", type=int, default=32)
@@ -120,8 +125,8 @@ def main():
     ap.add_argument("--work_dir", default="work", help="nơi lưu cache density (Kaggle: relative)")
     ap.add_argument("--lr", type=float, default=1e-3)
     ap.add_argument("--bs", type=int, default=16)
-    ap.add_argument("--w_density", type=float, default=1.0)
-    ap.add_argument("--w_count", type=float, default=0.01)
+    ap.add_argument("--w_density", type=float, default=None, help="None -> suy từ --supervision")
+    ap.add_argument("--w_count", type=float, default=None, help="None -> suy từ --supervision")
     ap.add_argument("--w_nll", type=float, default=0.01)
     ap.add_argument("--beta", type=float, default=0.5)
     ap.add_argument("--sigma_mode", choices=["poisson", "raw", "nb"], default="poisson")
@@ -130,6 +135,12 @@ def main():
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--out", default=f"{REPO}/work/xfer_preds.pkl")
     args = ap.parse_args()
+    wd_def, wc_def = (0.0, 1.0) if args.supervision == "count" else (1.0, 0.1)
+    if args.w_density is None:
+        args.w_density = wd_def
+    if args.w_count is None:
+        args.w_count = wc_def
+    print(f"[SUPERVISION] {args.supervision}: w_density={args.w_density} w_count={args.w_count}")
 
     use_folder = bool(args.test_images_dir)
     assert use_folder or args.test_dataset, "cần --test_dataset HOẶC --test_images_dir + --test_gt_csv"
