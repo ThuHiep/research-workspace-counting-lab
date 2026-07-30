@@ -54,6 +54,9 @@ def main():
                     help="TOST: biên tương đương (đơn vị NHÂN). Mặc định None -> suy từ --delta_frac.")
     ap.add_argument("--delta_frac", type=float, default=0.05,
                     help="TOST: biên = delta_frac * số nhân trung bình của tập kiểm tra (mặc định 5%%).")
+    ap.add_argument("--dump_preds", default=None,
+                    help="lưu .npz (seeds, ec, em, gt theo từng split) -> tính lại TOST khỏi train lại. "
+                         "TRỎ VÀO THƯ MỤC OUTPUT RIÊNG, đừng để trong repo đã clone.")
     ap.add_argument("--deterministic", action="store_true",
                     help="bật cuDNN tất định — CHẬM hơn nhiều với efflite0. NuInsSeg nhỏ+ổn định KHÔNG cần "
                          "-> mặc định TẮT (benchmark=True) cho nhanh.")
@@ -108,6 +111,15 @@ def main():
     print(f"  count-only lỗi ÍT hơn ở {n_win_dir}/{len(seeds)} seed | p<0.05 ở {n_sig_win}/{len(seeds)} seed")
     print(f"  -> {'count-only lỗi ít hơn ở MỌI seed' if n_win_dir == len(seeds) else f'chiều lỗi đổi dấu giữa các seed ({n_win_dir}/{len(seeds)})'}"
           f"{'; có seed khác biệt CÓ ý nghĩa -> KHÔNG phải parity thuần' if n_sig_win else '; không seed nào khác biệt có ý nghĩa -> nhất quán với TƯƠNG ĐƯƠNG'}")
+    if args.dump_preds:   # lưu TRƯỚC khi chạy TOST: TOST lỗi cũng không mất dữ liệu train
+        os.makedirs(os.path.dirname(args.dump_preds) or ".", exist_ok=True)
+        np.savez(args.dump_preds,
+                 seeds=np.array([s for s, _, _, _ in err_all]),
+                 ec=np.stack([e for _, e, _, _ in err_all]),
+                 em=np.stack([m for _, _, m, _ in err_all]),
+                 gt=np.stack([g for _, _, _, g in err_all]))
+        print(f"\n[dump_preds] LƯU {args.dump_preds} — backup lên dataset NGAY, đừng để mất")
+
     # TOST theo TỪNG seed: mỗi seed là một split riêng (test set khác nhau) nên không gộp per-image
     # được; gộp sẽ lặp ảnh giữa các split -> vi phạm độc lập. n≈26/split nên lực kiểm định thấp,
     # δ* sẽ rộng: đó là sự thật về dữ liệu, không phải lỗi của test.

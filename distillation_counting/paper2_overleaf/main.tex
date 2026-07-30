@@ -268,7 +268,8 @@ một kiến trúc phân vùng được tối ưu riêng. Mục~\ref{sec:paradig
 \centering
 \caption{Độ chính xác đếm dưới hai chế độ giám sát trên \emph{cùng} kiến trúc, $5$ hạt giống cho cả ba tập dữ
 liệu. $\Delta R^2 = R^2_{\text{count}} - R^2_{\text{mask}}$; $p$ là kiểm định Wilcoxon bắt cặp trên
-từng ảnh (sai số lấy trung bình qua các hạt giống).}\label{tab:parity}
+từng ảnh (sai số lấy trung bình qua các hạt giống); $\delta^\star$ là biên nhỏ nhất mà kiểm định tương đương
+TOST còn cho kết luận, tính bằng đơn vị nhân trên mỗi ảnh.}\label{tab:parity}
 \begin{tabular}{@{}lccccl@{}}
 \toprule
 Tập dữ liệu & count-only ($R^2$) & mask ($R^2$) & $\Delta R^2$ & $p$ & Diễn giải \\
@@ -280,7 +281,7 @@ NuInsSeg$^{\dagger}$ & $0{,}913\pm0{,}022$ & $0{,}892\pm0{,}017$ & $+0{,}021$ & 
 \bottomrule
 \end{tabular}
 \footnotetext{$^{\dagger}$ Vì NuInsSeg dùng chia ngẫu nhiên khác nhau theo hạt giống, tập kiểm tra không cố
-định giữa các lần chạy và nhỏ (${\sim}26$ ảnh/chia); do đó tính nhất quán theo từng chia được báo cáo
+định giữa các lần chạy và nhỏ (${\sim}133$ ảnh/chia); do đó tính nhất quán theo từng chia được báo cáo
 ($5$ hạt giống) thay vì một kiểm định gộp: sai số tuyệt đối của count-only thấp hơn ở $4/5$ chia nhưng
 \emph{không} đạt $p<0{,}05$ ở bất kỳ chia nào ($0/5$). Kết quả này nhất quán với tương đương: count-only
 tương đương mask, và không có khác biệt có ý nghĩa thống kê theo từng ảnh.}
@@ -292,7 +293,8 @@ là tương đương, \emph{không} tuyên bố ưu thế.}
 
 \subsection{Số đếm dự đoán phản hồi nhân quả với nội dung nhân}\label{sec:fidelity}
 
-Kết quả ở Mục~\ref{sec:parity} không cho thấy suy giảm độ chính xác khi bỏ giám sát không gian, nhưng
+Kết quả ở Mục~\ref{sec:parity} cho thấy bỏ giám sát không gian chỉ làm độ chính xác đếm thay đổi trong một biên
+hẹp, nhưng
 chưa nói mô hình dựa vào bằng chứng nào để đếm. Một mô hình chỉ nhìn thấy một con số cho mỗi ảnh trên nguyên tắc
 có thể khai thác tương quan toàn cục (loại mô, mật độ tế bào, đặc trưng nhuộm) thay vì chính các nhân. Hai phân
 tích dưới đây kiểm tra khả năng đó trên PanNuke fold~3 ($n=2722$ mảnh, số nhân trung bình $24{,}5$).
