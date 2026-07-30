@@ -242,7 +242,8 @@ giả (sham) áp dụng \emph{đúng} phép thao tác đó --- cùng số vùng,
 vị trí không chứa nhân; nhờ vậy mọi tác động của bản thân việc thay mô được tách khỏi tác động của việc mất nhân.
 Chỉ những phép đo có diện tích gỡ khớp nhau tối thiểu $80\%$ giữa hai điều kiện được đưa vào kiểm định.
 
-Bảng~\ref{tab:doseresp} cho thấy số đếm dự đoán giảm \emph{đơn điệu} theo tỉ lệ nhân bị gỡ, trong khi đối chứng
+Hình~\ref{fig:qualitative} minh hoạ phép thao tác trên một mảnh ảnh. Bảng~\ref{tab:doseresp} và
+Hình~\ref{fig:doseresp} cho thấy số đếm dự đoán giảm \emph{đơn điệu} theo tỉ lệ nhân bị gỡ, trong khi đối chứng
 giả để số đếm gần như không đổi ($1{,}00$--$1{,}03$) ở mọi mức. Trên các phép đo khớp diện tích ($n=3415$), phần
 sụt giảm quy được cho nhân là $0{,}234$ đơn vị chuẩn hoá và chiếm toàn bộ mức sụt quan sát được (Wilcoxon bắt cặp
 giữa hai điều kiện, $p<10^{-300}$); riêng ở các liều nhỏ ($\le 30\%$), nơi ảnh còn gần phân phối huấn luyện nhất,
@@ -268,6 +269,18 @@ nhân và để lại một nhân mờ. Hệ quả là độ nhạy đo được
 $33\%$ các ảnh cho số đếm ở mức gỡ $100\%$ \emph{cao hơn} ở mức gỡ $75\%$ --- một dấu hiệu không thể có ở một
 phép thao tác đúng. Đối chứng giả không phát hiện được lỗi này, vì các vùng giả nằm giữa mô nền nên chỉ được lấp
 bằng mô nền. Việc thay bằng phép ghép mô từ vùng không chứa nhân là cần thiết chính vì lý do đó.
+Hình~\ref{fig:doseresp} đặt hai cách gỡ cạnh nhau để thấy độ lớn của sai lệch đo này.
+
+\paragraph{Hệ số đáp ứng là một chặn dưới.} Phép gỡ chỉ tác động lên các nhân \emph{được chú thích}, nên những
+nhân mà chú thích bỏ sót vẫn còn lại trong ảnh và tiếp tục đóng góp vào số đếm --- có thể thấy điều này ở
+Hình~\ref{fig:qualitative}c, nơi vài nhân sẫm màu còn nguyên sau khi đã gỡ toàn bộ nhân có nhãn. Ảnh hưởng của
+yếu tố này đo được: lấy phần mô hình dự đoán vượt quá số nhân được chú thích trên ảnh nguyên vẹn làm chỉ dấu cho
+mức chú thích bỏ sót, số đếm còn lại sau khi gỡ toàn bộ tăng đơn điệu từ $0{,}36$ ở các mảnh không có dấu hiệu bỏ
+sót lên $0{,}70$ ở nhóm bỏ sót nhiều nhất (tương quan $+0{,}31$, $n=286$). Tuy vậy quy mô của yếu tố này nhỏ:
+mức vượt trung bình chỉ $3{,}5\%$ số nhân, trong khi số đếm còn lại là $42{,}5\%$, nên phần lớn lượng còn lại
+\emph{không} quy được cho chú thích bỏ sót. Kết luận rút ra là hệ số đáp ứng $0{,}60$ nên được hiểu như một
+\emph{chặn dưới} của độ nhạy thực: mọi khiếm khuyết đã biết của phép đo --- inpainting để lại vết nhân, mặt nạ hụt
+viền, chú thích bỏ sót --- đều đẩy hệ số này xuống chứ không đẩy lên.
 
 \begin{figure}[t]
 \centering
@@ -301,6 +314,29 @@ Liver         & $93$  & $0{,}884$ & $3{,}39$ & \textbf{Toàn tập} & $\mathbf{2
 \bottomrule
 \end{tabular}
 \end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_qualitative.pdf}
+\caption{Phép gỡ nhân trên một mảnh PanNuke. \textbf{(a)} Ảnh gốc. \textbf{(b, c)} Sau khi gỡ $30\%$ rồi toàn bộ
+nhân được chú thích: mỗi nhân được thay bằng một mảng mô cùng hình dạng lấy từ vùng không chứa nhân của chính ảnh
+đó, nên kết cấu mô được giữ nhưng nội dung nhân bị loại; số đếm dự đoán giảm theo. \textbf{(d)} Đối chứng giả áp
+dụng đúng phép thao tác đó lên $13$ vùng \emph{không chứa nhân}, giữ nguyên toàn bộ nhân; số đếm dự đoán không
+thay đổi. Ở (c) vẫn còn vài nhân sẫm màu --- đó là các nhân không có trong chú thích nên không bị gỡ, và chúng làm
+hệ số đáp ứng đo được thấp hơn giá trị thực.}
+\label{fig:qualitative}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.62\textwidth]{fig_doseresp.pdf}
+\caption{Số đếm dự đoán (chuẩn hoá theo ảnh nguyên vẹn) theo tỉ lệ nhân còn lại; trung bình trên $286$ mảnh, dải
+mờ là $\pm1$ độ lệch chuẩn của cách gỡ chính. Gỡ mô \emph{không chứa nhân} với cùng diện tích (đối chứng giả) để
+số đếm gần như không đổi, nên phần sụt giảm là do mất nhân chứ không do bản thân việc can thiệp vào ảnh. Đường
+\emph{telea} là cách gỡ bị loại: inpainting lan màu từ viền nhân vào nên để lại vết nhân và làm độ nhạy đo được
+thấp đi gần một nửa.}
+\label{fig:doseresp}
+\end{figure}
 
 \begin{table}[t]
 \centering

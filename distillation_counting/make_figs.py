@@ -95,13 +95,15 @@ def _curve(npz):
 def fig_doseresp(occs, out):
     fig, ax = plt.subplots(figsize=(3.5, 3.0))
     ax.plot([0, 1], [0, 1], ls="--", lw=1.0, color=INK2, zorder=1)
-    ax.annotate("đếm cộng dồn trung thực", xy=(0.62, 0.62), xytext=(0.70, 0.30), color=INK2,
-                fontsize=6.5, ha="center", arrowprops=dict(arrowstyle="-", lw=0.5, color=INK2))
+    # nhãn nằm DỌC theo đường tham chiếu -> khỏi cần mũi tên chỉ, đỡ rối
+    ax.text(0.60, 0.555, "đếm cộng dồn trung thực", color=INK2, fontsize=6.5,
+            rotation=38, rotation_mode="anchor", ha="center", va="top")
     sham_done = False
     for i, (label, npz) in enumerate(occs):
         keep, m, sd, ms = _curve(npz)
         c = SERIES[i % len(SERIES)]
-        ax.fill_between(keep, m - sd, m + sd, color=c, alpha=0.13, linewidth=0, zorder=2)
+        if i == 0:   # dải ±1sd CHỈ cho đường chính; vẽ cho mọi đường thì các dải chồng nhau, không đọc được
+            ax.fill_between(keep, m - sd, m + sd, color=c, alpha=0.13, linewidth=0, zorder=2)
         ax.plot(keep, m, "-o", lw=2.0, ms=4.5, color=c, zorder=4,
                 label=f"gỡ nhân ({label})" if len(occs) > 1 else "gỡ nhân")
         if not sham_done and np.isfinite(ms).any():
@@ -115,9 +117,9 @@ def fig_doseresp(occs, out):
     from matplotlib.ticker import FuncFormatter
     comma = FuncFormatter(lambda v, _: f"{v:g}".replace(".", ","))   # thống nhất dấu phẩy thập phân
     ax.xaxis.set_major_formatter(comma); ax.yaxis.set_major_formatter(comma)
-    ax.set_xlim(-0.03, 1.03); ax.set_ylim(0, 1.18)
+    ax.set_xlim(-0.03, 1.03); ax.set_ylim(0, 1.12)
     ax.set_xlabel("Tỉ lệ nhân còn lại trong ảnh"); ax.set_ylabel("Số đếm dự đoán (chuẩn hoá)")
-    ax.legend(loc="lower right", handlelength=1.6)
+    ax.legend(loc="lower right", handlelength=1.5, labelspacing=0.3, borderpad=0.2)
     fig.tight_layout(); fig.savefig(out); plt.close(fig)
     for label, npz in occs:
         keep, m, sd, ms = _curve(npz)
@@ -145,3 +147,28 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+def fig_qualitative(panel_png, labels, out):
+    """Dựng lại hình định tính từ panel do count_evidence xuất: cắt 4 tile ảnh ra rồi ghi nhãn lại.
+    Lý do không dùng thẳng panel: font matplotlib trên Kaggle rụng dấu tiếng Việt ("NHAN", "con")."""
+    from PIL import Image
+    a = np.asarray(Image.open(panel_png).convert("RGB"))
+    ink = (a.astype(int).sum(2) < 720)                       # pixel không-gần-trắng
+    colfull = ink.mean(0) > 0.5                              # cột thuộc vùng ẢNH (đặc), không phải chữ
+    xs, run = [], None
+    for i, v in enumerate(np.r_[colfull, False]):
+        if v and run is None: run = i
+        elif not v and run is not None:
+            if i - run > a.shape[1] // 12: xs.append((run, i))
+            run = None
+    rows = np.where(ink.mean(1) > 0.5)[0]
+    y0, y1 = rows.min(), rows.max()
+    assert len(xs) == len(labels), f"cắt được {len(xs)} tile nhưng có {len(labels)} nhãn"
+    fig, axes = plt.subplots(1, len(xs), figsize=(6.6, 6.6 / len(xs) + 0.55))
+    for ax, (x0, x1), lab in zip(axes, xs, labels):
+        ax.imshow(a[y0:y1 + 1, x0:x1]); ax.set_xticks([]); ax.set_yticks([])
+        for sp in ax.spines.values(): sp.set_edgecolor(GRID); sp.set_linewidth(0.6)
+        ax.set_title(lab, fontsize=7, color=INK, linespacing=1.35)
+    fig.tight_layout(w_pad=0.8); fig.savefig(out); plt.close(fig)
+    print(f"[hình 3] {out}  ({len(xs)} tile, mỗi tile {xs[0][1]-xs[0][0]}×{y1-y0+1} px)")
