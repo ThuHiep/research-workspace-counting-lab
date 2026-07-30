@@ -92,23 +92,51 @@ bất định được hiệu chuẩn cho triển khai tin cậy (Mục~\ref{sec
 %%============================================================%%
 \section{Công trình liên quan}\label{sec:related}
 
-\paragraph{Phân vùng nhân.} U-Net~\cite{unet} và các mở rộng như HoVer-Net~\cite{hovernet} và
-StarDist~\cite{stardist} đạt độ chính xác phân vùng cao trên các mốc chuẩn như PanNuke~\cite{pannuke}. Chúng dựa
-vào mặt nạ ở mức điểm ảnh, và số đếm là một đại lượng dẫn xuất từ đầu ra phân vùng.
+\paragraph{Phân vùng và phát hiện nhân.} U-Net~\cite{unet} cùng các mở rộng như HoVer-Net~\cite{hovernet} và
+StarDist~\cite{stardist} đạt độ chính xác phân vùng cao trên các mốc chuẩn như PanNuke~\cite{pannuke}; ở các
+phương pháp này, số đếm là một đại lượng dẫn xuất từ đầu ra phân vùng và nhãn huấn luyện là mặt nạ ở mức điểm
+ảnh. Các hướng dựa trên tâm và giám sát điểm ước lượng vị trí nhân một cách rời rạc, qua đó giảm chi phí chú
+thích so với mặt nạ đầy đủ~\cite{qu2020}, nhưng vẫn yêu cầu định vị và nhạy cảm với bước hậu xử lý khi nhân
+chồng lấn; hệ quả của đặc tính này đối với độ chính xác đếm ở vùng dày đặc được đo trực tiếp ở
+Mục~\ref{sec:paradigm}.
 
-\paragraph{Phát hiện nhân.} Các hướng dựa trên tâm và giám sát điểm ước lượng vị trí nhân một cách rời rạc, qua
-đó giảm chi phí chú thích so với mặt nạ đầy đủ~\cite{qu2020}. Tuy vậy, chúng vẫn yêu cầu định vị và nhạy cảm với
-bước hậu xử lý khi nhân chồng lấn.
+\paragraph{Nới lỏng nhãn trong phân tích nhân.} Một dòng nghiên cứu tích cực tìm cách hạ dần mức chú thích: từ
+mặt nạ đầy đủ xuống một điểm cho mỗi nhân~\cite{pseudoedgenet}, xuống chỉ một phần các điểm~\cite{qu2020}, xuống
+một chỉ báo đếm cắt ngưỡng ở mức mảnh nhỏ, trong đó người chú thích chỉ phán đoán mảnh chứa không, một hay nhiều
+hơn một nhân, tiết kiệm khoảng $82{,}5\%$ công so với đánh dấu điểm~\cite{lirnet}, và xuống nhãn ở mức
+ảnh~\cite{cyclic}. Điểm chung của các công trình này là \emph{đích} đầu ra vẫn mang tính không gian: mục tiêu
+cần đạt là mặt nạ hoặc vị trí từng nhân, nên nhãn yếu phải được bù lại bằng cơ chế sinh nhãn giả, học theo chu
+kỳ hoặc mạng phụ trợ. Trong bệnh học tính toán, giám sát ở mức ảnh cũng đã được khai thác rộng rãi ở cấp lát cắt
+cho các bài toán phân loại thông qua học đa thực thể~\cite{campanella}. Câu hỏi được đặt ra ở đây khác về bản
+chất: khi đại lượng cần dùng \emph{chính là số đếm}, giám sát không gian có còn cần thiết hay không.
 
-\paragraph{Ước lượng mật độ và đếm.} Hồi quy bản đồ mật độ là chuẩn mực trong đếm đám đông và đã được chuyển
-sang đếm tế bào. Dù rẻ hơn phân vùng thực thể, giám sát mật độ vẫn giả định biết vị trí đối tượng ở mức điểm
-ảnh.
+\paragraph{Đếm bằng hồi quy mật độ.} Lempitsky và Zisserman~\cite{lempitsky} đặt nền cho việc đếm bằng cách hồi
+quy một bản đồ mật độ mà tích phân trên một vùng cho ra số đối tượng trong vùng đó, thay cho việc phát hiện rồi
+đếm từng thực thể. Ý tưởng này được đưa sang ảnh hiển vi bằng mạng hồi quy toàn chập~\cite{fcrn} và bằng sơ đồ
+đếm dư thừa theo trường tiếp nhận~\cite{countception}, và trở thành chuẩn mực cho đếm tế bào. Dù rẻ hơn phân
+vùng thực thể, giám sát mật độ vẫn giả định biết vị trí đối tượng, vì bản đồ mục tiêu được dựng từ điểm hoặc mặt
+nạ.
 
-\paragraph{Đếm với giám sát yếu.} Giám sát chỉ bằng số đếm phổ biến trong đếm đám đông nhưng hiếm gặp trong đếm
-nhân mô bệnh học. Song song, các bộ đếm nén gần đây chưng cất tri thức từ mô hình nền bệnh học và báo cáo độ
-chính xác đếm tốt~\cite{distillfm,kongnet}, nhưng nhìn chung không kèm định lượng bất định. Bài báo bổ khuyết
-khoảng trống này bằng một
-khảo sát có kiểm soát về mức giám sát cần thiết cho việc đếm, kèm đánh giá độ tin cậy.
+\paragraph{Đếm chỉ với giám sát số đếm.} Trong đếm đám đông, giám sát chỉ bằng tổng số ở mức ảnh đã hình thành
+một nhánh riêng. Lei và cộng sự~\cite{matt} chỉ ra rằng hồi quy trực tiếp tích phân của bản đồ mật độ về tổng số
+cho kết quả không thỏa đáng nếu thiếu ràng buộc bổ trợ, và đề xuất một sơ đồ huấn luyện đa tác vụ phụ trợ; Yang
+và cộng sự~\cite{sorting} khai thác thông tin thứ tự ẩn trong các con số đếm bằng một mạng sắp xếp; TransCrowd
+đưa bài toán về dạng chuỗi sang số đếm và đạt độ chính xác cạnh tranh với nhiều phương pháp giám sát đầy
+đủ~\cite{transcrowd}. Nhánh này cũng cung cấp một quan sát đáng chú ý: mô hình huấn luyện bằng nhãn đếm
+\emph{không} tự nhiên sinh ra bản đồ không gian có ý nghĩa, nên để khôi phục mật độ định vị từ nhãn đếm,
+Count2Density~\cite{count2density} phải bổ sung một tiên nghiệm nổi bật không giám sát, một ngân hàng bản đồ
+lịch sử và một hạng tử chính quy hóa không gian. Ngoài ảnh tự nhiên, giám sát count-only mới được chuyển sang
+một số bài toán đếm vi sinh vật trên ảnh hiển vi~\cite{microvit}, còn trong đếm nhân mô bệnh học thì vẫn hiếm
+gặp.
+
+\paragraph{Khoảng trống.} Điều còn thiếu do đó không phải là một kiến trúc mới, mà là một \emph{phép đo có kiểm
+soát}: với cùng kiến trúc, cùng dữ liệu và cùng quy trình đánh giá, việc hạ nhãn từ mặt nạ ở mức điểm ảnh xuống
+một con số cho mỗi ảnh làm mất bao nhiêu độ chính xác đếm, và mô hình thu được thực sự phản ứng với nội dung ảnh
+nào. Song song, các mô hình định lượng nhân nhẹ gần đây, hoặc chưng cất từ một mô hình nền bệnh
+học~\cite{distillfm}, hoặc dùng kiến trúc đa đầu chuyên biệt~\cite{kongnet}, báo cáo độ chính xác tốt nhưng đều
+được huấn luyện bằng nhãn dày đặc và nhìn chung không kèm định lượng bất định. Bài báo bổ khuyết khoảng trống
+này bằng một khảo sát có kiểm soát trên ba tập dữ liệu, một thí nghiệm can thiệp truy vấn nội dung ảnh mà số đếm
+dự đoán phụ thuộc vào, và một tầng khoảng dự đoán được hiệu chuẩn cho triển khai tin cậy.
 
 %%============================================================%%
 \section{Phương pháp}\label{sec:method}
