@@ -133,6 +133,10 @@ def main():
                          "random = chia WSI ngẫu nhiên theo seed (nhiễu trên dataset nhỏ)")
     ap.add_argument("--parity", action="store_true",
                     help="chạy CẢ count-only VÀ mask (GT-density polygon) -> parity dataset thứ 3 cho Q1")
+    ap.add_argument("--delta", type=float, default=None,
+                    help="TOST: biên tương đương (đơn vị NHÂN). Mặc định None -> suy từ --delta_frac.")
+    ap.add_argument("--delta_frac", type=float, default=0.05,
+                    help="TOST: biên = delta_frac * số nhân trung bình của tập kiểm tra (mặc định 5%%).")
     ap.add_argument("--w_count_mask", type=float, default=0.1,
                     help="neo count cho config mask (MoNuSeg count~40 -> cần >0.01 để density-MSE không sập; "
                          "PanNuke count nhỏ dùng 0.01 đủ)")
@@ -212,6 +216,12 @@ def main():
                        ("count-only THẮNG (p<0.05)" if dm < 0 else "count-only THUA (p<0.05)"))
             print(f"  per-image |err| (gộp {len(seeds)} seed, n={len(yt_ref)} patch): count-only {ec.mean():.2f} "
                   f"vs mask {em.mean():.2f} | Wilcoxon p={p:.4g} -> {verdict}")
+            # p>0.05 chỉ là "không bác bỏ được khác nhau"; claim TƯƠNG ĐƯƠNG cần TOST.
+            try:
+                from equivalence import report as tost_report
+                tost_report(ec, em, gt=yt_ref, delta=args.delta, delta_frac=args.delta_frac)
+            except Exception as e:
+                print(f"  [TOST lỗi] {e}")
     print(f"  -> so PanNuke 0.920 / NuInsSeg 0.854 (in-domain cùng giao thức)")
 
 

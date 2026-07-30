@@ -63,6 +63,12 @@ def compare(per_img, gt_te, seeds, args, rows=None):
         print("  ⚠ Wilcoxon này KHÔNG dùng được: nó đang đo mấy seed sập, không đo supervision.")
     else:
         print("  ĐỌC: count-only ≥ GT-density → ĐẾM KHÔNG CẦN pixel; cái thắng đến từ SUPERVISION, không phải kiến trúc.")
+    # p>0.05 mới chỉ là "không bác bỏ được khác nhau". Claim TƯƠNG ĐƯƠNG cần TOST.
+    try:
+        from equivalence import report as tost_report
+        tost_report(ec, em, gt=gt_te, delta=args.delta, delta_frac=args.delta_frac)
+    except Exception as e:
+        print(f"  [TOST lỗi] {e}")
 
 
 def load_npz_any(path):
@@ -148,6 +154,10 @@ def main():
     ap.add_argument("--work_dir", default="work",
                     help="nơi lưu cache GT-density. ĐẶT NGOÀI repo (vd /kaggle/working/pannuke_cache) "
                          "để 'rm -rf <repo>' mỗi lần clone KHÔNG xóa cache -> khỏi build lại (rất chậm).")
+    ap.add_argument("--delta", type=float, default=None,
+                    help="TOST: biên tương đương (đơn vị NHÂN). Mặc định None -> suy từ --delta_frac.")
+    ap.add_argument("--delta_frac", type=float, default=0.05,
+                    help="TOST: biên = delta_frac * số nhân trung bình của tập kiểm tra (mặc định 5%%).")
     ap.add_argument("--deterministic", action="store_true",
                     help="bật cuDNN tất định — CHẬM hơn nhiều với efflite0. PanNuke lớn+ổn định KHÔNG cần "
                          "-> mặc định TẮT (benchmark=True) cho nhanh.")

@@ -50,6 +50,10 @@ def main():
     ap.add_argument("--seeds", default="42,43,44,45,46", help="mỗi seed 1 split -> per-image Wilcoxon; xem nhất quán")
     ap.add_argument("--w_count_mask", type=float, default=0.1)
     ap.add_argument("--work_dir", default="work")
+    ap.add_argument("--delta", type=float, default=None,
+                    help="TOST: biên tương đương (đơn vị NHÂN). Mặc định None -> suy từ --delta_frac.")
+    ap.add_argument("--delta_frac", type=float, default=0.05,
+                    help="TOST: biên = delta_frac * số nhân trung bình của tập kiểm tra (mặc định 5%%).")
     ap.add_argument("--deterministic", action="store_true",
                     help="bật cuDNN tất định — CHẬM hơn nhiều với efflite0. NuInsSeg nhỏ+ổn định KHÔNG cần "
                          "-> mặc định TẮT (benchmark=True) cho nhanh.")
@@ -67,7 +71,7 @@ def main():
     seeds = [int(s) for s in args.seeds.split(",")]
     print(f"[data] NuInsSeg {n} ảnh (GT density từ mask) | {len(seeds)} seed")
 
-    r2c_all, r2m_all, rows = [], [], []
+    r2c_all, r2m_all, rows, err_all = [], [], [], []
     for seed in seeds:
         rng = np.random.default_rng(seed); idx = rng.permutation(n); n_te = n // 5
         te, tr = idx[:n_te], idx[n_te:]
@@ -91,6 +95,7 @@ def main():
             p = float("nan"); print(f"[wilcoxon lỗi seed{seed}] {e}")
         dmean = float((ec - em).mean())
         r2c_all.append(r2c); r2m_all.append(r2m); rows.append((seed, r2c, r2m, ec.mean(), em.mean(), dmean, p))
+        err_all.append((seed, ec, em, gt))
         vd = "parity" if p > 0.05 else ("count>mask" if dmean < 0 else "count<mask")
         print(f"  [seed{seed}] R² count {r2c:+.4f} / mask {r2m:+.4f} | |err| {ec.mean():.2f} vs {em.mean():.2f} "
               f"| p={p:.4g} -> {vd}")
@@ -101,8 +106,25 @@ def main():
     print(f"  count-only R² {np.mean(r2c_all):+.4f} ± {np.std(r2c_all):.4f} | "
           f"mask R² {np.mean(r2m_all):+.4f} ± {np.std(r2m_all):.4f}")
     print(f"  count-only lỗi ÍT hơn ở {n_win_dir}/{len(seeds)} seed | p<0.05 ở {n_sig_win}/{len(seeds)} seed")
-    print(f"  -> {'count-only ≥ mask nhất quán' if n_win_dir == len(seeds) else 'không nhất quán — xem lại'}"
-          f"{' (thắng có ý nghĩa)' if n_sig_win else ' (parity)'}")
+    print(f"  -> {'count-only lỗi ít hơn ở MỌI seed' if n_win_dir == len(seeds) else f'chiều lỗi đổi dấu giữa các seed ({n_win_dir}/{len(seeds)})'}"
+          f"{'; có seed khác biệt CÓ ý nghĩa -> KHÔNG phải parity thuần' if n_sig_win else '; không seed nào khác biệt có ý nghĩa -> nhất quán với TƯƠNG ĐƯƠNG'}")
+    # TOST theo TỪNG seed: mỗi seed là một split riêng (test set khác nhau) nên không gộp per-image
+    # được; gộp sẽ lặp ảnh giữa các split -> vi phạm độc lập. n≈26/split nên lực kiểm định thấp,
+    # δ* sẽ rộng: đó là sự thật về dữ liệu, không phải lỗi của test.
+    try:
+        from equivalence import tost
+        print(f"\n  --- TƯƠNG ĐƯƠNG (TOST) theo từng split ---")
+        eq, ds = 0, []
+        for seed, ec, em, gt in err_all:
+            r = tost(ec, em, gt=gt, delta=args.delta, delta_frac=args.delta_frac)
+            eq += bool(r["equivalent"]); ds.append(r["delta_star"])
+            print(f"  [seed{seed}] Δ={r['dm']:+.3f} CI90 [{r['ci'][0]:+.3f},{r['ci'][1]:+.3f}] "
+                  f"δ=±{r['delta']:.3f} p_TOST={r['p_tost']:.3g} δ*={r['delta_star']:.3f}"
+                  f" -> {'TƯƠNG ĐƯƠNG' if r['equivalent'] else 'chưa kết luận'}")
+        print(f"  ⇒ tương đương ở {eq}/{len(err_all)} split (biên {args.delta_frac:.0%} số nhân TB); "
+              f"δ* trung vị = {float(np.median(ds)):.3f} nhân")
+    except Exception as e:
+        print(f"  [TOST lỗi] {e}")
 
 
 if __name__ == "__main__":
