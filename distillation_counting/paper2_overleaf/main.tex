@@ -46,7 +46,7 @@ tương đương giám sát bằng mặt nạ: trên tập lớn nhất, sai s�
 số nhân trung bình mỗi ảnh, còn trên hai tập còn lại count-only nhỉnh hơn. Một can thiệp có đối chứng xác nhận đáp ứng của mô hình đặc hiệu với
 nội dung nhân: thay toàn bộ nhân được chú thích bằng mô không chứa nhân trong khi giữ nguyên hình dạng và diện
 tích làm số đếm dự đoán giảm còn $0{,}37$ lần, trong khi đối chứng giả duy trì ở mức $1{,}02$ lần. Trên PanNuke,
-bộ đếm $3{,}62$ triệu tham số huấn luyện với giám sát count-only đạt $R^2 = 0{,}920$ và vượt các đại diện của
+bộ đếm $3{,}62$ triệu tham số huấn luyện với giám sát count-only đạt $R^2 = 0{,}918$ và vượt các đại diện của
 phân vùng, ước lượng mật độ và phát hiện trên cùng tác vụ đếm; hiệu chuẩn conformal theo từng cơ quan cho khoảng
 dự đoán không bỏ sót loại mô nào trong số $19$ loại. Một nhãn đếm ở mức ảnh rẻ hơn khoảng một bậc độ lớn so với
 khoanh viền đầy đủ, nên giám sát không gian dày đặc không phải là điều kiện cần để đếm nhân chính xác, và các
@@ -455,24 +455,25 @@ các dương tính thật khi nhân chồng lấn, và giải thích vì sao h�
 
 \begin{table}[!htbp]
 \centering
-\caption{So sánh bốn paradigm trên PanNuke (cùng tập kiểm tra, tác vụ đếm). Mỗi phương pháp là một mô hình đã
-huấn luyện; với count-only, mô hình được báo cáo là hạt giống có $R^2$ trung vị trong $5$ hạt giống ở
-Bảng~\ref{tab:parity}.}\label{tab:paradigm}
+\caption{So sánh bốn paradigm trên PanNuke (cùng tập kiểm tra, tác vụ đếm). Bộ đếm count-only báo cáo trung bình
+cùng độ lệch chuẩn trên $5$ hạt giống, đúng số liệu ở Bảng~\ref{tab:parity}; ba phương pháp so sánh là một lần
+huấn luyện mỗi phương pháp, nên chênh lệch giữa chúng cần được đọc kèm mức dao động giữa các hạt giống mà cột
+count-only cho thấy.}\label{tab:paradigm}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
 Phương pháp & Tham số & Nhãn & Paradigm & $R^2\uparrow$ & MAE$\downarrow$ \\
 \midrule
-DensitySigmaUNet (count-only) & $3{,}62$M & đếm & hồi quy & \textbf{0,920} & \textbf{3,61} \\
-StarDist~\cite{stardist} & $1{,}43$M & mặt nạ & phân vùng & 0,841 & 4,64 \\
-DualU-Net & ${\sim}35$M & mặt nạ & mật độ & 0,804 & 5,33 \\
-DeNuC & $4{,}37$M & hộp/điểm & phát hiện & 0,455 & 9,64 \\
+DensitySigmaUNet (count-only) & $3{,}62$M & đếm & hồi quy & $\mathbf{0{,}918\pm0{,}011}$ & $\mathbf{3{,}60\pm0{,}10}$ \\
+StarDist~\cite{stardist} & $1{,}43$M & mặt nạ & phân vùng & $0{,}841$ & $4{,}64$ \\
+DualU-Net & ${\sim}35$M & mặt nạ & mật độ & $0{,}804$ & $5{,}33$ \\
+DeNuC & $4{,}37$M & hộp/điểm & phát hiện & $0{,}455$ & $9{,}64$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsection{Hiệu quả chú thích}\label{sec:label}
 Một phần tư ngân sách chú thích đã đủ cho khoảng $93\%$ hiệu năng ở mức nhãn đầy đủ. Đường cong học trên PanNuke
-cho $R^2 = 0{,}85 \pm 0{,}03$ với $25\%$ nhãn và $R^2 = 0{,}92 \pm 0{,}01$ với toàn bộ nhãn. Độ chính xác đếm do
+cho $R^2 = 0{,}85 \pm 0{,}03$ với $25\%$ nhãn và $R^2 = 0{,}918 \pm 0{,}011$ với toàn bộ nhãn. Độ chính xác đếm do
 đó không suy giảm nhanh khi cắt giảm nhãn, một đặc tính có giá trị khi ngân sách gán nhãn hạn chế.
 
 \subsection{Chi phí tính toán và chi phí chú thích}\label{sec:cost}
@@ -484,7 +485,7 @@ Chênh lệch lớn hơn nằm ở phía chú thích. Qu và cộng sự~\cite{q
 trong một ảnh (trung bình khoảng $600$ nhân) tốn khoảng $115$ phút, còn đánh dấu điểm cho toàn bộ nhân tốn khoảng
 $14$ phút. Chi phí của nhãn đếm ở mức ảnh chưa được đo trực tiếp trong y văn, nhưng nó bị chặn trên bởi chi phí
 đánh dấu điểm: đếm đòi hỏi duyệt qua các nhân đúng như khi đánh dấu, mà không cần đặt chính xác từng điểm và
-không cần khoanh viền. Nhãn đếm do đó rẻ hơn mặt nạ đầy đủ ít nhất một bậc độ lớn; con số xấp xỉ còn rẻ hơn nữa. Đặt cạnh kết quả tương đương ở
+không cần khoanh viền. Nhãn đếm do đó rẻ hơn mặt nạ đầy đủ ít nhất $8$ lần, và con số xấp xỉ còn rẻ hơn nữa. Đặt cạnh kết quả tương đương ở
 Mục~\ref{sec:parity}, sự bất đối xứng chi phí này là luận điểm hiệu quả trung tâm của bài báo.
 
 \subsection{Định lượng bất định cho triển khai tin cậy}\label{sec:uq}
@@ -513,10 +514,9 @@ cluster & 0,906 & 14,8 & \textbf{20,0} & 0,859 & 0/19 \\
 %%============================================================%%
 \section{Thảo luận}\label{sec:discuss}
 
-\paragraph{Vì sao giám sát mức ảnh có thể đủ cho tác vụ đếm.} Trên các tập dữ liệu được xét, giám sát ở mức
-điểm ảnh không cho thấy lợi ích đo được
-so với giám sát count-only. Thí nghiệm gỡ nhân khoanh vùng cơ chế đứng sau điều đó, bằng cách loại trừ cả hai
-thái cực.
+\paragraph{Vì sao giám sát mức ảnh có thể đủ cho tác vụ đếm.} Trên các tập dữ liệu được xét, lợi ích của giám
+sát ở mức điểm ảnh so với giám sát count-only bị chặn trên bởi khoảng $1\%$ số nhân mỗi ảnh. Thí nghiệm gỡ nhân
+khoanh vùng cơ chế đứng sau điều đó, bằng cách loại trừ cả hai thái cực.
 
 Số đếm dự đoán \emph{không} phải sản phẩm của tương quan toàn cục thuần túy. Nó giảm đơn điệu khi nhân bị gỡ, và
 \emph{không} đổi khi một diện tích mô tương đương không chứa nhân bị gỡ. Nhưng mô hình cũng \emph{không} phát
