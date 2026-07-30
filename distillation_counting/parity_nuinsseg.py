@@ -68,8 +68,13 @@ def main():
         print(f"[work_dir] không tạo được ({e}) — chỉ ĐỌC cache, ok nếu pkl đã có sẵn")
     from scipy.stats import wilcoxon
 
-    samples = build_index(args.nuinsseg_root or find_root())
-    data = build_teacher_density(samples, dev, f"{args.work_dir}/gt_density_nuinsseg.pkl", use_gt=True)
+    cache = f"{args.work_dir}/gt_density_nuinsseg.pkl"
+    if os.path.exists(cache):        # có cache -> KHỎI cần mount dataset ảnh gốc
+        samples = None
+        print(f"[data] cache có sẵn ({cache}) -> bỏ qua build_index")
+    else:
+        samples = build_index(args.nuinsseg_root or find_root())
+    data = build_teacher_density(samples, dev, cache, use_gt=True)
     n = len(data)
     seeds = [int(s) for s in args.seeds.split(",")]
     print(f"[data] NuInsSeg {n} ảnh (GT density từ mask) | {len(seeds)} seed")
