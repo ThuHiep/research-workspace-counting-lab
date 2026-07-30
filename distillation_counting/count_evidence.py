@@ -136,6 +136,29 @@ def save_panel(path, panes):
     fig.tight_layout(); fig.savefig(path, dpi=150); plt.close(fig)
 
 
+def load_ckpt_any(path, map_location):
+    """Nạp ckpt kể cả khi nó đã bị GIẢI NÉN thành thư mục. File .pt là một zip, nên Safari (macOS,
+    'Open safe files after downloading') hoặc trình upload dataset có thể bung nó ra thành
+    <name>/{data.pkl, data/, version, ...}. Gặp thư mục thì nén lại trong bộ nhớ rồi nạp.
+    Lưu ý: entry trong .pt có mtime TRƯỚC 1980 -> zipfile.write() báo lỗi, phải dùng writestr
+    với date_time cố định."""
+    if os.path.isdir(path):
+        import io, zipfile
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w", zipfile.ZIP_STORED) as z:
+            for r, _, fs in os.walk(path):
+                for f in sorted(fs):
+                    p = os.path.join(r, f)
+                    zi = zipfile.ZipInfo(os.path.join("ckpt", os.path.relpath(p, path)),
+                                         date_time=(1980, 1, 1, 0, 0, 0))
+                    with open(p, "rb") as fh:
+                        z.writestr(zi, fh.read())
+        buf.seek(0)
+        print(f"[ckpt] '{path}' là THƯ MỤC (đã bị giải nén) -> nén lại trong RAM rồi nạp")
+        return torch.load(buf, map_location=map_location)
+    return torch.load(path, map_location=map_location)
+
+
 def r2_mae(pred, gt):
     ss = ((gt - pred) ** 2).sum(); st = ((gt - gt.mean()) ** 2).sum()
     return (1 - ss / st if st > 0 else float("nan")), float(np.abs(pred - gt).mean())
@@ -218,7 +241,7 @@ def main():
     if args.ckpt and os.path.exists(args.ckpt):
         from distill_student_r2 import DensitySigmaUNet
         model = DensitySigmaUNet(args.ch, "poisson", args.backbone).to(dev)
-        model.load_state_dict(torch.load(args.ckpt, map_location=dev))
+        model.load_state_dict(load_ckpt_any(args.ckpt, dev))
         print(f"[ckpt] NẠP {args.ckpt} (bỏ qua train)")
     else:
         model = train(data, dev, args.epochs, args.ch, args.lr, tr,
