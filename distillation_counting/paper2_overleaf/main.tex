@@ -82,8 +82,8 @@ trên cùng kiến trúc, trong phạm vi dao động giữa các lần chạy. 
 nhất quán về dấu, kèm kiểm định signed-rank bắt cặp trên từng ảnh (Mục~\ref{sec:parity}).
 \item Một thí nghiệm can thiệp có đối chứng giả kiểm tra liệu dự đoán của mô hình có phụ thuộc đặc hiệu vào nội
 dung nhân hay không, qua đó khoanh vùng cơ chế đứng sau kết quả tương đương (Mục~\ref{sec:fidelity}).
-\item Theo cùng giao thức không rò rỉ, bộ đếm count-only nhẹ vượt các đại diện của ba dòng phương pháp dùng nhãn
-đắt trên tác vụ đếm. Phương pháp phát hiện suy giảm có hệ thống ở vùng nhân dày đặc (Mục~\ref{sec:paradigm}).
+\item Khi được huấn luyện lại và đánh giá trên cùng phân chia dữ liệu, bộ đếm count-only nhẹ vượt các đại diện
+của ba dòng phương pháp dùng nhãn đắt trên tác vụ đếm. Phương pháp phát hiện suy giảm có hệ thống ở vùng nhân dày đặc (Mục~\ref{sec:paradigm}).
 \item Bài báo định lượng hiệu quả chú thích qua đường cong học theo tỉ lệ nhãn, và trang bị cho bộ đếm một đầu
 bất định được hiệu chuẩn cho triển khai tin cậy (Mục~\ref{sec:label},~\ref{sec:uq}).
 \end{itemize}
@@ -184,7 +184,7 @@ mỗi nhóm.
 
 \paragraph{Dữ liệu.} Việc đánh giá được thực hiện trên ba tập độc lập, khác nhau về nguồn: PanNuke~\cite{pannuke} (đa
 loại ung thư,
-$256\times256$, 19 loại mô; huấn luyện trên fold~1--2, kiểm tra trên fold~3 theo giao thức không rò rỉ),
+$256\times256$, 19 loại mô; huấn luyện trên fold~1--2, kiểm tra trên fold~3),
 NuInsSeg~\cite{nuinsseg} (đa cơ quan) và MoNuSeg~2018~\cite{monuseg} (đa cơ quan từ TCGA; ảnh $1000\times1000$
 được cắt thành các mảnh $256$ ở độ phân giải gốc, dùng đúng phân chia huấn luyện/kiểm tra chính thức).
 
@@ -412,8 +412,8 @@ xem là căn cứ chính.}
 \subsection{So sánh với ba paradigm dùng nhãn đắt}\label{sec:paradigm}
 
 Bộ đếm count-only nhẹ đạt $R^2$ và MAE tốt hơn cả ba đại diện của phân vùng, ước lượng mật độ và phát hiện, dù
-chỉ dùng nhãn đếm (Bảng~\ref{tab:paradigm}). Cả bốn phương pháp được đánh giá trên cùng tập kiểm tra theo cùng
-giao thức không rò rỉ, ở cấp độ tác vụ đếm.
+chỉ dùng nhãn đếm (Bảng~\ref{tab:paradigm}). Cả bốn phương pháp được huấn luyện lại và đánh giá trên cùng tập
+kiểm tra, ở cấp độ tác vụ đếm.
 
 Phương pháp phát hiện suy giảm đơn điệu theo mật độ nhân: độ chệch đếm tăng từ $-0{,}8$ ở các mảnh thưa lên
 $-30{,}4$ ở các mảnh có từ $45$ nhân trở lên. Diễn biến này khớp với cơ chế bước triệt tiêu không cực đại loại bỏ
@@ -421,7 +421,7 @@ các dương tính thật khi nhân chồng lấn, và giải thích vì sao h�
 
 \begin{table}[t]
 \centering
-\caption{So sánh bốn paradigm trên PanNuke (không rò rỉ, cùng tập kiểm tra, tác vụ đếm).}\label{tab:paradigm}
+\caption{So sánh bốn paradigm trên PanNuke (cùng tập kiểm tra, tác vụ đếm).}\label{tab:paradigm}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
 Phương pháp & Tham số & Nhãn & Paradigm & $R^2\uparrow$ & MAE$\downarrow$ \\
