@@ -65,11 +65,26 @@ def compare(per_img, gt_te, seeds, args, rows=None):
         print("  ĐỌC: count-only ≥ GT-density → ĐẾM KHÔNG CẦN pixel; cái thắng đến từ SUPERVISION, không phải kiến trúc.")
 
 
+def load_npz_any(path):
+    """Nạp .npz kể cả khi nó đã bị GIẢI NÉN thành thư mục. File .npz là một zip, nên trình upload dataset
+    (hoặc Safari khi tải về) có thể bung nó ra thành <name>/{key1.npy, key2.npy, ...}. Gặp thư mục thì
+    nạp từng .npy thành viên -> trả về dict có cùng giao diện .files/[] như np.load."""
+    if os.path.isdir(path):
+        d = {f[:-4]: np.load(os.path.join(path, f), allow_pickle=True)
+             for f in sorted(os.listdir(path)) if f.endswith(".npy")}
+        assert d, f"{path} là thư mục nhưng không có .npy nào bên trong"
+        print(f"[load_preds] '{os.path.basename(path)}' là THƯ MỤC (npz đã bị giải nén) -> nạp {len(d)} mảng .npy")
+        class _D(dict):
+            files = property(lambda self: list(self.keys()))
+        return _D(d)
+    return np.load(path, allow_pickle=True)
+
+
 def stats_only(args):
     """--arms none: chỉ nạp .npz rồi thống kê. Không train, không đọc dataset -> chạy vài giây ở đâu cũng được."""
     per_img, gt_te, r2s = {}, None, {}
     for f in [x.strip() for x in args.load_preds.split(",") if x.strip()]:
-        z = np.load(f, allow_pickle=True)
+        z = load_npz_any(f)
         if gt_te is None:
             gt_te = z["gt"]
         assert np.allclose(gt_te, z["gt"]), f"{f}: GT khác -> khác test set, KHÔNG được gộp"
@@ -169,7 +184,7 @@ def main():
     per_img = {name: [] for name, _, _ in configs}   # preds MỖI seed (fold3 cố định) -> Wilcoxon gộp-seed
     gt_te = np.array([data[i]["gt"] for i in te])
     if args.load_preds:                              # gộp arm đã chạy ở notebook khác
-        z = np.load(args.load_preds, allow_pickle=True)
+        z = load_npz_any(args.load_preds)
         for k in z.files:
             if k.startswith("pred__"):
                 nm = str(k[6:]).replace("_", " ")
