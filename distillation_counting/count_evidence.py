@@ -51,6 +51,17 @@ def enumerate_instances(masks):
     return inst
 
 
+def dilate_masks(inst, k):
+    """NỞ mask nhân k pixel. Mask PanNuke thường KHÔNG phủ hết viền tối của nhân -> gỡ xong còn
+    VÀNH nhân, model vẫn thấy bằng chứng nhân => dốc đáp ứng bị kéo xuống oan. k=2 phủ viền mà
+    chưa ăn nhiều vào mô. k=0 = giữ hành vi cũ (để so sánh)."""
+    if k <= 0:
+        return inst
+    from scipy.ndimage import binary_dilation
+    st = np.ones((3, 3), bool)
+    return [binary_dilation(b, st, iterations=k) for b in inst]
+
+
 def shift_to_background(b, uni, rng, tries=40):
     """SHAM-CONTROL: dịch mask nhân b sang vị trí NỀN (không đè nhân nào), GIỮ NGUYÊN hình dạng+diện tích.
     Dùng để tách "model đáp ứng NỘI DUNG NHÂN" khỏi "model đáp ứng ARTIFACT của inpaint":
@@ -193,6 +204,9 @@ def main():
     ap.add_argument("--n_vis", type=int, default=12,
                     help="số ảnh lưu PANEL minh họa vào <out_dir>/samples/ (gốc | gỡ 30%% | gỡ hết | sham) "
                          "kèm count dự đoán -> xem MẮT THẤY model phản ứng thế nào. 0 = tắt.")
+    ap.add_argument("--dilate", type=int, default=2,
+                    help="nở mask nhân bao nhiêu pixel trước khi gỡ. Mask PanNuke hụt viền tối của nhân -> "
+                         "không nở thì gỡ xong còn VÀNH nhân. 0 = hành vi cũ.")
     ap.add_argument("--fill", default="telea", choices=["telea", "bgpatch", "bgmedian"],
                     help="cách điền chỗ vừa gỡ. telea=inpaint (có thể LÔI texture nhân lân cận vào -> dốc bị "
                          "kéo xuống); bgpatch=copy mô từ vùng không nhân, cùng hình dạng (KHÔNG mang nội dung "
@@ -302,7 +316,7 @@ def main():
         if s["masks"] is None:            # masks.npy đã xoá -> không gỡ-nhân được
             continue
         img = np.ascontiguousarray(np.asarray(s["image"])[..., :3]).astype(np.uint8)
-        inst = enumerate_instances(s["masks"])
+        inst = dilate_masks(enumerate_instances(s["masks"]), args.dilate)
         N = len(inst)
         if N == 0:
             continue
@@ -358,7 +372,9 @@ def main():
     norm = np.where(ok, pred_a / np.where(ok, full_a, 1), np.nan)      # count sau gỡ NHÂN / count gốc
     norm_s = np.where(ok, sham_a / np.where(ok, full_a, 1), np.nan)    # ... sau gỡ NỀN (sham)
     keep = 1 - frac_a
-    print(f"\n② Dose-response gỡ nhân (n_ảnh={len(set(img_a.astype(int)))}, {len(rows)} phép đo):")
+    cov = float(np.nanmean(anuc_a[frac_a == 1.0])) / (256 * 256) if (frac_a == 1.0).any() else float("nan")
+    print(f"\n② Dose-response gỡ nhân (n_ảnh={len(set(img_a.astype(int)))}, {len(rows)} phép đo, "
+          f"fill={args.fill}, dilate={args.dilate}px, gỡ-hết phủ {cov:.0%} diện tích ảnh):")
 
     # (a) ĐỘ DỐC TRONG-ẢNH — thống kê QUYẾT ĐỊNH. (Hồi quy GỘP mọi ảnh bị chi phối bởi biến thiên N
     #     GIỮA các ảnh -> chỉ lặp lại finding ①, KHÔNG đo nhân quả. Xem (d), chỉ để tham chiếu.)
