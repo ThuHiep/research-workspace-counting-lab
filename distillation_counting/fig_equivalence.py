@@ -39,7 +39,8 @@ def main():
     for f, d in zip(fracs, deltas):
         for s in (-1, 1):
             ax.axvline(s * d, color=MUTED, ls=(0, (4, 3)), lw=1.0)
-        ax.annotate(f"$\\delta={f:.0%}$\n({d:.2f})", xy=(d, 0.62), fontsize=7.5,
+        # '%' KHONG duoc nam trong $...$ (mathtext coi la loi cu phap) -> de ngoai phan toan
+        ax.annotate(f"$\\delta$ = {f:.0%}\n({d:.2f})", xy=(d, 0.62), fontsize=7.5,
                     color=MUTED, ha="center", va="bottom", linespacing=1.25)
     ax.axvline(0, color=INK, lw=1.2)
 
