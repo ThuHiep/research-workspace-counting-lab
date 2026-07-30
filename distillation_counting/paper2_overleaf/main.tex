@@ -71,7 +71,7 @@ thích không gian dưới dạng điểm hoặc mặt nạ. Do đó, mức giá
 câu hỏi mở.
 
 Bài báo trả lời câu hỏi này bằng một \emph{thí nghiệm có kiểm soát}. Kiến trúc (một bộ mã hóa nhẹ tiêu chuẩn
-ghép bộ giải mã U-Net), dữ liệu và quy trình đánh giá được giữ cố định. Biến thực nghiệm duy nhất là loại giám
+ghép bộ giải mã U-Net), dữ liệu và giao thức đánh giá được giữ cố định. Biến thực nghiệm duy nhất là loại giám
 sát: mặt nạ ở mức điểm ảnh, hoặc một nhãn đếm duy nhất cho mỗi ảnh. Mọi khác biệt quan sát được do đó quy về
 \emph{chú thích}, không quy về sức mạnh mô hình.
 
@@ -134,7 +134,7 @@ Ngoài ảnh tự nhiên, giám sát count-only mới được chuyển sang m�
 vi~\cite{microvit}, còn trong đếm nhân mô bệnh học thì vẫn hiếm gặp.
 
 \paragraph{Khoảng trống.} Điều còn thiếu do đó không phải là một kiến trúc mới, mà là một \emph{phép đo có kiểm
-soát}. Với cùng kiến trúc, cùng dữ liệu và cùng quy trình đánh giá, việc hạ nhãn từ mặt nạ ở mức điểm ảnh xuống
+soát}. Với cùng kiến trúc, cùng dữ liệu và cùng giao thức đánh giá, việc hạ nhãn từ mặt nạ ở mức điểm ảnh xuống
 một con số cho mỗi ảnh thực sự làm mất bao nhiêu độ chính xác đếm? Và mô hình thu được phản ứng với nội dung ảnh
 nào? Bên cạnh đó, các mô hình định lượng nhân nhẹ gần đây, hoặc chưng cất từ một mô hình nền bệnh
 học~\cite{distillfm}, hoặc dùng kiến trúc đa đầu chuyên biệt~\cite{kongnet}, báo cáo độ chính xác tốt nhưng đều
@@ -157,7 +157,7 @@ Với phân phối Poisson thì $\sigma = \sqrt{\mu}$; thừa số mũ cho phép
 $\mu$ được tách gradient khỏi nhánh $\sigma$. Cấu hình sử dụng cho $3{,}62$ triệu tham số.
 
 \subsection{Các chế độ giám sát}
-Biến giám sát được cô lập bằng cách giữ nguyên kiến trúc, dữ liệu và đánh giá, chỉ thay đổi trọng số hàm
+Biến giám sát được cô lập bằng cách giữ nguyên kiến trúc, dữ liệu và giao thức đánh giá, chỉ thay đổi trọng số hàm
 mất mát $\mathcal{L} = w_d\,\mathcal{L}_{\text{mật độ}} + w_c\,\mathcal{L}_{\text{đếm}}
 + w_{n}\,\mathcal{L}_{\text{NLL}}$:
 \begin{itemize}
@@ -172,8 +172,11 @@ chuẩn hậu nghiệm như trình bày dưới đây.
 
 \subsection{Hiệu chuẩn khoảng dự đoán}
 Sau huấn luyện, conformal prediction theo lối chia (split-conformal)~\cite{vovk,cqr} được áp dụng trên một
-tập hiệu chuẩn để thu khoảng $[\mu - q\sigma,\ \mu + q\sigma]$ đạt mức phủ mục tiêu $1-\alpha$. Ba sơ đồ được xem xét: một
-ngưỡng chung (global), một ngưỡng riêng cho mỗi cơ quan (mondrian) và một ngưỡng theo nhóm độ khó (cluster).
+tập hiệu chuẩn để thu khoảng $[\mu - q\sigma,\ \mu + q\sigma]$ đạt mức phủ mục tiêu $1-\alpha$. Ba sơ đồ được
+xem xét: một ngưỡng chung (global), một ngưỡng riêng cho mỗi cơ quan (mondrian) và một ngưỡng theo nhóm độ khó
+(cluster). Ba biến thể này khảo sát cùng một đánh đổi: một ngưỡng chung cho khoảng hẹp nhất nhưng chỉ bảo đảm
+mức phủ trên toàn bộ tập, còn ngưỡng theo nhóm bảo đảm mức phủ trong \emph{từng} nhóm với giá phải trả là khoảng
+rộng hơn và ít dữ liệu hiệu chuẩn hơn cho mỗi nhóm.
 
 %%============================================================%%
 \section{Thiết lập thực nghiệm}\label{sec:setup}
