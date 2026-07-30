@@ -236,7 +236,7 @@ cho mỗi ảnh do đó không làm giảm độ chính xác. Cần lưu ý ph�
 \emph{cùng} kiến trúc với count-only nhằm cô lập ảnh hưởng của \emph{loại giám sát}, nên nó không đo năng lực của
 một kiến trúc phân vùng được tối ưu riêng. Mục~\ref{sec:paradigm} xét câu hỏi đó tách biệt.
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \caption{Độ chính xác đếm dưới hai chế độ giám sát trên \emph{cùng} kiến trúc, $5$ hạt giống cho cả ba tập dữ
 liệu. $\Delta R^2 = R^2_{\text{count}} - R^2_{\text{mask}}$; $p$ là kiểm định Wilcoxon bắt cặp trên
@@ -277,6 +277,41 @@ khoảng $3\%$ của số nhân trung bình, với giới hạn tương hợp $\
 là sai số không mang thiên lệch hệ thống theo một hướng. Như vậy độ chính xác tổng thể không đến từ việc khớp tốt
 một vài loại mô chiếm đa số.
 
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_agreement.pdf}
+\caption{Tương hợp giữa số nhân dự đoán và số nhân thực của mô hình count-only trên PanNuke fold~3
+($n=2722$ mảnh). \textbf{(a)} Mỗi điểm là một mảnh ảnh; đường nét đứt là đường đếm đúng tuyệt đối.
+\textbf{(b)} Biểu đồ Bland--Altman: độ chệch trung bình $+0{,}70$ nhân trên số nhân trung bình $24{,}5$
+(khoảng $3\%$) và các giới hạn tương hợp $95\%$. Sai số không lệch hệ thống về một hướng; phần phân tán ở phía
+dưới tại các mảnh nhiều nhân cho thấy khuynh hướng \emph{đếm thiếu} nhẹ ở chế độ mật độ rất cao.}
+\label{fig:agreement}
+\end{figure}
+
+\begin{table}[!htbp]
+\centering
+\caption{Độ chính xác đếm theo từng loại mô trên PanNuke fold~3, cho \emph{một} trong ba mô hình count-only
+(Hình~\ref{fig:agreement} vẽ cùng mô hình này); mọi giá trị trong bảng, kể cả dòng toàn tập, là của riêng mô
+hình đó, còn số liệu tổng hợp qua các hạt giống được báo cáo ở Bảng~\ref{tab:parity}. $R^2$ dương ở toàn bộ
+$19/19$ loại mô.}\label{tab:perorgan}
+\begin{tabular}{@{}lccc@{\hspace{2em}}lccc@{}}
+\toprule
+Loại mô & $n$ & $R^2$ & MAE & Loại mô & $n$ & $R^2$ & MAE \\
+\midrule
+Adrenal gland & $155$ & $0{,}818$ & $2{,}43$ & Lung       & $51$  & $0{,}957$ & $3{,}61$ \\
+Bile duct     & $158$ & $0{,}942$ & $2{,}71$ & Ovarian    & $52$  & $0{,}704$ & $4{,}31$ \\
+Bladder       & $64$  & $0{,}924$ & $2{,}34$ & Pancreatic & $28$  & $0{,}901$ & $3{,}29$ \\
+Breast        & $775$ & $0{,}932$ & $2{,}65$ & Prostate   & $68$  & $0{,}756$ & $4{,}43$ \\
+Cervix        & $86$  & $0{,}976$ & $2{,}20$ & Skin       & $41$  & $0{,}943$ & $5{,}72$ \\
+Colon         & $494$ & $0{,}923$ & $3{,}93$ & Stomach    & $48$  & $0{,}963$ & $3{,}95$ \\
+Esophagus     & $141$ & $0{,}897$ & $3{,}19$ & Testis     & $57$  & $0{,}949$ & $3{,}05$ \\
+Head \& neck  & $145$ & $0{,}954$ & $3{,}17$ & Thyroid    & $62$  & $0{,}873$ & $3{,}30$ \\
+Kidney        & $41$  & $0{,}958$ & $4{,}51$ & Uterus     & $163$ & $0{,}907$ & $6{,}70$ \\
+Liver         & $93$  & $0{,}884$ & $3{,}39$ & \textbf{Toàn tập} & $\mathbf{2722}$ & $\mathbf{0{,}934}$ & $\mathbf{3{,}40}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \paragraph{Gỡ nhân có đối chứng giả.} Để kiểm tra quan hệ nhân quả, một tỉ lệ $k$ các nhân được chú thích bị gỡ
 khỏi ảnh rồi đo lại số đếm dự đoán. Mỗi nhân được thay bằng một mảng mô \emph{cùng hình dạng} lấy từ một vị trí
 không chứa nhân của chính ảnh đó, và mặt nạ nhân được nở $2$ điểm ảnh trước khi gỡ để phủ hết viền nhân mà chú
@@ -291,6 +326,19 @@ phép ghép mô cho $0{,}59$, và $33\%$ mảnh cho số đếm ở mức gỡ t
 (Hình~\ref{fig:doseresp}). Chênh lệch giữa hai cách gỡ do đó đến gần như hoàn toàn từ cách điền vùng đã gỡ, chứ
 không từ mức nở mặt nạ.
 
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_qualitative.pdf}
+\caption{Phép gỡ nhân trên một mảnh PanNuke. \textbf{(a)} Ảnh gốc, $22$ nhân được chú thích. \textbf{(b, c)} Sau
+khi gỡ $30\%$ rồi toàn bộ nhân được chú thích: mỗi nhân được thay bằng một mảng mô cùng hình dạng lấy từ vùng không
+chứa nhân của chính ảnh đó, nên kết cấu mô được giữ nhưng nội dung nhân bị loại; số đếm dự đoán giảm theo
+($20{,}7 \rightarrow 16{,}3 \rightarrow 7{,}5$). \textbf{(d)} Đối chứng giả áp dụng đúng phép thao tác đó lên $22$
+vùng \emph{không chứa nhân}, giữ nguyên toàn bộ nhân: ảnh bị can thiệp ở mức trông thấy rõ, nhưng số đếm hầu như
+không đổi ($19{,}6$). Mảnh ảnh tiêu biểu, với hệ số đáp ứng riêng $0{,}65$ so với trung bình toàn tập $0{,}64$.
+Vài nhân sẫm màu còn lại ở (c) là các nhân không có trong chú thích.}
+\label{fig:qualitative}
+\end{figure}
+
 Số đếm dự đoán giảm \emph{đơn điệu} theo tỉ lệ nhân bị gỡ, trong khi đối chứng giả để số đếm gần như không đổi
 ($1{,}00$--$1{,}03$) ở mọi mức (Bảng~\ref{tab:doseresp}, Hình~\ref{fig:doseresp};
 Hình~\ref{fig:qualitative} minh hoạ phép thao tác trên một mảnh ảnh). Trên các phép đo khớp diện tích
@@ -298,6 +346,42 @@ Hình~\ref{fig:qualitative} minh hoạ phép thao tác trên một mảnh ảnh)
 (Wilcoxon bắt cặp giữa hai điều kiện, $p<10^{-300}$). Kết luận không đổi khi chỉ xét các liều nhỏ ($\le 30\%$),
 nơi ảnh còn gần phân phối huấn luyện nhất. Đáp ứng do đó \emph{đặc hiệu} với nhân, không phải với việc ảnh bị
 can thiệp.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.62\textwidth]{fig_doseresp.pdf}
+\caption{Số đếm dự đoán (chuẩn hoá theo ảnh nguyên vẹn) theo tỉ lệ nhân còn lại; trung bình trên $286$ mảnh và
+$3$ mô hình huấn luyện độc lập, dải mờ là $\pm1$ độ lệch chuẩn của cách gỡ chính. Gỡ mô \emph{không chứa nhân} với cùng diện tích (đối chứng giả) để
+số đếm gần như không đổi, nên phần sụt giảm là do mất nhân chứ không do bản thân việc can thiệp vào ảnh. Đường
+\emph{telea} là kết quả khi lấp vùng nhân bằng inpainting thay vì ghép mô: vết nhân còn lại làm độ nhạy đo được
+thấp đi gần một nửa.}
+\label{fig:doseresp}
+\end{figure}
+
+\begin{table}[!htbp]
+\centering
+\caption{Đáp ứng của số đếm dự đoán khi gỡ nhân, so với đối chứng giả gỡ mô không chứa nhân cùng diện tích. Các
+giá trị được chuẩn hoá theo số đếm trên ảnh nguyên vẹn, lấy trung bình trên $286$ ảnh ($4862$ phép đo) rồi trên
+$3$ mô hình huấn luyện độc lập; độ lệch chuẩn ghi kèm là độ lệch giữa ba mô hình. ``Hệ số đáp ứng'' là mức sụt
+quan sát được chia cho mức sụt của một bộ đếm cộng dồn trung thực; giá trị $1{,}0$ ứng với đếm trung thực.}\label{tab:doseresp}
+\begin{tabular}{@{}cccccc@{}}
+\toprule
+Tỉ lệ nhân bị gỡ & Gỡ nhân & Đối chứng giả & Sụt do nhân & Diện tích khớp & Hệ số đáp ứng \\
+\midrule
+$10\%$  & $0{,}938\pm0{,}002$ & $1{,}003$ & $0{,}065$ & $0{,}94$ & $0{,}62$ \\
+$20\%$  & $0{,}872\pm0{,}004$ & $1{,}004$ & $0{,}131$ & $0{,}91$ & $0{,}64$ \\
+$30\%$  & $0{,}805\pm0{,}012$ & $1{,}007$ & $0{,}202$ & $0{,}89$ & $0{,}65$ \\
+$50\%$  & $0{,}678\pm0{,}014$ & $1{,}011$ & $0{,}333$ & $0{,}84$ & $0{,}64$ \\
+$75\%^{\ast}$  & $0{,}519\pm0{,}020$ & $1{,}012$ & $0{,}494$ & $0{,}78$ & $0{,}64$ \\
+$100\%^{\ast}$ & $0{,}374\pm0{,}051$ & $1{,}018$ & $0{,}644$ & $0{,}73$ & $0{,}63$ \\
+\bottomrule
+\end{tabular}
+\footnotetext{$^{\ast}$ Ở các liều cao, mô bệnh học dày nhân không còn đủ chỗ trống để đặt các vùng đối chứng
+giả không chồng lấn nên diện tích gỡ của hai điều kiện chỉ khớp $0{,}74$--$0{,}78$; các mức này được báo cáo để
+mô tả và bị loại khỏi kiểm định thống kê, vốn chỉ dùng các phép đo khớp diện tích tối thiểu $80\%$. Ngoài ra, gỡ
+toàn bộ nhân can thiệp vào ${\sim}25\%$ diện tích ảnh nên tạo lệch phân phối đáng kể; vì vậy các liều nhỏ được
+xem là căn cứ chính.}
+\end{table}
 
 Tuy nhiên đáp ứng là \emph{dưới tuyến tính} một cách nhất quán: tỉ số giữa mức sụt quan sát được và mức sụt của
 một bộ đếm cộng dồn trung thực nằm trong khoảng $0{,}62$--$0{,}65$ ở \emph{mọi} liều từ $10\%$ đến $100\%$ (cột
@@ -325,89 +409,6 @@ toàn bộ tăng đơn điệu từ $0{,}36$ ở các mảnh không có dấu hi
 (tương quan $+0{,}31$, $n=286$). Quy mô của yếu tố này nhỏ: mức vượt trung bình là $3{,}5\%$ số nhân so với số đếm
 còn lại $37{,}4\%$, nên phần lớn lượng còn lại không quy được cho chú thích bỏ sót.
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=\textwidth]{fig_agreement.pdf}
-\caption{Tương hợp giữa số nhân dự đoán và số nhân thực của mô hình count-only trên PanNuke fold~3
-($n=2722$ mảnh). \textbf{(a)} Mỗi điểm là một mảnh ảnh; đường nét đứt là đường đếm đúng tuyệt đối.
-\textbf{(b)} Biểu đồ Bland--Altman: độ chệch trung bình $+0{,}70$ nhân trên số nhân trung bình $24{,}5$
-(khoảng $3\%$) và các giới hạn tương hợp $95\%$. Sai số không lệch hệ thống về một hướng; phần phân tán ở phía
-dưới tại các mảnh nhiều nhân cho thấy khuynh hướng \emph{đếm thiếu} nhẹ ở chế độ mật độ rất cao.}
-\label{fig:agreement}
-\end{figure}
-
-\begin{table}[t]
-\centering
-\caption{Độ chính xác đếm theo từng loại mô trên PanNuke fold~3, cho \emph{một} trong ba mô hình count-only
-(Hình~\ref{fig:agreement} vẽ cùng mô hình này); mọi giá trị trong bảng, kể cả dòng toàn tập, là của riêng mô
-hình đó, còn số liệu tổng hợp qua các hạt giống được báo cáo ở Bảng~\ref{tab:parity}. $R^2$ dương ở toàn bộ
-$19/19$ loại mô.}\label{tab:perorgan}
-\begin{tabular}{@{}lccc@{\hspace{2em}}lccc@{}}
-\toprule
-Loại mô & $n$ & $R^2$ & MAE & Loại mô & $n$ & $R^2$ & MAE \\
-\midrule
-Adrenal gland & $155$ & $0{,}818$ & $2{,}43$ & Lung       & $51$  & $0{,}957$ & $3{,}61$ \\
-Bile duct     & $158$ & $0{,}942$ & $2{,}71$ & Ovarian    & $52$  & $0{,}704$ & $4{,}31$ \\
-Bladder       & $64$  & $0{,}924$ & $2{,}34$ & Pancreatic & $28$  & $0{,}901$ & $3{,}29$ \\
-Breast        & $775$ & $0{,}932$ & $2{,}65$ & Prostate   & $68$  & $0{,}756$ & $4{,}43$ \\
-Cervix        & $86$  & $0{,}976$ & $2{,}20$ & Skin       & $41$  & $0{,}943$ & $5{,}72$ \\
-Colon         & $494$ & $0{,}923$ & $3{,}93$ & Stomach    & $48$  & $0{,}963$ & $3{,}95$ \\
-Esophagus     & $141$ & $0{,}897$ & $3{,}19$ & Testis     & $57$  & $0{,}949$ & $3{,}05$ \\
-Head \& neck  & $145$ & $0{,}954$ & $3{,}17$ & Thyroid    & $62$  & $0{,}873$ & $3{,}30$ \\
-Kidney        & $41$  & $0{,}958$ & $4{,}51$ & Uterus     & $163$ & $0{,}907$ & $6{,}70$ \\
-Liver         & $93$  & $0{,}884$ & $3{,}39$ & \textbf{Toàn tập} & $\mathbf{2722}$ & $\mathbf{0{,}934}$ & $\mathbf{3{,}40}$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\textwidth]{fig_qualitative.pdf}
-\caption{Phép gỡ nhân trên một mảnh PanNuke. \textbf{(a)} Ảnh gốc, $22$ nhân được chú thích. \textbf{(b, c)} Sau
-khi gỡ $30\%$ rồi toàn bộ nhân được chú thích: mỗi nhân được thay bằng một mảng mô cùng hình dạng lấy từ vùng không
-chứa nhân của chính ảnh đó, nên kết cấu mô được giữ nhưng nội dung nhân bị loại; số đếm dự đoán giảm theo
-($20{,}7 \rightarrow 16{,}3 \rightarrow 7{,}5$). \textbf{(d)} Đối chứng giả áp dụng đúng phép thao tác đó lên $22$
-vùng \emph{không chứa nhân}, giữ nguyên toàn bộ nhân: ảnh bị can thiệp ở mức trông thấy rõ, nhưng số đếm hầu như
-không đổi ($19{,}6$). Mảnh ảnh tiêu biểu, với hệ số đáp ứng riêng $0{,}65$ so với trung bình toàn tập $0{,}64$.
-Vài nhân sẫm màu còn lại ở (c) là các nhân không có trong chú thích.}
-\label{fig:qualitative}
-\end{figure}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.62\textwidth]{fig_doseresp.pdf}
-\caption{Số đếm dự đoán (chuẩn hoá theo ảnh nguyên vẹn) theo tỉ lệ nhân còn lại; trung bình trên $286$ mảnh và
-$3$ mô hình huấn luyện độc lập, dải mờ là $\pm1$ độ lệch chuẩn của cách gỡ chính. Gỡ mô \emph{không chứa nhân} với cùng diện tích (đối chứng giả) để
-số đếm gần như không đổi, nên phần sụt giảm là do mất nhân chứ không do bản thân việc can thiệp vào ảnh. Đường
-\emph{telea} là kết quả khi lấp vùng nhân bằng inpainting thay vì ghép mô: vết nhân còn lại làm độ nhạy đo được
-thấp đi gần một nửa.}
-\label{fig:doseresp}
-\end{figure}
-
-\begin{table}[t]
-\centering
-\caption{Đáp ứng của số đếm dự đoán khi gỡ nhân, so với đối chứng giả gỡ mô không chứa nhân cùng diện tích. Các
-giá trị được chuẩn hoá theo số đếm trên ảnh nguyên vẹn, lấy trung bình trên $286$ ảnh ($4862$ phép đo) rồi trên
-$3$ mô hình huấn luyện độc lập; độ lệch chuẩn ghi kèm là độ lệch giữa ba mô hình. ``Hệ số đáp ứng'' là mức sụt
-quan sát được chia cho mức sụt của một bộ đếm cộng dồn trung thực; giá trị $1{,}0$ ứng với đếm trung thực.}\label{tab:doseresp}
-\begin{tabular}{@{}cccccc@{}}
-\toprule
-Tỉ lệ nhân bị gỡ & Gỡ nhân & Đối chứng giả & Sụt do nhân & Diện tích khớp & Hệ số đáp ứng \\
-\midrule
-$10\%$  & $0{,}938\pm0{,}002$ & $1{,}003$ & $0{,}065$ & $0{,}94$ & $0{,}62$ \\
-$20\%$  & $0{,}872\pm0{,}004$ & $1{,}004$ & $0{,}131$ & $0{,}91$ & $0{,}64$ \\
-$30\%$  & $0{,}805\pm0{,}012$ & $1{,}007$ & $0{,}202$ & $0{,}89$ & $0{,}65$ \\
-$50\%$  & $0{,}678\pm0{,}014$ & $1{,}011$ & $0{,}333$ & $0{,}84$ & $0{,}64$ \\
-$75\%^{\ast}$  & $0{,}519\pm0{,}020$ & $1{,}012$ & $0{,}494$ & $0{,}78$ & $0{,}64$ \\
-$100\%^{\ast}$ & $0{,}374\pm0{,}051$ & $1{,}018$ & $0{,}644$ & $0{,}73$ & $0{,}63$ \\
-\bottomrule
-\end{tabular}
-\footnotetext{$^{\ast}$ Ở các liều cao, mô bệnh học dày nhân không còn đủ chỗ trống để đặt các vùng đối chứng
-giả không chồng lấn nên diện tích gỡ của hai điều kiện chỉ khớp $0{,}74$--$0{,}78$; các mức này được báo cáo để
-mô tả và bị loại khỏi kiểm định thống kê, vốn chỉ dùng các phép đo khớp diện tích tối thiểu $80\%$. Ngoài ra, gỡ
-toàn bộ nhân can thiệp vào ${\sim}25\%$ diện tích ảnh nên tạo lệch phân phối đáng kể; vì vậy các liều nhỏ được
-xem là căn cứ chính.}
-\end{table}
 
 \subsection{So sánh với ba paradigm dùng nhãn đắt}\label{sec:paradigm}
 
@@ -419,7 +420,7 @@ Phương pháp phát hiện suy giảm đơn điệu theo mật độ nhân: đ�
 $-30{,}4$ ở các mảnh có từ $45$ nhân trở lên. Diễn biến này khớp với cơ chế bước triệt tiêu không cực đại loại bỏ
 các dương tính thật khi nhân chồng lấn, và giải thích vì sao hồi quy đếm chiếm ưu thế ở chế độ mật độ cao.
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \caption{So sánh bốn paradigm trên PanNuke (cùng tập kiểm tra, tác vụ đếm).}\label{tab:paradigm}
 \begin{tabular}{@{}lccccc@{}}
@@ -459,7 +460,7 @@ Việc neo $\sigma$ vào nền phương sai Poisson quan trọng khi dải số 
 này thu hẹp đáng kể độ rộng khoảng và điểm Winkler ở cùng mức phủ trên dữ liệu dải rộng, trong khi không tạo
 khác biệt trên dải hẹp. Đầu $\sigma$ không làm giảm độ chính xác đếm, vì $\mu$ được tách khỏi nhánh bất định.
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \caption{Chất lượng khoảng dự đoán sau hiệu chuẩn conformal (PanNuke, 20 lần chia hiệu chuẩn).}\label{tab:uq}
 \begin{tabular}{@{}lccccc@{}}
