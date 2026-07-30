@@ -38,8 +38,9 @@ toán, song hầu hết phương pháp hiện đại đều dựa trên chú th�
 khó mở rộng sang mô, cơ quan hay trung tâm mới. Bài báo kiểm định trực tiếp liệu mức chú thích tốn kém đó có thực
 sự cần cho việc đếm, bằng một thí nghiệm có kiểm soát giữ nguyên kiến trúc, dữ liệu và quy trình đánh giá và chỉ
 thay đổi loại giám sát. Trên ba tập dữ liệu độc lập (PanNuke, NuInsSeg, MoNuSeg), giám sát chỉ bằng một con số
-đếm cho mỗi ảnh đạt độ chính xác đếm không thua giám sát bằng mặt nạ điểm ảnh trên cùng kiến trúc, với chênh lệch
-$R^2$ nằm trong độ lệch chuẩn giữa các hạt giống ($0{,}913$ so với $0{,}892$ trên NuInsSeg). Theo cùng giao thức
+đếm cho mỗi ảnh đạt độ chính xác đếm tương đương giám sát bằng mặt nạ điểm ảnh trên cùng kiến trúc: chênh lệch
+$R^2$ nhỏ hơn độ lệch chuẩn giữa các hạt giống trên cả ba tập, và dấu của chênh lệch không nhất quán giữa các
+tập ($0{,}913$ so với $0{,}892$ trên NuInsSeg). Theo cùng giao thức
 không rò rỉ trên PanNuke, một bộ đếm $3{,}62$ triệu tham số huấn luyện count-only đạt $R^2 = 0{,}920$ và
 MAE $= 3{,}61$, vượt các đại diện của phân vùng ($0{,}841$), ước lượng mật độ ($0{,}804$) và phát hiện ($0{,}455$)
 trên chính tác vụ đếm. Một thí nghiệm gỡ nhân có đối chứng giả cho thấy số đếm phản hồi nhân quả và đặc hiệu với
@@ -78,9 +79,9 @@ góp của bài báo nằm ở các phát hiện thực nghiệm cùng hệ qu�
 
 Các đóng góp chính của bài báo như sau.
 \begin{itemize}
-\item Trên ba tập dữ liệu độc lập, kết quả cho thấy giám sát count-only đạt độ chính xác đếm không thua giám
-sát bằng mặt nạ trên cùng kiến trúc; sự khác biệt nằm trong khoảng dao động giữa các lần chạy, và một kiểm định
-signed-rank bắt cặp trên từng ảnh không cho thấy count-only kém hơn (Mục~\ref{sec:parity}).
+\item Trên ba tập dữ liệu độc lập, kết quả cho thấy giám sát count-only đạt độ chính xác đếm tương đương giám
+sát bằng mặt nạ trên cùng kiến trúc: mọi chênh lệch đều nhỏ hơn dao động giữa các lần chạy và không nhất quán về
+dấu, kèm kiểm định signed-rank bắt cặp trên từng ảnh (Mục~\ref{sec:parity}).
 \item Trong một so sánh công bằng theo cùng giao thức không rò rỉ, bộ đếm count-only nhẹ vượt các đại diện của
 ba dòng phương pháp dùng nhãn đắt trên tác vụ đếm; đáng chú ý, phương pháp phát hiện suy giảm có hệ thống ở vùng nhân
 dày đặc (Mục~\ref{sec:paradigm}).
@@ -156,7 +157,9 @@ quá nhỏ, đối với mỗi tập dữ liệu, $w_c$ cho chế độ mask đ�
 tốt nhất, nhằm bảo đảm baseline được so sánh ở trạng thái thuận lợi nhất của nó. Trên PanNuke,
 $w_c \in \{0{,}01;\ 0{,}05;\ 0{,}1\}$ được khảo sát: ở $w_c = 0{,}01$ nhánh mask suy về nghiệm hằng số ở $1/5$ hạt
 giống ($R^2$ trung bình $0{,}45 \pm 0{,}94$); ở $0{,}05$ và $0{,}1$ hiện tượng này không xảy ra, và $w_c = 0{,}1$
-cho cả trung bình cao hơn lẫn phương sai nhỏ hơn nên được dùng cho mọi kết quả báo cáo. Suy biến này là một thất
+cho cả trung bình cao hơn lẫn phương sai nhỏ hơn nên được dùng cho mọi kết quả báo cáo. Giá trị $w_c = 0{,}1$
+cũng được dùng cho nhánh mask trên NuInsSeg và MoNuSeg, nơi nó tương tự là mức nhỏ nhất giữ cho nhánh này hội tụ
+ổn định. Suy biến này là một thất
 bại của \emph{quá trình tối ưu hoá}, trong đó hàm mất mát bình phương trên bản đồ mật độ bị các điểm ảnh nền chi
 phối: ở các hạt giống suy biến, mô hình xuất giá trị hằng số $0$ cho mọi ảnh, cho đúng $R^2 = -\mu^2/\sigma^2$ với
 $\mu,\sigma$ là trung bình và độ lệch chuẩn của số nhân trên tập kiểm tra. Vì một hạt giống suy biến đủ để làm
@@ -174,15 +177,15 @@ mức phủ của cơ quan có mức phủ thấp nhất, độ rộng khoảng 
 \subsection{Giám sát count-only sánh ngang giám sát mặt nạ}\label{sec:parity}
 
 Bảng~\ref{tab:parity} so sánh hai chế độ giám sát trên cùng một kiến trúc. Trên cả ba tập dữ liệu, độ chính xác
-đếm của count-only không thấp hơn của mask: trên PanNuke hai chế độ tương đương trong phạm vi dao động giữa các
+đếm của count-only tương đương với của mask: trên PanNuke hai chế độ nằm trong phạm vi dao động giữa các
 lần chạy; trên NuInsSeg count-only đạt $R^2$ trung bình nhỉnh hơn nhưng chênh lệch nằm trong độ lệch chuẩn và
 không có khác biệt có ý nghĩa theo từng ảnh ở bất kỳ chia nào (tương đương); còn
 trên MoNuSeg, $R^2$ trung bình của count-only cao hơn nhưng chênh lệch ($\Delta = 0{,}10$) nằm gọn trong độ
 lệch chuẩn, nên hai chế độ cũng được xem là tương đương; tập này chỉ có $37$ ảnh huấn luyện nên $R^2$ của
 \emph{cả hai} chế độ dao động mạnh giữa các hạt giống. Ở tập kiểm tra đủ lớn và cố định (PanNuke), kiểm định bắt
 cặp trên từng ảnh là công cụ thích hợp; trên các tập nhỏ, phương sai giữa hạt giống chi phối và xếp hạng theo
-từng ảnh không ổn định giữa các tập con hạt giống, nên có thể kết luận count-only \emph{không thua} thay vì
-tuyên bố ưu thế. Kết quả này
+từng ảnh không ổn định giữa các tập con hạt giống, nên kết luận thích hợp là \emph{tương đương} chứ không phải
+tuyên bố ưu thế cho một chế độ nào. Kết quả này
 cho thấy, đối với tác vụ đếm và trên cùng một kiến trúc, việc chuyển từ chú thích mặt nạ ở mức điểm ảnh sang một
 con số đếm cho mỗi ảnh, rẻ hơn nhiều bậc, không làm giảm độ chính xác. Nhánh mask ở đây dùng \emph{cùng}
 kiến trúc với count-only để cô lập ảnh hưởng của \emph{loại giám sát}; phép so sánh này do đó không đo năng lực của
@@ -208,11 +211,11 @@ NuInsSeg$^{\dagger}$ & $0{,}913\pm0{,}022$ & $0{,}892\pm0{,}017$ & $+0{,}021$ & 
 định giữa các lần chạy và nhỏ (${\sim}26$ ảnh/chia); do đó tính nhất quán theo từng chia được báo cáo
 ($5$ hạt giống) thay vì một kiểm định gộp: sai số tuyệt đối của count-only thấp hơn ở $4/5$ chia nhưng
 \emph{không} đạt $p<0{,}05$ ở bất kỳ chia nào ($0/5$). Kết quả này nhất quán với tương đương: count-only
-không thua mask, và không có khác biệt có ý nghĩa thống kê theo từng ảnh.}
+tương đương mask, và không có khác biệt có ý nghĩa thống kê theo từng ảnh.}
 \footnotetext{$^{\ddagger}$ MoNuSeg rất nhỏ ($37$ ảnh huấn luyện) nên $R^2$ dao động mạnh giữa các hạt giống ở
 \emph{cả hai} chế độ; số liệu lấy trung bình $5$ hạt giống với thuật toán huấn luyện tất định. Vì $|\Delta R^2|$
 nhỏ hơn độ lệch chuẩn và xếp hạng theo từng ảnh không ổn định giữa các tập con hạt giống, kết quả được diễn giải
-là tương đương (count-only không thua), \emph{không} tuyên bố ưu thế.}
+là tương đương, \emph{không} tuyên bố ưu thế.}
 \end{table}
 
 \subsection{Số đếm dự đoán phản hồi nhân quả với nội dung nhân}\label{sec:fidelity}
@@ -460,7 +463,7 @@ của giám sát count-only, và ở độ tin cậy triển khai.
 \section{Kết luận}\label{sec:conclusion}
 
 Qua một nghiên cứu có kiểm soát trên ba tập dữ liệu mô bệnh học độc lập, kết quả cho thấy giám sát chỉ bằng số
-đếm ở mức ảnh đạt độ chính xác đếm không thua giám sát bằng mặt nạ ở mức điểm ảnh trên cùng kiến trúc, trong khi
+đếm ở mức ảnh đạt độ chính xác đếm tương đương giám sát bằng mặt nạ ở mức điểm ảnh trên cùng kiến trúc, trong khi
 đòi hỏi chi phí chú thích thấp hơn nhiều bậc; đồng thời, một bộ đếm count-only nhẹ vượt các đại diện của ba dòng
 phương pháp dùng nhãn đắt trên tác vụ đếm. Kèm theo một đầu định lượng bất định được hiệu chuẩn, các kết quả này cho
 thấy chú thích dày đặc ở mức điểm ảnh không phải là điều kiện cần để đếm nhân chính xác. Các hướng phát triển
