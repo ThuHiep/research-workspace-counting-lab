@@ -226,12 +226,13 @@ có thể khai thác tương quan toàn cục (loại mô, mật độ tế bào
 tích dưới đây kiểm tra khả năng đó trên PanNuke fold~3 ($n=2722$ mảnh, số nhân trung bình $24{,}5$).
 
 \paragraph{Độ chính xác giữ được trên toàn bộ 19 loại mô.} Trên toàn tập kiểm tra, mô hình count-only đạt
-$R^2 = 0{,}934$ và MAE $= 3{,}40$ nhân. Khi phân tách theo loại mô (Bảng~\ref{tab:perorgan}), $R^2$ dương ở
+$R^2 = 0{,}934$ và MAE $= 3{,}40$ nhân, với các dự đoán nằm sát đường đếm đúng tuyệt đối trên toàn dải số nhân
+(Hình~\ref{fig:agreement}a). Khi phân tách theo loại mô (Bảng~\ref{tab:perorgan}), $R^2$ dương ở
 \emph{cả} $19/19$ loại, dao động từ $0{,}704$ (Ovarian, $n=52$) đến $0{,}976$ (Cervix, $n=86$); hai giá trị thấp
 nhất đều thuộc các loại mô có ít mảnh kiểm tra nhất. Phân tích Bland--Altman cho độ chệch $+0{,}70$ nhân, tức
-khoảng $3\%$ của số nhân trung bình, với giới hạn tương hợp $\pm10{,}2$ nhân; nghĩa là sai số không mang thiên
-lệch hệ thống theo một hướng và không giãn ra một cách bất thường ở các mảnh có số nhân lớn. Như vậy độ chính xác
-tổng thể không đến từ việc khớp tốt một vài loại mô chiếm đa số.
+khoảng $3\%$ của số nhân trung bình, với giới hạn tương hợp $\pm10{,}2$ nhân (Hình~\ref{fig:agreement}b); nghĩa
+là sai số không mang thiên lệch hệ thống theo một hướng. Như vậy độ chính xác tổng thể không đến từ việc khớp tốt
+một vài loại mô chiếm đa số.
 
 \paragraph{Gỡ nhân có đối chứng giả.} Để kiểm tra quan hệ nhân quả, một tỉ lệ $k$ các nhân được chú thích bị gỡ
 khỏi ảnh rồi đo lại số đếm dự đoán. Mỗi nhân được thay bằng một mảng mô \emph{cùng hình dạng} lấy từ một vị trí
@@ -267,6 +268,17 @@ nhân và để lại một nhân mờ. Hệ quả là độ nhạy đo được
 $33\%$ các ảnh cho số đếm ở mức gỡ $100\%$ \emph{cao hơn} ở mức gỡ $75\%$ --- một dấu hiệu không thể có ở một
 phép thao tác đúng. Đối chứng giả không phát hiện được lỗi này, vì các vùng giả nằm giữa mô nền nên chỉ được lấp
 bằng mô nền. Việc thay bằng phép ghép mô từ vùng không chứa nhân là cần thiết chính vì lý do đó.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_agreement.pdf}
+\caption{Tương hợp giữa số nhân dự đoán và số nhân thực của mô hình count-only trên PanNuke fold~3
+($n=2722$ mảnh). \textbf{(a)} Mỗi điểm là một mảnh ảnh; đường nét đứt là đường đếm đúng tuyệt đối.
+\textbf{(b)} Biểu đồ Bland--Altman: độ chệch trung bình $+0{,}70$ nhân trên số nhân trung bình $24{,}5$
+(khoảng $3\%$) và các giới hạn tương hợp $95\%$. Sai số không lệch hệ thống về một hướng; phần phân tán ở phía
+dưới tại các mảnh nhiều nhân cho thấy khuynh hướng \emph{đếm thiếu} nhẹ ở chế độ mật độ rất cao.}
+\label{fig:agreement}
+\end{figure}
 
 \begin{table}[t]
 \centering
