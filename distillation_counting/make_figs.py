@@ -202,15 +202,16 @@ def fig_qualitative(panel_png, labels, out):
     print(f"[hình 3] {out}  ({len(xs)} tile, mỗi tile {xs[0][1]-xs[0][0]}×{y1-y0+1} px)")
 
 
-QUAL = {
-  "en": ["(a) Original image\n13 annotated nuclei\npredicted 16.3",
-         "(b) 30% of nuclei removed\n9 nuclei remain\npredicted 15.7",
-         "(c) All nuclei removed\n0 nuclei remain\npredicted 10.9",
-         "(d) Sham control\n13 nucleus-free regions, nuclei intact\npredicted 16.6"],
-  "vi": ["(a) \u1ea2nh g\u1ed1c\n13 nh\xe2n \u0111\u01b0\u1ee3c ch\xfa th\xedch\nd\u1ef1 \u0111o\xe1n 16,3",
-         "(b) G\u1ee1 30% nh\xe2n\nc\xf2n 9 nh\xe2n\nd\u1ef1 \u0111o\xe1n 15,7",
-         "(c) G\u1ee1 to\xe0n b\u1ed9 nh\xe2n\nc\xf2n 0 nh\xe2n\nd\u1ef1 \u0111o\xe1n 10,9",
-         "(d) \u0110\u1ed1i ch\u1ee9ng gi\u1ea3\n13 v\xf9ng N\u1ec0N, nh\xe2n c\xf2n nguy\xean\nd\u1ef1 \u0111o\xe1n 16,6"],
+QUAL = {   # số liệu của panel_0072 (GT 22 nhân) — chọn vì đáp ứng GẦN TRUNG BÌNH tập (0,65 vs 0,60),
+           # đơn điệu, và sham sạch (1,01); KHÔNG chọn panel có đáp ứng mạnh nhất để tránh cherry-pick
+  "en": ["(a) Original image\n22 annotated nuclei\npredicted 20.7",
+         "(b) 30% of nuclei removed\n15 nuclei remain\npredicted 16.3",
+         "(c) All nuclei removed\n0 nuclei remain\npredicted 7.5",
+         "(d) Sham control\n22 nucleus-free regions, nuclei intact\npredicted 19.6"],
+  "vi": ["(a) \u1ea2nh g\u1ed1c\n22 nh\xe2n \u0111\u01b0\u1ee3c ch\xfa th\xedch\nd\u1ef1 \u0111o\xe1n 20,7",
+         "(b) G\u1ee1 30% nh\xe2n\nc\xf2n 15 nh\xe2n\nd\u1ef1 \u0111o\xe1n 16,3",
+         "(c) G\u1ee1 to\xe0n b\u1ed9 nh\xe2n\nc\xf2n 0 nh\xe2n\nd\u1ef1 \u0111o\xe1n 7,5",
+         "(d) \u0110\u1ed1i ch\u1ee9ng gi\u1ea3\n22 v\xf9ng N\u1ec0N, nh\xe2n c\xf2n nguy\xean\nd\u1ef1 \u0111o\xe1n 19,6"],
 }
 
 
