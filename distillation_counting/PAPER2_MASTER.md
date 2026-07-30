@@ -410,6 +410,26 @@ CQR/CHDQR chỉ cho **interval cố định-α**, KHÔNG cho phân phối tái d
 
 **★ Ranh giới vận hành (honest — MoNuSAC KHÔNG dùng làm số):** MoNuSAC native **1024** → resize 256 **co nhân 4×** (ngoài scale train) → μ **SẬP** (MAE 138≈mean, σ 6.5, interval vacuous ±5×; cov 0.934 rỗng). ⟹ transfer **sống khi scale-gap vừa phải** (CryoNuSeg native 512 = 2×) **, sập khi quá lớn** (MoNuSAC 4×). Đây là **điều kiện áp dụng của phương pháp** (density-head phụ thuộc nucleus scale) — ghi trung thực trong Limitations. *(pkl `work/xfer_nuinsseg2cryonuseg.pkl`, prep `prep_cryonuseg_counts.py`, backup kaggle `sam3-paper2-uqkd`.)*
 
+**★★ RERUN 2026-07-31 — CryoNuSeg 2 NHÁNH × 3 seed (số DÙNG CHO PAPER; thay cho dòng 2026-07-18 ở trên).**
+Lý do rerun: run cũ chạy mặc định `--w_density 1.0 --w_count 0.01` = **giám sát mật độ**, không phải count-only →
+dùng nó cho paper là **dán nhãn sai chế độ giám sát**. `eval_cross_dataset.py` nay có `--supervision {count,mask}`.
+
+| Nhánh (NuInsSeg → CryoNuSeg, n=30) | s42 | s43 | s44 | GỘP R² | GỘP MAE | dự đoán TB |
+|---|---|---|---|---|---|---|
+| **count-only** (w_d 0, w_c 1) | +0,3974 / 79,58 | +0,2636 / 85,03 | −0,8914 / 169,59 | **−0,077 ± 0,579** | **111,4 ± 41,2** | 143 |
+| **mask** (w_d 1, w_c 0,1) | +0,1628 / 101,46 | **−2,8218 / 253,07 (SẬP)** | −0,0758 / 123,22 | −0,912 ± 1,354 | 159,3 ± 66,9 | 94 |
+
+GT TB = **253** nhân/ảnh, trong khi NuInsSeg train TB = **52,8** → **lệch thang đếm 4,8×**, ảnh đích nằm **ngoài
+miền giá trị** đã huấn luyện. Cả hai nhánh **đều đếm thiếu nặng** (143 và 94 so với 253) ⇒ hỏng vì
+**ngoại suy dải đếm**, KHÔNG phải vì loại giám sát.
+- mask s43 dự đoán TB = **0** = đúng chữ ký sập của density-MSE (R² = −μ²/σ² : 253²/150,6² = −2,82 ✓).
+- **Bỏ hẳn seed sập cho mask (cấu hình có lợi nhất cho baseline): mask R² +0,044 / MAE 112,3 vs count −0,077 / 111,4
+  → hai nhánh KHÔNG phân biệt được.** n=3, sd khổng lồ ⇒ **không chạy test, không claim nhánh nào hơn.**
+- ⟹ với paper: parity KHÔNG bị đe doạ (hỏng đối xứng cả 2 nhánh); đây là **giới hạn miền** đã được §Thảo luận dự đoán.
+- Dòng "MAE 73 / marg cov 0,967" (2026-07-18) **SUPERSEDED**: 1 seed, w_count=0,01, không so nhánh — không dùng nữa.
+- pkl: `/kaggle/working/outputs/xfer_cryonuseg/xfer_{count,mask}_cryo_s{42,43,44}.pkl` — **PHẢI backup kaggle dataset ngay.**
+- ⏳ còn thiếu: conformal (`eval_r2_grouped.py`) trên 6 pkl này → mới kết luận được σ/coverage có transfer không.
+
 ### 4.5 Efficiency
 | Model | Params (M) | GMACs@256 | UQ? |
 |---|---|---|---|
