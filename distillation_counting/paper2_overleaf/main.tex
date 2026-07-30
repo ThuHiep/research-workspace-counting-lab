@@ -145,7 +145,7 @@ trực tiếp các câu hỏi trên.
 \section{Phương pháp}\label{sec:method}
 
 \subsection{Kiến trúc và đầu ra}
-Mô hình, ký hiệu \texttt{DensitySigmaUNet}, gồm một bộ mã hóa EfficientNet-lite0~\cite{efficientnet} tiền huấn
+Mô hình, ký hiệu DensitySigmaUNet, gồm một bộ mã hóa EfficientNet-lite0~\cite{efficientnet} tiền huấn
 luyện trên ImageNet ghép với một bộ giải mã kiểu U-Net~\cite{unet}. Mạng có hai đầu ra.
 
 Đầu \emph{mật độ} sinh một bản đồ không âm, và số đếm dự đoán là tổng toàn ảnh $\mu = \sum_p \hat d_p$. Đầu
