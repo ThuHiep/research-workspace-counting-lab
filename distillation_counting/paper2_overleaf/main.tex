@@ -239,8 +239,9 @@ giả (sham) áp dụng \emph{đúng} phép thao tác đó, với cùng số vù
 vị trí không chứa nhân, tách tác động của bản thân việc thay mô khỏi tác động của việc mất nhân. Chỉ những phép đo
 có diện tích gỡ khớp nhau tối thiểu $80\%$ giữa hai điều kiện được đưa vào kiểm định. Phép ghép mô được dùng thay
 cho inpainting vì inpainting lan màu từ biên vùng cần lấp, mà biên đó là viền nhân, nên để lại vết nhân trong ảnh:
-với inpainting Telea, hệ số đáp ứng đo được chỉ còn $0{,}31$ và $33\%$ mảnh cho số đếm ở mức gỡ toàn bộ cao hơn ở
-mức gỡ $75\%$ (Hình~\ref{fig:doseresp}).
+so ở cùng mức nở mặt nạ, inpainting Telea cho hệ số đáp ứng $0{,}31$ trong khi phép ghép mô cho $0{,}57$, và
+$33\%$ mảnh cho số đếm ở mức gỡ toàn bộ cao hơn ở mức gỡ $75\%$ (Hình~\ref{fig:doseresp}). Chênh lệch giữa hai
+cách gỡ do đó gần như hoàn toàn đến từ cách điền vùng đã gỡ, chứ không từ mức nở mặt nạ.
 
 Hình~\ref{fig:qualitative} minh hoạ phép thao tác trên một mảnh ảnh. Bảng~\ref{tab:doseresp} và
 Hình~\ref{fig:doseresp} cho thấy số đếm dự đoán giảm \emph{đơn điệu} theo tỉ lệ nhân bị gỡ, trong khi đối chứng
@@ -261,9 +262,10 @@ không định vị gì), và tương quan không gian với bản đồ mật �
 cùng chỉ về một cơ chế, và giải thích vì sao giám sát mức ảnh đủ cho tác vụ \emph{đếm} nhưng không sinh ra khả năng
 định vị: đại lượng được giám sát là một tổng, nên nghiệm mà mô hình tìm được cũng chỉ cần đúng ở mức tổng.
 
-Việc mặt nạ chú thích phủ chưa hết nhân không giải thích được phần thiếu hụt này: nở mặt nạ $4$ điểm ảnh thay
-vì $2$, tức tăng diện tích can thiệp từ $25\%$ lên $31\%$ ảnh, chỉ đổi hệ số từ $0{,}60$ thành $0{,}61$ trên cùng
-một mô hình, trong khi làm mức khớp diện tích của đối chứng giả xấu đi rõ rệt.
+Kết quả không nhạy với mức nở mặt nạ, nên việc chú thích phủ chưa hết viền nhân không giải thích được phần
+thiếu hụt: trên cùng một mô hình, nở $0$, $2$ và $4$ điểm ảnh (diện tích can thiệp $18\%$, $25\%$ và $31\%$ ảnh)
+cho hệ số $0{,}57$, $0{,}60$ và $0{,}61$, tức toàn bộ khoảng biến thiên nhỏ hơn độ lệch giữa các mô hình. Mức nở
+lớn cũng làm khớp diện tích của đối chứng giả xấu đi, nên $2$ điểm ảnh được dùng cho các số liệu báo cáo.
 
 Hệ số $0{,}64$ là một giới hạn dưới của độ nhạy thực, vì phép gỡ chỉ tác động lên các nhân \emph{được chú thích}
 còn những nhân mà chú thích bỏ sót vẫn tiếp tục đóng góp vào số đếm (Hình~\ref{fig:qualitative}c). Lấy phần dự
