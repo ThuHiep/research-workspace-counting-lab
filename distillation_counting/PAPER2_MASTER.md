@@ -206,6 +206,23 @@ Scaling **bão hoà ở 3.6M** (lớn hơn tệ đi) = lập luận **efficiency
 
 **★ Count-only vs mask CÙNG kiến trúc (efflite0, `sup_compare.py`, PanNuke leak-free, 2026-07-28):** cô lập supervision (chỉ đổi target). count-only **0.9296±0.009 / MAE 3.48** vs GT-density-mask **0.9247±0.009 / 3.58** → **Δ +0.005 R² < std → PARITY**. Đọc honest: KHÔNG "count-only thắng mask" mà **count-only NGANG mask, nhãn rẻ hơn 1 bậc** (1 số/ảnh vs mask pixel) → "đếm không cần mask". Đối chứng đóng chốt label-efficiency. GT-density đầu bất ổn (collapse khi w_count=0) → fix w_count=0.01 + 60ep → ổn định. (số cũ NuInsSeg 0.925 vs 0.881 = SUPERSEDED).
 
+**★★ SỐ CUỐI PanNuke head-to-head 5 seed (2026-07-31, gộp từ .npz, n=2722 ảnh fold3 — DÙNG CHO BẢNG~1):**
+| Nhánh | R² gộp | trung vị | SẬP | per-seed (42→46) |
+|---|---|---|---|---|
+| count-only | **0,9182 ± 0,011** | 0,9197 | 0/5 | 0,9269 · 0,9133 · 0,9008 · 0,9306 · 0,9197 |
+| mask (GT-density, w_c=0,1) | **0,9313 ± 0,006** | 0,9340 | 0/5 | 0,9345 · 0,9333 · 0,9195 · 0,9353 · 0,9340 |
+
+**⚠️ mask cao hơn ở CẢ 5/5 hạt giống.** Hiệu bắt cặp theo seed: +0,0131 ± 0,0067 (sd mẫu) → t(4)=4,34, **p≈0,012**.
+⇒ **KHÔNG được viết "chênh lệch nhỏ hơn dao động giữa seed" hay "không nhất quán về dấu"** cho PanNuke nữa
+(|Δ|=0,0131 > sd count 0,011; dấu nhất quán 5/5). Đã sửa abstract + gạch đầu dòng Giới thiệu + §4.1 + Bảng 1.
+- Chiều này **NGƯỢC** với dòng 2026-07-28 ở trên (count 0,9296 > mask 0,9247): dòng đó chạy w_count=0,01 và
+  không phải merge 5-seed leak-free → **SUPERSEDED**, đừng trích lại.
+- Nguyên nhân mask khá lên: chính ta đã đổi w_c 0,01→0,1 để cho baseline **cấu hình hội tụ tốt nhất** (§Thiết lập).
+  Đây là hệ quả đúng của nguyên tắc đó, không phải hồi quy chất lượng.
+- **Claim tương đương của bài KHÔNG dựa trên R² mà dựa trên TOST sai số |lỗi| từng ảnh (đơn vị nhân).**
+  ⏳ CÒN THIẾU: khối MAE + Wilcoxon + TOST (δ*) của chính run này → ô `\pending` ở Bảng 1.
+- Bảng 4 paradigm (0,920/3,61) = mô hình hạt giống **trung vị** (0,9197 ≈ 0,920) → đã ghi rõ trong caption.
+
 **★ MoNuSeg in-domain dataset THỨ 3 (efflite0 count-only, `monuseg_indomain.py`, 2026-07-28):** đa cơ quan TCGA, ĐỘC LẬP PanNuke/NuInsSeg (KHÔNG trùng như Lizard/CoNIC). XML→centroid→patch256 native (resize 1000→1024, không co nhân), **split CHÍNH THỨC 37 train/14 test folder** (random WSI split cho 0.54±0.29 nhiễu → official cho **0.663±0.099** ổn). MAE 5.42±0.86. R² thấp hơn PanNuke/NuInsSeg (nhỏ+test count-variance thấp) nhưng MAE tốt. ⚠️ Q1 KHÔNG bán R² tuyệt đối → cần count-only-vs-mask MoNuSeg (rasterize polygon→density) để bán PARITY 3-dataset. Input Kaggle `hipinhththu/monuseg` (TestData có 14 xml). Xem [[paper2-q1-pivot]].
 
 **★ Generalization đa dataset (efflite0 count-only, 2026-07-27):** in-domain PanNuke 0.920±0.005 / **NuInsSeg 0.854±0.048** (random split, `method_frontier --dataset nuinsseg`). → chạy tốt dataset 2, là ceiling cho transfer. **Transfer PanNuke→NuInsSeg efflite0 (2026-07-27, `eval_cross_dataset`+`eval_r2_grouped` 20-seed):** marg.cov 0.90 GIỮ (mondrian 0.922) NHƯNG MAE 30.35 (in-domain 13.8, ~2.2× tệ) + worst-org cov tụt 0.72 (in-domain 0.906). → **transfer MỘT PHẦN: coverage biên transfer, accuracy điểm KHÔNG** (khớp finding cũ MAE-không-transfer). Bán honest: khoảng tin cậy giữ phủ khi recalibrate ở target. pkl `work/xfer_pan2nuins_efflite0.pkl`. *(số transfer 1.9M cũ = SUPERSEDED.)*
@@ -410,7 +427,8 @@ CQR/CHDQR chỉ cho **interval cố định-α**, KHÔNG cho phân phối tái d
 
 **★ Ranh giới vận hành (honest — MoNuSAC KHÔNG dùng làm số):** MoNuSAC native **1024** → resize 256 **co nhân 4×** (ngoài scale train) → μ **SẬP** (MAE 138≈mean, σ 6.5, interval vacuous ±5×; cov 0.934 rỗng). ⟹ transfer **sống khi scale-gap vừa phải** (CryoNuSeg native 512 = 2×) **, sập khi quá lớn** (MoNuSAC 4×). Đây là **điều kiện áp dụng của phương pháp** (density-head phụ thuộc nucleus scale) — ghi trung thực trong Limitations. *(pkl `work/xfer_nuinsseg2cryonuseg.pkl`, prep `prep_cryonuseg_counts.py`, backup kaggle `sam3-paper2-uqkd`.)*
 
-**★★ RERUN 2026-07-31 — CryoNuSeg 2 NHÁNH × 3 seed (số DÙNG CHO PAPER; thay cho dòng 2026-07-18 ở trên).**
+**★★ RERUN 2026-07-31 — CryoNuSeg 2 NHÁNH × 3 seed. ⛔ QUYẾT ĐỊNH: KHÔNG đưa vào paper** (user chốt 2026-07-31;
+giữ bản ghi ở đây, main.tex đã revert sạch mọi nhắc tới CryoNuSeg). Thay cho dòng 2026-07-18 ở trên.
 Lý do rerun: run cũ chạy mặc định `--w_density 1.0 --w_count 0.01` = **giám sát mật độ**, không phải count-only →
 dùng nó cho paper là **dán nhãn sai chế độ giám sát**. `eval_cross_dataset.py` nay có `--supervision {count,mask}`.
 

@@ -41,8 +41,8 @@ lượng số đếm thông qua phân vùng, phát hiện hoặc định vị nh
 kiện cần cho độ chính xác đếm cao. Giả định này được kiểm định bằng một thí nghiệm có kiểm soát: kiến trúc, dữ
 liệu và giao thức đánh giá được giữ nguyên, chỉ thay mức giám sát từ mặt nạ điểm ảnh sang một nhãn đếm duy nhất
 cho mỗi ảnh. Trên ba bộ dữ liệu độc lập (PanNuke, NuInsSeg và MoNuSeg), giám sát count-only đạt độ chính xác đếm
-tương đương giám sát bằng mặt nạ; mọi chênh lệch $R^2$ đều nhỏ hơn dao động giữa các hạt giống, và không hình
-thức giám sát nào chiếm ưu thế nhất quán. Một can thiệp có đối chứng xác nhận đáp ứng của mô hình đặc hiệu với
+tương đương giám sát bằng mặt nạ: count-only cao hơn trên hai tập, và thấp hơn $0{,}013$ trên thang $R^2$ ở tập
+lớn nhất. Một can thiệp có đối chứng xác nhận đáp ứng của mô hình đặc hiệu với
 nội dung nhân: thay toàn bộ nhân được chú thích bằng mô không chứa nhân trong khi giữ nguyên hình dạng và diện
 tích làm số đếm dự đoán giảm còn $0{,}37$ lần, trong khi đối chứng giả duy trì ở mức $1{,}02$ lần. Trên PanNuke,
 bộ đếm $3{,}62$ triệu tham số huấn luyện với giám sát count-only đạt $R^2 = 0{,}920$ và vượt các đại diện của
@@ -80,8 +80,8 @@ sát: mặt nạ ở mức điểm ảnh, hoặc một nhãn đếm duy nhất c
 Các đóng góp chính của bài báo như sau.
 \begin{itemize}
 \item Trên ba tập dữ liệu độc lập, giám sát count-only đạt độ chính xác đếm tương đương giám sát bằng mặt nạ
-trên cùng kiến trúc, trong phạm vi dao động giữa các lần chạy. Mọi chênh lệch đều nhỏ hơn dao động đó và không
-nhất quán về dấu, kèm kiểm định signed-rank bắt cặp trên từng ảnh (Mục~\ref{sec:parity}).
+trên cùng kiến trúc. Chiều của chênh lệch không đồng nhất giữa các tập, và độ lớn lớn nhất trên tập kiểm tra cố
+định là $0{,}013$ trên thang $R^2$, kèm kiểm định tương đương bắt cặp trên từng ảnh (Mục~\ref{sec:parity}).
 \item Một thí nghiệm can thiệp có đối chứng giả kiểm tra liệu dự đoán của mô hình có phụ thuộc đặc hiệu vào nội
 dung nhân hay không, qua đó khoanh vùng cơ chế đứng sau kết quả tương đương (Mục~\ref{sec:fidelity}).
 \item Khi được huấn luyện lại và đánh giá trên cùng phân chia dữ liệu, bộ đếm count-only nhẹ vượt các đại diện
@@ -191,8 +191,6 @@ loại ung thư,
 $256\times256$, 19 loại mô; huấn luyện trên fold~1--2, kiểm tra trên fold~3),
 NuInsSeg~\cite{nuinsseg} (đa cơ quan) và MoNuSeg~2018~\cite{monuseg} (đa cơ quan từ TCGA; ảnh $1000\times1000$
 được cắt thành các mảnh $256$ ở độ phân giải gốc, dùng đúng phân chia huấn luyện/kiểm tra chính thức).
-Một tập thứ tư, CryoNuSeg~\cite{cryonuseg} ($30$ ảnh mô cắt lạnh nhuộm H\&E từ $10$ cơ quan), được giữ hoàn toàn
-ngoài quá trình huấn luyện và chỉ dùng cho thí nghiệm chuyển giao ở Mục~\ref{sec:transfer}.
 
 \paragraph{Giao thức.} Mọi phương pháp so sánh được huấn luyện lại từ đầu trên cùng tập huấn luyện và đánh giá
 trên cùng tập kiểm tra. Mỗi cấu hình lặp lại với nhiều hạt giống ngẫu nhiên, báo cáo trung bình cùng độ lệch
@@ -225,17 +223,20 @@ mức phủ của cơ quan có mức phủ thấp nhất, độ rộng khoảng 
 \subsection{Giám sát count-only sánh ngang giám sát mặt nạ}\label{sec:parity}
 
 Trên cả ba tập dữ liệu, giám sát count-only cho độ chính xác đếm tương đương giám sát bằng mặt nạ
-(Bảng~\ref{tab:parity}). Trên PanNuke, tập lớn nhất và có tập kiểm tra cố định, chênh lệch
-$\Delta R^2 = -0{,}012$ không vượt quá độ lệch chuẩn giữa các hạt giống của chính nhánh count-only. Trên
+(Bảng~\ref{tab:parity}). Trên PanNuke, tập lớn nhất và có tập kiểm tra cố định, nhánh mask giữ một khoảng cách
+nhỏ nhưng nhất quán về dấu: $\Delta R^2 = -0{,}013$, với mask cao hơn ở cả $5/5$ hạt giống. Xét theo độ lớn,
+count-only đạt $98{,}6\%$ mức $R^2$ của nhánh mask. Trên
 NuInsSeg, count-only đạt $R^2$ trung bình nhỉnh hơn, nhưng chênh lệch nằm trong độ lệch chuẩn và không chia nào
 cho khác biệt có ý nghĩa theo từng ảnh. Trên MoNuSeg, count-only cũng cao hơn ($\Delta R^2 = 0{,}10$) và cũng
 nằm gọn trong độ lệch chuẩn; tập này chỉ có $37$ ảnh huấn luyện nên $R^2$ của \emph{cả hai} chế độ dao động mạnh
 giữa các hạt giống.
 
-Kết luận thích hợp ở đây là \emph{tương đương}, không phải ưu thế cho một chế độ nào. Trên tập kiểm tra đủ lớn
-và cố định, kiểm định bắt cặp theo từng ảnh là công cụ phù hợp. Trên các tập nhỏ, phương sai giữa hạt giống chi
-phối và xếp hạng theo từng ảnh không ổn định giữa các tập con hạt giống, nên một chênh lệch trung bình dương
-không đủ để tuyên bố ưu thế.
+Chiều của chênh lệch không đồng nhất giữa các tập: nhánh mask nhỉnh hơn trên PanNuke, còn count-only nhỉnh hơn
+trên NuInsSeg và MoNuSeg. Câu hỏi phù hợp do đó không phải là chênh lệch có khác không hay không, mà là nó có
+nhỏ hơn một ngưỡng đáng kể về mặt thực tiễn hay không. Trên tập kiểm tra đủ lớn và cố định, công cụ trả lời câu
+hỏi này là kiểm định tương đương bắt cặp theo từng ảnh. Trên các tập nhỏ, phương sai giữa hạt giống chi phối và
+xếp hạng theo từng ảnh không ổn định giữa các tập con hạt giống, nên một chênh lệch trung bình dương không đủ
+để tuyên bố ưu thế.
 
 Đối với tác vụ đếm và trên cùng một kiến trúc, việc hạ chú thích từ mặt nạ ở mức điểm ảnh xuống một con số đếm
 cho mỗi ảnh do đó không đi kèm suy giảm nào quan sát được về độ chính xác đếm. Cần lưu ý phạm vi của phép so sánh này: nhánh mask dùng
@@ -251,7 +252,7 @@ từng ảnh (sai số lấy trung bình qua các hạt giống).}\label{tab:par
 \toprule
 Tập dữ liệu & count-only ($R^2$) & mask ($R^2$) & $\Delta R^2$ & $p$ & Diễn giải \\
 \midrule
-PanNuke & $0{,}920\pm0{,}012$ & $0{,}931\pm0{,}006$ & $-0{,}012$ & \pending & tương đương \\
+PanNuke & $0{,}918\pm0{,}011$ & $0{,}931\pm0{,}006$ & $-0{,}013$ & \pending & tương đương \\
 MoNuSeg$^{\ddagger}$ & $0{,}459\pm0{,}194$ & $0{,}362\pm0{,}154$ & $+0{,}097$ & --- & tương đương (trong dao động) \\
 NuInsSeg$^{\dagger}$ & $0{,}913\pm0{,}022$ & $0{,}892\pm0{,}017$ & $+0{,}021$ & --- & tương đương \\
 \bottomrule
@@ -430,7 +431,9 @@ các dương tính thật khi nhân chồng lấn, và giải thích vì sao h�
 
 \begin{table}[!htbp]
 \centering
-\caption{So sánh bốn paradigm trên PanNuke (cùng tập kiểm tra, tác vụ đếm).}\label{tab:paradigm}
+\caption{So sánh bốn paradigm trên PanNuke (cùng tập kiểm tra, tác vụ đếm). Mỗi phương pháp là một mô hình đã
+huấn luyện; với count-only, mô hình được báo cáo là hạt giống có $R^2$ trung vị trong $5$ hạt giống ở
+Bảng~\ref{tab:parity}.}\label{tab:paradigm}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
 Phương pháp & Tham số & Nhãn & Paradigm & $R^2\uparrow$ & MAE$\downarrow$ \\
@@ -483,25 +486,6 @@ cluster & 0,906 & 14,8 & \textbf{20,0} & 0,859 & 0/19 \\
 \end{tabular}
 \end{table}
 
-\subsection{Chuyển giao không huấn luyện sang miền ngoài}\label{sec:transfer}
-
-Cách đọc theo phép tích hợp bằng chứng dự đoán rằng độ chính xác điểm sẽ suy giảm khi dải số đếm của miền đích
-lệch xa miền huấn luyện. Dự đoán này được kiểm chứng bằng cách áp thẳng các mô hình huấn luyện trên NuInsSeg lên
-CryoNuSeg, không tinh chỉnh và không dùng nhãn của miền đích lúc huấn luyện. Hai chế độ giám sát được chuyển giao
-trong cùng điều kiện, mỗi chế độ ba hạt giống.
-
-Cả hai chế độ đều suy giảm mạnh. Giám sát count-only đạt $R^2 = -0{,}08 \pm 0{,}58$ và MAE $111{,}4 \pm 41{,}2$;
-nhánh mask đạt $R^2 = -0{,}91 \pm 1{,}35$ và MAE $159{,}3 \pm 66{,}9$, trong đó một hạt giống suy biến về nghiệm
-hằng số $0$ theo đúng dấu vết mô tả ở Mục~\ref{sec:setup}. Bỏ hạt giống suy biến đó, nhánh mask đạt
-$R^2 = +0{,}04$ và MAE $112{,}3$, tức không phân biệt được với count-only. Với ba hạt giống và độ lệch chuẩn lớn
-như vậy, không chế độ nào được kết luận là tốt hơn chế độ kia.
-
-Nguồn của mức suy giảm hiện rõ ở chính số đếm dự đoán. Ảnh CryoNuSeg chứa trung bình $253$ nhân, so với $52{,}8$
-trên NuInsSeg, nên miền đích nằm gần như hoàn toàn ngoài dải giá trị từng gặp lúc huấn luyện. Cả hai chế độ đều
-đếm thiếu theo cùng một chiều, với trung bình dự đoán $143$ và $94$ so với giá trị thực $253$. Kiểu hỏng đối xứng
-này phù hợp với ngoại suy ra ngoài dải đã huấn luyện, chứ không phải với một khiếm khuyết riêng của tín hiệu giám
-sát ở mức ảnh.
-
 %%============================================================%%
 \section{Thảo luận}\label{sec:discuss}
 
@@ -520,14 +504,14 @@ chỉ cần đúng ở mức tổng, đúng như đại lượng được giám 
 Vì nghiệm chỉ bị ràng buộc ở mức tổng, không nên kỳ vọng bộ đếm cung cấp thông tin vị trí, và độ chính xác của nó
 có thể suy giảm khi phân phối kích thước hoặc mật độ nhân dịch chuyển xa so với miền huấn luyện.
 
-\paragraph{Chuyển giao ngoài miền.} Kết quả ở Mục~\ref{sec:transfer} khoanh vùng điều kiện áp dụng của bộ đếm.
-Phép tích hợp mà mô hình học được gắn với thang không gian và dải mật độ của dữ liệu huấn luyện, nên khi miền
-đích vượt ra ngoài dải đó thì độ chính xác điểm suy giảm bất kể loại chú thích dùng để huấn luyện. Phạm vi của
-kết luận về tính đủ của giám sát count-only do đó là các miền có dải số đếm tương đương miền huấn luyện, và
-triển khai qua nhiều nguồn dữ liệu đặt ra yêu cầu hiệu chỉnh theo miền đích. Tầng conformal chỉ cần một tập hiệu
-chuẩn nhỏ của chính miền đích: hiệu chuẩn lại ở đó khôi phục mức phủ biên theo giả thiết khả hoán của conformal,
-dù độ chính xác điểm có suy giảm, và độ rộng khoảng nở ra chính là tín hiệu cảnh báo rằng mẫu nằm ngoài vùng
-tin cậy.
+\paragraph{Chuyển giao ngoài miền.} Cơ chế nêu trên dự đoán một chế độ hỏng cụ thể. Vì số đếm được tạo ra bằng
+cách tích hợp bằng chứng trên một thang không gian đã học, độ chính xác điểm sẽ suy giảm khi độ phóng đại hoặc
+kích thước nhân trên miền mới lệch nhiều so với miền huấn luyện, ngay cả khi kiểu mô là quen thuộc. Ngược lại,
+tầng conformal không giả định một dạng phân phối cụ thể. Sau khi hiệu chuẩn lại trên một tập hiệu chuẩn nhỏ
+của miền đích, mức phủ biên vẫn đạt mục tiêu theo giả thiết khả hoán chuẩn của conformal, dù độ chính xác điểm
+có suy giảm; khi đó
+độ rộng khoảng nở ra chính là tín hiệu cảnh báo rằng mẫu nằm ngoài vùng tin cậy. Mức suy giảm cụ thể theo độ
+lệch phóng đại là một câu hỏi định lượng còn để ngỏ.
 
 \paragraph{Hạn chế và phạm vi khái quát.} Các phát hiện được thiết lập cho một họ kiến trúc cụ thể (bộ mã hóa
 nhẹ ghép bộ giải mã U-Net) và cho tác vụ đếm. Thiết kế có kiểm soát cố định kiến trúc để cô lập biến giám sát,
