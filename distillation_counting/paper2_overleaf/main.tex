@@ -519,10 +519,12 @@ của các hệ phân vùng nhân chuyên dụng; Mục~\ref{sec:paradigm} chỉ
 \section{Kết luận}\label{sec:conclusion}
 
 Trên ba tập dữ liệu mô bệnh học độc lập, giám sát chỉ bằng số đếm ở mức ảnh đạt độ chính xác đếm tương đương
-giám sát bằng mặt nạ ở mức điểm ảnh trên cùng kiến trúc, với chi phí chú thích thấp hơn khoảng một bậc độ lớn.
-Một bộ đếm count-only nhẹ còn vượt các đại diện của ba dòng phương pháp dùng nhãn đắt trên tác vụ đếm, và kèm
-theo một đầu bất định được hiệu chuẩn cho triển khai. Đối với đếm nhân, chú thích dày đặc ở mức điểm ảnh do đó
-không phải là điều kiện cần.
+giám sát bằng mặt nạ ở mức điểm ảnh khi giữ nguyên kiến trúc, dữ liệu và giao thức đánh giá, với mọi chênh lệch
+nằm trong dao động giữa các lần chạy, trong khi chi phí chú thích thấp hơn khoảng một bậc độ lớn. Các thí nghiệm
+can thiệp cho thấy mô hình học cách tích hợp bằng chứng liên quan tới nhân trên toàn ảnh, thay vì dựa vào thông
+tin định vị tường minh. Ngoài ra, bộ đếm count-only nhẹ đạt $R^2$ và MAE tốt hơn các đại diện của ba dòng phương
+pháp dùng nhãn đắt trên tác vụ đếm, và có thể được trang bị khoảng dự đoán đã hiệu chuẩn cho triển khai. Đối với
+đếm nhân, chú thích dày đặc ở mức điểm ảnh do đó không phải là điều kiện cần.
 
 Các hướng phát triển gồm kiểm chứng tính khái quát của phát hiện qua nhiều họ kiến trúc, trong đó có bộ mã hóa
 dạng transformer và các mạng phân vùng chuyên dụng; truy nguyên những đặc trưng ảnh cấu thành phép tích hợp mà
