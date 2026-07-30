@@ -73,6 +73,14 @@ def stats_only(args):
         if gt_te is None:
             gt_te = z["gt"]
         assert np.allclose(gt_te, z["gt"]), f"{f}: GT khác -> khác test set, KHÔNG được gộp"
+        if "pred" in z.files and not any(k.startswith("pred__") for k in z.files):
+            # định dạng count_evidence.py (preds.npz: pred/gt/organ/R2) = count-only, 1 seed/file.
+            # Cấu hình train của nó GIỐNG HỆT arm count của script này (60ep ch32 lr1e-3 bs16
+            # w=(0,1,0.01,0.5) detach_mu poisson) và cùng test fold3 -> gộp được, khỏi train lại 4.5h.
+            per_img.setdefault("count-only", []).append(np.asarray(z["pred"]))
+            r2s.setdefault("count-only", []).append(float(z["R2"]) if "R2" in z.files else float("nan"))
+            print(f"[load_preds] {f}: count_evidence preds.npz -> count-only (1 seed, R²={float(z['R2']):+.4f})")
+            continue
         for k in z.files:
             if k.startswith("pred__"):
                 per_img.setdefault(k[6:].replace("_", " "), []).extend(list(z[k]))
