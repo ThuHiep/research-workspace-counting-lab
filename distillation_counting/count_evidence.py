@@ -2,15 +2,22 @@
 """count_evidence.py — BẰNG CHỨNG count-only ĐẾM ĐÚNG (không dựa localization đã chết).
 
 ① Scatter Pred-vs-GT + Bland-Altman + per-organ  -> "đếm đúng" (mô tả trực quan).
-② Dose-response GỠ NHÂN (occlusion nhân-quả): xóa k% nhân khỏi ảnh (inpaint bằng mô nền),
-   đo lại count dự đoán. Nếu count tụt theo số nhân bị gỡ (độ dốc ≈ 1, và gỡ HẾT -> count ≈ 0)
-   => model THẬT SỰ đáp ứng với nhân, KHÔNG ăn gian bằng prior toàn cục.
+② Dose-response GỠ NHÂN (occlusion nhân-quả): xóa k% nhân khỏi ảnh, đo lại count dự đoán.
    KHÁC localization: không đòi bản đồ density định vị; chỉ hỏi output có nhân-quả giảm khi bớt nhân.
+   BA tiêu chí, phải đủ CẢ BA mới được kết luận (mỗi cái bịt một lỗ khác nhau):
+     (a) dốc TRONG-ẢNH ≈ 1   — hồi quy GỘP mọi ảnh KHÔNG dùng được: nó đo biến thiên số nhân GIỮA
+                               các ảnh, tức lặp lại ①, không phải nhân quả.
+     (b) Δcount mỗi nhân ≈ 1 ở liều NHỎ (≤30%) — liều lớn gỡ 30-40% diện tích -> lệch phân phối.
+     (c) SHAM: gỡ vùng NỀN cùng số/hình dạng/diện tích tụt ÍT hơn rõ rệt (p<0.05 VÀ effect đủ lớn,
+               VÀ diện tích khớp ≥80%) — bịt "model phản ứng với ARTIFACT của việc điền lỗ".
+   Sham KHÔNG bịt được việc Telea lôi texture NHÂN LÂN CẬN vào lỗ -> chạy thêm --fill bgpatch
+   (copy mô từ vùng không nhân) rồi so dốc; telea thấp hơn bgpatch = có rò texture nhân.
 
 Model đánh giá = count-only efflite0 (headline). Chạy Kaggle GPU (cần masks.npy PanNuke):
   !python count_evidence.py --pannuke_root /kaggle/input/datasets/hipinhththu/pannuke \
-      --epochs 60 --seed 42 --n_occ 300
-Xuất: evidence_out/{scatter.png, bland_altman.png, doseresp.png, preds.npz, occlusion.npz}
+      --epochs 60 --seed 42 --n_occ 300 --preload --ckpt ck.pt --out_dir /kaggle/working/evidence_out
+Xuất: <out_dir>/{scatter,bland_altman,doseresp}.png, preds.npz, occlusion.npz, samples/panel_*.png
+--ckpt: lưu/nạp model -> chạy lại ② (đổi --fill) chỉ ~10 phút thay vì train lại ~1h.
 """
 import argparse, os, sys
 _HERE = os.path.dirname(os.path.abspath(__file__)); _REPO = os.path.dirname(_HERE)
@@ -68,16 +75,39 @@ def shift_to_background(b, uni, rng, tries=40):
 _INPAINT = None   # đường thực sự dùng: "telea" hoặc "median-fill" — PHẢI biết, vì artifact khác nhau xa
 
 
-def occlude(img, remove_masks):
-    """Gỡ các nhân trong remove_masks: inpaint (Telea) bằng mô xung quanh -> tự nhiên, tránh
-    tạo mảng phẳng làm model phản ứng nhầm. Fallback: điền màu nền trung vị (để lại ĐĨA PHẲNG
-    rất lộ -> artifact mạnh hơn nhiều; nếu rơi vào đây thì kết quả ② đọc khác đi)."""
+def occlude(img, remove_masks, mode="telea", uni=None, rng=None):
+    """Gỡ vùng trong remove_masks. 3 cách điền, KHÁC NHAU ở chỗ có thể mang texture NHÂN vào không:
+      telea    : cv2.inpaint lan mô xung quanh. Tự nhiên NHƯNG quanh 1 nhân là các NHÂN LÂN CẬN
+                 -> có thể lôi texture nhân vào lỗ => kéo dốc đáp ứng xuống một cách nhân tạo.
+                 (sham KHÔNG bắt được lỗi này: lỗ của sham nằm giữa nền nên chỉ được điền bằng nền.)
+      bgpatch  : copy một mảng mô CÙNG HÌNH DẠNG lấy từ vùng KHÔNG có nhân của chính ảnh đó.
+                 Giữ thống kê texture mô, KHÔNG mang nội dung nhân => control TỐT NHẤT cho dốc.
+      bgmedian : điền màu nền trung vị (đĩa phẳng, rất lộ). Chặn trên về "lỗ hoàn toàn không có nhân".
+    """
     global _INPAINT
     if not remove_masks:
         return img.copy()
     m = np.zeros(img.shape[:2], np.uint8)
     for b in remove_masks:
         m[b] = 1
+    if mode == "bgpatch":
+        out = img.copy()
+        bg = (np.median(img[m == 0].reshape(-1, 3), axis=0).astype(np.uint8)
+              if (m == 0).any() else img.reshape(-1, 3).mean(0).astype(np.uint8))
+        for b in remove_masks:
+            src = shift_to_background(b, uni if uni is not None else m.astype(bool), rng)
+            # src là b DỊCH TỊNH TIẾN -> cùng số pixel, cùng thứ tự row-major => gán 1-1 đúng
+            out[b] = img[src] if src is not None else bg
+        if _INPAINT is None:
+            _INPAINT = "bgpatch"; print("[occlude] điền BGPATCH (copy mô từ vùng không có nhân, cùng hình dạng)")
+        return out
+    if mode == "bgmedian":
+        out = img.copy()
+        bg = (np.median(img[m == 0].reshape(-1, 3), axis=0) if (m == 0).any() else img.reshape(-1, 3).mean(0))
+        out[m == 1] = bg.astype(np.uint8)
+        if _INPAINT is None:
+            _INPAINT = "bgmedian"; print("[occlude] điền BGMEDIAN (đĩa phẳng màu nền trung vị)")
+        return out
     try:
         import cv2
         out = cv2.inpaint(np.ascontiguousarray(img), m, 3, cv2.INPAINT_TELEA)
@@ -140,6 +170,10 @@ def main():
     ap.add_argument("--n_vis", type=int, default=12,
                     help="số ảnh lưu PANEL minh họa vào <out_dir>/samples/ (gốc | gỡ 30%% | gỡ hết | sham) "
                          "kèm count dự đoán -> xem MẮT THẤY model phản ứng thế nào. 0 = tắt.")
+    ap.add_argument("--fill", default="telea", choices=["telea", "bgpatch", "bgmedian"],
+                    help="cách điền chỗ vừa gỡ. telea=inpaint (có thể LÔI texture nhân lân cận vào -> dốc bị "
+                         "kéo xuống); bgpatch=copy mô từ vùng không nhân, cùng hình dạng (KHÔNG mang nội dung "
+                         "nhân -> đo dốc SẠCH nhất); bgmedian=đĩa phẳng màu nền. Chạy telea VÀ bgpatch rồi so.")
     ap.add_argument("--min_effect", type=float, default=0.02,
                     help="ngưỡng EFFECT SIZE để dám gọi 'đặc hiệu với nhân' (đơn vị count chuẩn hóa). "
                          "p<0.05 mà effect≈0 thì KHÔNG phải bằng chứng — n lớn làm p nhỏ vô nghĩa.")
@@ -260,11 +294,11 @@ def main():
             for fv in (0.3, 1.0):
                 kk = int(round(fv * N))
                 s2 = vrng.choice(N, size=kk, replace=False) if kk else np.array([], int)
-                oc = occlude(img, [inst[j] for j in s2])
+                oc = occlude(img, [inst[j] for j in s2], args.fill, uni, vrng)
                 panes.append((oc, f"gỡ {fv*100:.0f}% NHÂN (còn {N-kk})\npred={predict_count(model, oc, dev):.1f}"))
             if not args.no_sham:
                 shm = [m for m in (shift_to_background(b, uni, vrng) for b in inst) if m is not None]
-                oc = occlude(img, shm)
+                oc = occlude(img, shm, args.fill, uni, vrng)
                 panes.append((oc, f"SHAM: gỡ {len(shm)} vùng NỀN (nhân còn {N})\npred={predict_count(model, oc, dev):.1f}"))
             save_panel(os.path.join(vis_dir, f"panel_{int(i):04d}.png"), panes)
 
@@ -274,7 +308,7 @@ def main():
                 sel = rng.choice(N, size=krm, replace=False) if krm > 0 else np.array([], int)
                 sel_m = [inst[j] for j in sel]
                 a_nuc = int(np.logical_or.reduce(sel_m).sum()) if sel_m else 0
-                p = predict_count(model, occlude(img, sel_m), dev)
+                p = predict_count(model, occlude(img, sel_m, args.fill, uni, rng), dev)
                 # SHAM: gỡ cùng SỐ vùng, cùng HÌNH DẠNG, cùng DIỆN TÍCH, cùng inpaint — chỉ khác: ở NỀN.
                 # busy tích lũy để sham KHÔNG đè nhau (nếu đè -> diện tích gỡ thực nhỏ hơn nhân -> so sánh
                 # thành ra bất công và sẽ kết luận SAI). a_sh cho phép kiểm tra diện tích có khớp thật không.
@@ -288,7 +322,7 @@ def main():
                     n_sh = len(shm)
                     if n_sh:
                         a_sh = int(np.logical_or.reduce(shm).sum())
-                        p_sh = predict_count(model, occlude(img, shm), dev)
+                        p_sh = predict_count(model, occlude(img, shm, args.fill, uni, rng), dev)
                     else:
                         p_sh = float("nan")
                 rows.append((c, frac, N, N - krm, p, full_pred, p_sh, n_sh, a_nuc, a_sh))
