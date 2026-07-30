@@ -101,10 +101,15 @@ def fig_agreement(preds_npz, out):
 
 
 def _curve(npz):
-    """-> (keep, mean_nhân, sd_nhân, mean_sham) chuẩn hoá theo count trên ảnh nguyên vẹn."""
-    o = np.load(npz, allow_pickle=True)
-    frac, pred, full = o["frac"], o["pred"], o["full"]
-    sham = o["sham"] if "sham" in o.files else np.full_like(pred, np.nan)
+    """-> (keep, mean_nhân, sd_nhân, mean_sham). npz có thể là NHIỀU file ngăn bằng dấu phẩy: khi đó các
+    phép đo được GỘP, nên dải ±1sd phản ánh cả biến thiên giữa ảnh lẫn giữa các mô hình."""
+    fr, pr, fu, sh = [], [], [], []
+    for f in str(npz).split(","):
+        o = np.load(f.strip(), allow_pickle=True)
+        fr.append(o["frac"]); pr.append(o["pred"]); fu.append(o["full"])
+        sh.append(o["sham"] if "sham" in o.files else np.full_like(o["pred"], np.nan))
+    frac, pred, full = np.concatenate(fr), np.concatenate(pr), np.concatenate(fu)
+    sham = np.concatenate(sh)
     ok = full > 1e-6
     norm = np.where(ok, pred / np.where(ok, full, 1), np.nan)
     norm_s = np.where(ok, sham / np.where(ok, full, 1), np.nan)
