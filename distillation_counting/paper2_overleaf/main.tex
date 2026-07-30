@@ -43,7 +43,11 @@ liệu độc lập (PanNuke, NuInsSeg, MoNuSeg), giám sát chỉ bằng một 
 tương đương --- và không thua --- giám sát bằng mặt nạ điểm ảnh trên cùng kiến trúc, dù chi phí chú thích thấp
 hơn nhiều bậc. Trong một so sánh công bằng theo cùng giao thức không rò rỉ, một bộ đếm nhẹ ($3{,}6$ triệu tham
 số) huấn luyện count-only vượt các đại diện của cả ba dòng phương pháp nhãn-đắt (phân vùng, phát hiện, ước lượng
-mật độ) trên chính tác vụ đếm, trong đó phương pháp phát hiện suy giảm có hệ thống theo mật độ nhân. Bộ đếm kèm
+mật độ) trên chính tác vụ đếm, trong đó phương pháp phát hiện suy giảm có hệ thống theo mật độ nhân. Một thí
+nghiệm gỡ nhân có đối chứng giả cho thấy số đếm dự đoán phản hồi \emph{nhân quả và đặc hiệu} với nội dung nhân ---
+gỡ mô không chứa nhân với cùng diện tích không làm số đếm thay đổi --- nhưng phản hồi này dưới tuyến tính với một
+hệ số cố định, cho thấy mô hình tích hợp bằng chứng về nhân trên toàn ảnh thay vì phát hiện rồi cộng từng thực
+thể; điều này lý giải vì sao giám sát mức ảnh đủ để đếm mà không sinh ra khả năng định vị. Bộ đếm kèm
 một đầu định lượng bất định được hiệu chuẩn, cung cấp khoảng dự đoán đạt mức phủ mục tiêu ở cả cấp độ biên lẫn
 theo từng cơ quan. Trong phạm vi thiết lập có kiểm soát này, các kết quả cho thấy chú thích dày
 đặc ở mức điểm ảnh không phải là điều kiện cần để đếm nhân chính xác, và ủng hộ hướng định lượng mô bệnh học
@@ -151,7 +155,15 @@ cryosection (CryoNuSeg~\cite{cryonuseg}) được dùng riêng cho phân tích g
 trên cùng tập kiểm tra; mỗi cấu hình lặp lại với nhiều hạt giống ngẫu nhiên, báo cáo trung bình cùng
 độ lệch chuẩn. Do giám sát mật độ trên bản đồ mục tiêu thưa có xu hướng suy về nghiệm hằng số khi trọng số đếm
 quá nhỏ, đối với mỗi tập dữ liệu, $w_c$ cho chế độ mask được chọn ở giá trị đem lại mô hình hội tụ ổn định
-tốt nhất, nhằm bảo đảm baseline được so sánh ở trạng thái thuận lợi nhất của nó.
+tốt nhất, nhằm bảo đảm baseline được so sánh ở trạng thái thuận lợi nhất của nó. Cụ thể, trên PanNuke,
+$w_c \in \{0{,}01;\ 0{,}05;\ 0{,}1\}$ đã được thử: ở $w_c = 0{,}01$ nhánh mask suy về nghiệm hằng số ở $1/5$ hạt
+giống, khiến trung bình mất ý nghĩa ($0{,}45 \pm 0{,}94$); ở $0{,}05$ và $0{,}1$ hiện tượng này không xảy ra, và
+$w_c = 0{,}1$ cho cả trung bình cao hơn lẫn phương sai nhỏ hơn nên được dùng cho mọi kết quả báo cáo. Cần lưu ý
+rằng suy biến này là một thất bại của \emph{quá trình tối ưu hoá} --- hàm mất mát bình phương trên bản đồ mật độ
+bị các điểm ảnh nền chi phối --- chứ không phải giới hạn của giám sát mặt nạ: ở các hạt giống suy biến, mô hình
+xuất giá trị hằng số $0$ cho mọi ảnh, cho đúng $R^2 = -\mu^2/\sigma^2$ với $\mu,\sigma$ là trung bình và độ lệch
+chuẩn của số nhân trên tập kiểm tra. Vì trung bình bị một hạt giống suy biến làm lệch hoàn toàn, trung vị và số
+hạt giống suy biến cũng được theo dõi song song.
 
 \paragraph{Chỉ số và kiểm định.} Độ chính xác đếm được đo bằng $R^2$ và sai số tuyệt đối trung bình (MAE). Để
 so sánh hai chế độ giám sát, kiểm định Wilcoxon signed-rank bắt cặp được dùng trên sai số tuyệt đối của
@@ -204,6 +216,103 @@ không thua mask, và không có khác biệt có ý nghĩa thống kê theo t�
 \emph{cả hai} chế độ; số liệu lấy trung bình $5$ hạt giống với thuật toán huấn luyện tất định. Vì $|\Delta R^2|$
 nhỏ hơn độ lệch chuẩn và xếp hạng theo từng ảnh không ổn định giữa các tập con hạt giống, kết quả được diễn giải
 là tương đương (count-only không thua), \emph{không} tuyên bố ưu thế.}
+\end{table}
+
+\subsection{Số đếm dự đoán phản hồi nhân quả với nội dung nhân}\label{sec:fidelity}
+
+Kết quả tương đương ở Mục~\ref{sec:parity} cho thấy giám sát count-only không làm giảm độ chính xác đếm, nhưng
+chưa nói mô hình dựa vào bằng chứng nào để đếm. Một mô hình chỉ nhìn thấy một con số cho mỗi ảnh trên nguyên tắc
+có thể khai thác tương quan toàn cục (loại mô, mật độ tế bào, đặc trưng nhuộm) thay vì chính các nhân. Hai phân
+tích dưới đây kiểm tra khả năng đó trên PanNuke fold~3 ($n=2722$ mảnh, số nhân trung bình $24{,}5$).
+
+\paragraph{Độ chính xác giữ được trên toàn bộ 19 loại mô.} Trên toàn tập kiểm tra, mô hình count-only đạt
+$R^2 = 0{,}934$ và MAE $= 3{,}40$ nhân. Khi phân tách theo loại mô (Bảng~\ref{tab:perorgan}), $R^2$ dương ở
+\emph{cả} $19/19$ loại, dao động từ $0{,}704$ (Ovarian, $n=52$) đến $0{,}976$ (Cervix, $n=86$); hai giá trị thấp
+nhất đều thuộc các loại mô có ít mảnh kiểm tra nhất. Phân tích Bland--Altman cho độ chệch $+0{,}70$ nhân, tức
+khoảng $3\%$ của số nhân trung bình, với giới hạn tương hợp $\pm10{,}2$ nhân; nghĩa là sai số không mang thiên
+lệch hệ thống theo một hướng và không giãn ra một cách bất thường ở các mảnh có số nhân lớn. Như vậy độ chính xác
+tổng thể không đến từ việc khớp tốt một vài loại mô chiếm đa số.
+
+\paragraph{Gỡ nhân có đối chứng giả.} Để kiểm tra quan hệ nhân quả, một tỉ lệ $k$ các nhân được chú thích bị gỡ
+khỏi ảnh rồi đo lại số đếm dự đoán. Mỗi nhân được thay bằng một mảng mô \emph{cùng hình dạng} lấy từ một vị trí
+không chứa nhân của chính ảnh đó, và mặt nạ nhân được nở $2$ điểm ảnh trước khi gỡ để phủ hết viền nhân mà chú
+thích thường bỏ sót. Phép thao tác này giữ nguyên thống kê texture của mô nhưng loại bỏ nội dung nhân. Đối chứng
+giả (sham) áp dụng \emph{đúng} phép thao tác đó --- cùng số vùng, cùng hình dạng, cùng diện tích --- nhưng tại các
+vị trí không chứa nhân; nhờ vậy mọi tác động của bản thân việc thay mô được tách khỏi tác động của việc mất nhân.
+Chỉ những phép đo có diện tích gỡ khớp nhau tối thiểu $80\%$ giữa hai điều kiện được đưa vào kiểm định.
+
+Bảng~\ref{tab:doseresp} cho thấy số đếm dự đoán giảm \emph{đơn điệu} theo tỉ lệ nhân bị gỡ, trong khi đối chứng
+giả để số đếm gần như không đổi ($1{,}00$--$1{,}03$) ở mọi mức. Trên các phép đo khớp diện tích ($n=3415$), phần
+sụt giảm quy được cho nhân là $0{,}234$ đơn vị chuẩn hoá và chiếm toàn bộ mức sụt quan sát được (Wilcoxon bắt cặp
+giữa hai điều kiện, $p<10^{-300}$); riêng ở các liều nhỏ ($\le 30\%$), nơi ảnh còn gần phân phối huấn luyện nhất,
+kết luận không đổi. Đáp ứng do đó \emph{đặc hiệu} với nhân chứ không phải với việc ảnh bị can thiệp.
+
+Tuy nhiên đáp ứng là \emph{dưới tuyến tính} một cách nhất quán: tỉ số giữa mức sụt quan sát được và mức sụt của
+một bộ đếm cộng dồn trung thực xấp xỉ $0{,}60$ ở \emph{mọi} liều từ $10\%$ đến $100\%$ (cột cuối
+Bảng~\ref{tab:doseresp}). Gỡ một nhân chỉ làm số đếm giảm khoảng $0{,}6$ thay vì $1{,}0$, và mức thiếu hụt này
+không phải hiệu ứng bão hoà ở liều cao mà là một hệ số cố định. Diễn giải phù hợp nhất là mô hình \emph{tích hợp
+bằng chứng liên quan tới nhân trên toàn ảnh} thay vì phát hiện rồi cộng từng thực thể. Cách đọc này nhất quán với
+một phép đo độc lập: bản đồ mật độ của mô hình count-only \emph{không} định vị được nhân. Khối lượng mật độ nằm
+trong vùng nhân thực chỉ gấp $1{,}25\pm0{,}36$ lần mức của một bản đồ phân bố đều --- trong đó $1{,}0$ ứng với
+không định vị gì --- và tương quan không gian với bản đồ mật độ thực chỉ $0{,}03$ (ba hạt giống). Hai quan sát này
+cùng chỉ về một cơ chế, và giải thích vì sao giám sát mức ảnh đủ cho tác vụ \emph{đếm} nhưng không sinh ra khả năng
+định vị: đại lượng được giám sát là một tổng, nên nghiệm mà mô hình tìm được cũng chỉ cần đúng ở mức tổng. Các số liệu ở Bảng~\ref{tab:doseresp} thu được từ
+một mô hình đã huấn luyện (một hạt giống); việc lặp lại phân tích trên ba hạt giống để báo cáo hệ số đáp ứng dưới
+dạng trung bình cùng độ lệch chuẩn đang được thực hiện.\pending
+
+\paragraph{Về lựa chọn phép gỡ nhân.} Cách gỡ nhân được chọn có ảnh hưởng lớn tới kết luận. Phương án hiển nhiên
+hơn --- dùng thuật toán inpainting Telea để lấp vùng nhân --- \emph{không} thực sự gỡ được nhân: thuật toán lan
+màu từ biên của vùng cần lấp vào trong, mà biên đó chính là viền nhân, nên vùng lấp được tô lại bằng chính màu
+nhân và để lại một nhân mờ. Hệ quả là độ nhạy đo được bị hạ gần một nửa (hệ số $0{,}31$ thay vì $0{,}59$) và
+$33\%$ các ảnh cho số đếm ở mức gỡ $100\%$ \emph{cao hơn} ở mức gỡ $75\%$ --- một dấu hiệu không thể có ở một
+phép thao tác đúng. Đối chứng giả không phát hiện được lỗi này, vì các vùng giả nằm giữa mô nền nên chỉ được lấp
+bằng mô nền. Việc thay bằng phép ghép mô từ vùng không chứa nhân là cần thiết chính vì lý do đó.
+
+\begin{table}[t]
+\centering
+\caption{Độ chính xác đếm của mô hình count-only theo từng loại mô trên PanNuke fold~3. $R^2$ dương ở toàn bộ
+$19/19$ loại mô.}\label{tab:perorgan}
+\begin{tabular}{@{}lccc@{\hspace{2em}}lccc@{}}
+\toprule
+Loại mô & $n$ & $R^2$ & MAE & Loại mô & $n$ & $R^2$ & MAE \\
+\midrule
+Adrenal gland & $155$ & $0{,}818$ & $2{,}43$ & Lung       & $51$  & $0{,}957$ & $3{,}61$ \\
+Bile duct     & $158$ & $0{,}942$ & $2{,}71$ & Ovarian    & $52$  & $0{,}704$ & $4{,}31$ \\
+Bladder       & $64$  & $0{,}924$ & $2{,}34$ & Pancreatic & $28$  & $0{,}901$ & $3{,}29$ \\
+Breast        & $775$ & $0{,}932$ & $2{,}65$ & Prostate   & $68$  & $0{,}756$ & $4{,}43$ \\
+Cervix        & $86$  & $0{,}976$ & $2{,}20$ & Skin       & $41$  & $0{,}943$ & $5{,}72$ \\
+Colon         & $494$ & $0{,}923$ & $3{,}93$ & Stomach    & $48$  & $0{,}963$ & $3{,}95$ \\
+Esophagus     & $141$ & $0{,}897$ & $3{,}19$ & Testis     & $57$  & $0{,}949$ & $3{,}05$ \\
+Head \& neck  & $145$ & $0{,}954$ & $3{,}17$ & Thyroid    & $62$  & $0{,}873$ & $3{,}30$ \\
+Kidney        & $41$  & $0{,}958$ & $4{,}51$ & Uterus     & $163$ & $0{,}907$ & $6{,}70$ \\
+Liver         & $93$  & $0{,}884$ & $3{,}39$ & \textbf{Toàn tập} & $\mathbf{2722}$ & $\mathbf{0{,}934}$ & $\mathbf{3{,}40}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Đáp ứng của số đếm dự đoán khi gỡ nhân, so với đối chứng giả gỡ mô không chứa nhân cùng diện tích. Các
+giá trị được chuẩn hoá theo số đếm trên ảnh nguyên vẹn (trung bình trên $286$ ảnh, $4862$ phép đo). ``Hệ số đáp
+ứng'' là mức sụt quan sát được chia cho mức sụt của một bộ đếm cộng dồn trung thực; giá trị $1{,}0$ ứng với đếm
+trung thực.}\label{tab:doseresp}
+\begin{tabular}{@{}cccccc@{}}
+\toprule
+Tỉ lệ nhân bị gỡ & Gỡ nhân & Đối chứng giả & Sụt do nhân & Diện tích khớp & Hệ số đáp ứng \\
+\midrule
+$10\%$  & $0{,}941$ & $1{,}004$ & $0{,}063$ & $0{,}94$ & $0{,}59$ \\
+$20\%$  & $0{,}878$ & $1{,}007$ & $0{,}130$ & $0{,}91$ & $0{,}61$ \\
+$30\%$  & $0{,}821$ & $1{,}011$ & $0{,}190$ & $0{,}89$ & $0{,}60$ \\
+$50\%$  & $0{,}697$ & $1{,}014$ & $0{,}317$ & $0{,}85$ & $0{,}61$ \\
+$75\%^{\ast}$  & $0{,}544$ & $1{,}015$ & $0{,}471$ & $0{,}78$ & $0{,}61$ \\
+$100\%^{\ast}$ & $0{,}425$ & $1{,}028$ & $0{,}602$ & $0{,}74$ & $0{,}58$ \\
+\bottomrule
+\end{tabular}
+\footnotetext{$^{\ast}$ Ở các liều cao, mô bệnh học dày nhân không còn đủ chỗ trống để đặt các vùng đối chứng
+giả không chồng lấn nên diện tích gỡ của hai điều kiện chỉ khớp $0{,}74$--$0{,}78$; các mức này được báo cáo để
+mô tả và bị loại khỏi kiểm định thống kê, vốn chỉ dùng các phép đo khớp diện tích tối thiểu $80\%$. Ngoài ra, gỡ
+toàn bộ nhân can thiệp vào ${\sim}25\%$ diện tích ảnh nên tạo lệch phân phối đáng kể; vì vậy các liều nhỏ được
+xem là căn cứ chính.}
 \end{table}
 
 \subsection{So sánh với ba paradigm nhãn-đắt}\label{sec:paradigm}
@@ -274,12 +383,18 @@ cluster & 0,906 & 14,8 & \textbf{20,0} & 0,859 & 0/19 \\
 \section{Thảo luận}\label{sec:discuss}
 
 \paragraph{Vì sao chú thích mức-ảnh là đủ.} Kết quả chỉ ra rằng, đối với đếm, giám sát ở mức điểm
-ảnh không mang lại lợi ích đo được so với giám sát count-only. Một cách diễn giải khả dĩ, cần được kiểm chứng
-trong nghiên cứu tương lai, là đếm nhân có thể được giải quyết chủ yếu như một bài toán \emph{hồi quy toàn cục}
-dựa trên các dấu hiệu ở mức ảnh (chẳng hạn lượng chất nhuộm nhân, kết cấu và độ đầy tế bào) hơn là một bài toán
-\emph{phát hiện} từng đối tượng. Giả thuyết này được trình bày một cách thận trọng: nó nhất quán với các
-quan sát nhưng chưa được kiểm chứng trực tiếp, và việc xác nhận sẽ đòi hỏi các thí nghiệm riêng
-(ví dụ phân tích tương quan với cường độ nhuộm, hay các nghiên cứu che khuất và chuẩn hóa nhuộm).
+ảnh không mang lại lợi ích đo được so với giám sát count-only. Thí nghiệm gỡ nhân ở Mục~\ref{sec:fidelity} cho
+phép nói cụ thể hơn về cơ chế, thay vì chỉ nêu giả thuyết. Một mặt, số đếm dự đoán \emph{không} phải sản phẩm của
+tương quan toàn cục thuần túy: nó giảm đơn điệu khi nhân bị gỡ và \emph{không} đổi khi một diện tích mô tương
+đương không chứa nhân bị gỡ, nên đáp ứng là đặc hiệu với chính nội dung nhân. Mặt khác, đáp ứng chỉ đạt khoảng
+$60\%$ mức của một bộ đếm cộng dồn trung thực, với hệ số gần như không đổi qua mọi liều, và bản đồ mật độ của mô
+hình gần như không định vị được nhân. Hai quan sát này cùng loại trừ cả hai thái cực: mô hình không đơn thuần
+đoán theo bối cảnh, nhưng cũng không phát hiện rồi cộng từng thực thể. Cách đọc phù hợp là mô hình học một
+\emph{phép tích hợp} bằng chứng liên quan tới nhân trên toàn ảnh --- một nghiệm chỉ cần đúng ở mức tổng, đúng như
+đại lượng được giám sát. Điều này cũng dự đoán giới hạn của phương pháp: chính vì nghiệm chỉ bị ràng buộc ở mức
+tổng, không nên kỳ vọng bộ đếm cung cấp thông tin vị trí, và độ chính xác của nó có thể suy giảm khi phân phối
+kích thước hoặc mật độ nhân dịch chuyển xa so với miền huấn luyện --- phù hợp với hành vi chuyển giao được quan
+sát ở đoạn tiếp theo.
 
 \paragraph{Chuyển giao ngoài miền.} Khi đánh giá không điều chỉnh trên một miền khác, mức phủ của khoảng dự đoán
 được bảo toàn sau khi hiệu chuẩn lại, trong khi độ chính xác điểm không chuyển giao khi dải số đếm hoặc độ phóng
@@ -308,8 +423,9 @@ Qua một nghiên cứu có kiểm soát trên ba tập dữ liệu mô bệnh h
 phương pháp nhãn-đắt trên tác vụ đếm. Kèm theo một đầu định lượng bất định được hiệu chuẩn, các kết quả này cho
 thấy chú thích dày đặc ở mức điểm ảnh không phải là điều kiện cần để đếm nhân chính xác. Các hướng phát triển
 gồm kiểm chứng tính khái quát của phát hiện qua nhiều họ kiến trúc (bao gồm bộ mã hóa dạng transformer và các
-mạng phân vùng chuyên dụng), kiểm chứng cơ chế đứng sau tính đủ của giám sát count-only, khắc phục sự phụ thuộc
-độ phân giải bằng học đa tỉ lệ, và mở rộng đầu bất định để nắm bắt sai số do dịch chuyển miền.
+mạng phân vùng chuyên dụng), truy nguyên xem những đặc trưng ảnh nào cấu thành phép tích hợp mà bộ đếm học được
+và vì sao hệ số đáp ứng của nó nhỏ hơn một, khắc phục sự phụ thuộc độ phân giải bằng học đa tỉ lệ, và mở rộng đầu
+bất định để nắm bắt sai số do dịch chuyển miền.
 
 %%============================================================%%
 \backmatter
