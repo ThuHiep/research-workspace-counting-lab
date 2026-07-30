@@ -173,8 +173,7 @@ ngưỡng chung (global), một ngưỡng riêng cho mỗi cơ quan (mondrian) v
 loại ung thư,
 $256\times256$, 19 loại mô; huấn luyện trên fold~1--2, kiểm tra trên fold~3 theo giao thức không rò rỉ),
 NuInsSeg~\cite{nuinsseg} (đa cơ quan) và MoNuSeg~2018~\cite{monuseg} (đa cơ quan từ TCGA; ảnh $1000\times1000$
-được cắt thành các mảnh $256$ ở độ phân giải gốc, dùng đúng phân chia huấn luyện/kiểm tra chính thức). Một tập
-cryosection (CryoNuSeg~\cite{cryonuseg}) được dùng riêng cho phân tích giới hạn chuyển giao.
+được cắt thành các mảnh $256$ ở độ phân giải gốc, dùng đúng phân chia huấn luyện/kiểm tra chính thức).
 
 \paragraph{Giao thức.} Mọi phương pháp so sánh được huấn luyện lại từ đầu trên cùng tập huấn luyện và đánh giá
 trên cùng tập kiểm tra; mỗi cấu hình lặp lại với nhiều hạt giống ngẫu nhiên, báo cáo trung bình cùng
@@ -468,11 +467,14 @@ tổng, không nên kỳ vọng bộ đếm cung cấp thông tin vị trí, và
 kích thước hoặc mật độ nhân dịch chuyển xa so với miền huấn luyện, phù hợp với hành vi chuyển giao được quan
 sát ở đoạn tiếp theo.
 
-\paragraph{Chuyển giao ngoài miền.} Khi đánh giá không điều chỉnh trên một miền khác, mức phủ của khoảng dự đoán
-được bảo toàn sau khi hiệu chuẩn lại, trong khi độ chính xác điểm không chuyển giao khi dải số đếm hoặc độ phóng
-đại lệch nhiều so với miền huấn luyện. Bảo đảm mức phủ đến từ tầng conformal không phụ thuộc phân phối; do đó độ rộng
-khoảng
-có thể được sử dụng như một tín hiệu cảnh báo khi mẫu nằm ngoài miền tin cậy.
+\paragraph{Chuyển giao ngoài miền.} Cơ chế nêu trên dự đoán một chế độ hỏng cụ thể. Vì số đếm được tạo ra bằng
+cách tích hợp bằng chứng trên một thang không gian đã học, độ chính xác điểm sẽ suy giảm khi độ phóng đại hoặc
+kích thước nhân trên miền mới lệch nhiều so với miền huấn luyện, ngay cả khi kiểu mô là quen thuộc. Ngược lại,
+bảo đảm mức phủ của tầng conformal không phụ thuộc phân phối, nên sau khi hiệu chuẩn lại trên một tập hiệu chuẩn
+nhỏ của miền đích, mức phủ biên vẫn đạt mục tiêu \emph{bất kể} độ chính xác điểm có suy giảm hay không; khi đó
+độ rộng khoảng nở ra chính là tín hiệu cảnh báo rằng mẫu nằm ngoài vùng tin cậy. Đây là một tính chất của quy
+trình hiệu chuẩn chứ không phải một kết quả đo trên miền mới: định lượng cụ thể mức suy giảm theo độ lệch phóng
+đại nằm ngoài phạm vi bài báo và là hướng kiểm chứng tiếp theo.
 
 \paragraph{Hạn chế và phạm vi khái quát.} Các phát hiện được thiết lập cho một họ kiến trúc cụ
 thể (bộ mã hóa nhẹ ghép bộ giải mã U-Net) và cho tác vụ đếm. Vì thiết kế có kiểm soát cố định kiến trúc
