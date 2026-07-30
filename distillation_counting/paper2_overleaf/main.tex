@@ -29,6 +29,8 @@ giám sát mặt nạ điểm ảnh cho đếm nhân tế bào: một nghiên c�
 
 \author[1]{\fnm{Thi Thu Hiep} \sur{Dinh}}\email{dinhthithuhiep1@gmail.com}
 \author*[1]{\fnm{Viet Hang} \sur{Duong}}\email{hangdv@uit.edu.vn}
+%% ORCID (lấy từ Paper 1, paper/main_joco.tex): Dinh 0009-0000-8042-3377,
+%% Duong 0000-0002-9728-4438. sn-jnl có \orcid{<url>}; BẬT sau khi biên dịch thử.
 \affil*[1]{\orgdiv{Khoa Khoa học Máy tính}, \orgname{Trường Đại học Công nghệ Thông tin (UIT), ĐHQG-HCM},
 \orgaddress{\city{TP. Hồ Chí Minh}, \country{Việt Nam}}}
 
@@ -174,7 +176,9 @@ chuẩn hậu nghiệm như trình bày dưới đây.
 Sau huấn luyện, conformal prediction theo lối chia (split-conformal)~\cite{vovk,cqr} được áp dụng trên một
 tập hiệu chuẩn để thu khoảng $[\mu - q\sigma,\ \mu + q\sigma]$ đạt mức phủ mục tiêu $1-\alpha$. Ba sơ đồ được
 xem xét: một ngưỡng chung (global), một ngưỡng riêng cho mỗi cơ quan (mondrian) và một ngưỡng theo nhóm độ khó
-(cluster). Ba biến thể này khảo sát cùng một đánh đổi. Một ngưỡng chung dùng toàn bộ dữ liệu hiệu chuẩn và
+(cluster). Đây là dạng split-conformal tiêu chuẩn; các sơ đồ hiệu chuẩn chuyên biệt hơn cho đếm tế bào, gồm
+chuẩn hoá bất định theo phương sai Poisson--Binomial và cập nhật trực tuyến, được phát triển trong một công
+trình trước của cùng nhóm tác giả~\cite{pbjci} và không được sử dụng ở đây. Ba biến thể này khảo sát cùng một đánh đổi. Một ngưỡng chung dùng toàn bộ dữ liệu hiệu chuẩn và
 thường cho khoảng dự đoán hẹp nhất, nhưng chỉ bảo đảm mức phủ trên toàn bộ tập. Ngược lại, ngưỡng theo nhóm bảo
 đảm mức phủ trong \emph{từng} nhóm riêng biệt, đổi lại khoảng dự đoán rộng hơn và ít dữ liệu hiệu chuẩn hơn cho
 mỗi nhóm.
