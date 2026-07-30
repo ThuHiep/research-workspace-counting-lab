@@ -33,21 +33,19 @@ giám sát mặt nạ điểm ảnh cho đếm nhân tế bào: một nghiên c�
 \orgaddress{\city{TP. Hồ Chí Minh}, \country{Việt Nam}}}
 
 \abstract{%
-Số lượng nhân tế bào là một đại lượng định lượng nền tảng của bệnh học, và gần như mọi phương pháp dẫn đầu đều
-thu được nó một cách gián tiếp: học vị trí từng nhân từ mặt nạ ở mức điểm ảnh, rồi cộng lại. Ẩn sau chuẩn mực đó
-là một giả định hiếm khi được kiểm chứng trực tiếp, rằng muốn đếm chính xác thì phải dạy mô hình biết từng nhân
-nằm ở đâu. Bài báo kiểm định giả định này bằng một thí nghiệm có kiểm soát: cố định kiến trúc, dữ liệu và quy
-trình đánh giá, chỉ thay loại giám sát từ mặt nạ ở mức điểm ảnh sang một con số đếm duy nhất cho mỗi ảnh. Trên
-ba tập dữ liệu độc lập (PanNuke, NuInsSeg, MoNuSeg), hai chế độ giám sát cho độ chính xác đếm tương đương: mọi
-chênh lệch $R^2$ đều nhỏ hơn dao động giữa các hạt giống và không nhất quán về dấu, trong khi một nhãn đếm ở mức
-ảnh rẻ hơn khoảng một bậc độ lớn so với khoanh viền đầy đủ. Tương đương này không phải hệ quả của việc đoán theo
-bối cảnh: khi toàn bộ nhân được chú thích bị thay bằng mô cùng hình dạng lấy từ vùng không chứa nhân, số đếm dự
-đoán giảm còn $0{,}37$ lần, còn đối chứng giả gỡ cùng diện tích mô không chứa nhân giữ số đếm ở $1{,}02$ lần, nên
-đáp ứng của mô hình đặc hiệu với chính nội dung nhân. Theo cùng giao thức không rò rỉ trên PanNuke, bộ đếm
-$3{,}62$ triệu tham số huấn luyện count-only đạt $R^2 = 0{,}920$ và MAE $= 3{,}61$, cao hơn các đại diện của
-phân vùng ($0{,}841$), ước lượng mật độ ($0{,}804$) và phát hiện ($0{,}455$) trên chính tác vụ đếm; một tầng
-conformal cấp khoảng dự đoán đạt mức phủ $0{,}90$ mà không loại mô nào bị thiếu phủ. Đối với việc đếm, chú thích
-dày đặc ở mức điểm ảnh do đó là một chi phí có thể bỏ được, không phải một điều kiện cần.
+Chú thích nhân tế bào ở mức điểm ảnh tốn nhiều giờ công chuyên gia cho mỗi ảnh và khó mở rộng sang mô, cơ quan
+hay trung tâm mới. Hầu hết phương pháp hiện nay vẫn suy ra số đếm bằng cách học vị trí từng nhân từ loại chú
+thích đó, hàm ý rằng định vị là điều kiện cần cho việc đếm chính xác. Giả định này được kiểm định bằng một thí
+nghiệm có kiểm soát: giữ nguyên kiến trúc, dữ liệu và giao thức đánh giá, chỉ thay mức giám sát từ mặt nạ điểm
+ảnh sang một nhãn đếm duy nhất cho mỗi ảnh. Trên ba bộ dữ liệu độc lập (PanNuke, NuInsSeg và MoNuSeg), giám sát
+count-only đạt độ chính xác đếm tương đương giám sát bằng mặt nạ: mọi chênh lệch $R^2$ đều nhỏ hơn dao động giữa
+các hạt giống và không nhất quán về dấu. Một can thiệp có đối chứng cho thấy đáp ứng của mô hình đặc hiệu với
+nội dung nhân: thay toàn bộ nhân được chú thích bằng mô không chứa nhân, giữ nguyên hình dạng và diện tích, làm
+số đếm dự đoán giảm còn $0{,}37$ lần, trong khi đối chứng giả giữ ở $1{,}02$ lần. Trên PanNuke, bộ đếm
+$3{,}62$ triệu tham số huấn luyện count-only đạt $R^2 = 0{,}920$, vượt các đại diện của phân vùng, hồi quy mật độ
+và phát hiện trên cùng tác vụ đếm, và khoảng dự đoán conformal kèm theo không để loại mô nào bị thiếu phủ. Vì một
+nhãn đếm ở mức ảnh rẻ hơn khoảng một bậc độ lớn so với khoanh viền đầy đủ, các kết quả này cho thấy đối với đếm
+nhân, giám sát không gian dày đặc không phải là điều kiện cần.
 }
 \keywords{đếm nhân tế bào, hiệu quả chú thích, giám sát yếu, định lượng bất định, conformal prediction,
 mô bệnh học tính toán}
