@@ -66,21 +66,22 @@ tâm mới.
 
 Ẩn sau chuẩn mực này là một giả định ít khi được kiểm chứng: rằng để đếm nhân chính xác, mô hình cần được dạy
 \emph{vị trí} của từng nhân. Trong các lĩnh vực lân cận như đếm đám đông, giám sát chỉ bằng tổng số đối tượng ở
-mức ảnh (\emph{count-only}) đã được sử dụng rộng rãi; tuy nhiên trong đếm nhân mô bệnh học, mặt nạ và điểm vẫn
-là mặc định. Do đó, mức giám sát tối thiểu thực sự cần cho việc đếm vẫn là một câu hỏi mở.
+mức ảnh (\emph{count-only}) đã được nghiên cứu rộng rãi. Trái lại, đếm nhân mô bệnh học vẫn chủ yếu dựa trên chú
+thích không gian dưới dạng điểm hoặc mặt nạ. Do đó, mức giám sát tối thiểu thực sự cần cho việc đếm vẫn là một
+câu hỏi mở.
 
 Bài báo trả lời câu hỏi này bằng một \emph{thí nghiệm có kiểm soát}. Kiến trúc (một bộ mã hóa nhẹ tiêu chuẩn
-ghép bộ giải mã U-Net), dữ liệu và quy trình đánh giá được giữ cố định. Biến duy nhất thay đổi là loại giám sát:
-mặt nạ ở mức điểm ảnh, hoặc một con số đếm duy nhất cho mỗi ảnh. Mọi khác biệt quan sát được do đó quy về
+ghép bộ giải mã U-Net), dữ liệu và quy trình đánh giá được giữ cố định. Biến thực nghiệm duy nhất là loại giám
+sát: mặt nạ ở mức điểm ảnh, hoặc một nhãn đếm duy nhất cho mỗi ảnh. Mọi khác biệt quan sát được do đó quy về
 \emph{chú thích}, không quy về sức mạnh mô hình.
 
 Các đóng góp chính của bài báo như sau.
 \begin{itemize}
 \item Trên ba tập dữ liệu độc lập, giám sát count-only đạt độ chính xác đếm tương đương giám sát bằng mặt nạ
-trên cùng kiến trúc. Mọi chênh lệch đều nhỏ hơn dao động giữa các lần chạy và không nhất quán về dấu, kèm kiểm
-định signed-rank bắt cặp trên từng ảnh (Mục~\ref{sec:parity}).
-\item Một thí nghiệm can thiệp có đối chứng giả xác định số đếm dự đoán phản hồi với nội dung gì trong ảnh, qua
-đó khoanh vùng cơ chế đứng sau kết quả tương đương (Mục~\ref{sec:fidelity}).
+trên cùng kiến trúc, trong phạm vi dao động giữa các lần chạy. Mọi chênh lệch đều nhỏ hơn dao động đó và không
+nhất quán về dấu, kèm kiểm định signed-rank bắt cặp trên từng ảnh (Mục~\ref{sec:parity}).
+\item Một thí nghiệm can thiệp có đối chứng giả kiểm tra liệu dự đoán của mô hình có phụ thuộc đặc hiệu vào nội
+dung nhân hay không, qua đó khoanh vùng cơ chế đứng sau kết quả tương đương (Mục~\ref{sec:fidelity}).
 \item Theo cùng giao thức không rò rỉ, bộ đếm count-only nhẹ vượt các đại diện của ba dòng phương pháp dùng nhãn
 đắt trên tác vụ đếm. Phương pháp phát hiện suy giảm có hệ thống ở vùng nhân dày đặc (Mục~\ref{sec:paradigm}).
 \item Bài báo định lượng hiệu quả chú thích qua đường cong học theo tỉ lệ nhãn, và trang bị cho bộ đếm một đầu
