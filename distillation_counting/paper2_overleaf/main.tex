@@ -192,7 +192,8 @@ NuInsSeg~\cite{nuinsseg} (đa cơ quan) và MoNuSeg~2018~\cite{monuseg} (đa cơ
 trên cùng tập kiểm tra. Mỗi cấu hình lặp lại với nhiều hạt giống ngẫu nhiên, báo cáo trung bình cùng độ lệch
 chuẩn.
 
-Nhánh mask được cấu hình ở trạng thái thuận lợi nhất của nó. Giám sát mật độ trên bản đồ mục tiêu thưa suy về
+Nhánh mask được đánh giá ở cấu hình cho hội tụ ổn định nhất trong số các giá trị được khảo sát. Giám sát mật độ
+trên bản đồ mục tiêu thưa suy về
 nghiệm hằng số khi trọng số đếm $w_c$ quá nhỏ, nên $w_c$ được chọn theo mức hội tụ ổn định nhất cho từng tập dữ
 liệu. Trên PanNuke, khảo sát $w_c \in \{0{,}01;\ 0{,}05;\ 0{,}1\}$ cho thấy ở $0{,}01$ nhánh mask suy biến ở
 $1/5$ hạt giống ($R^2$ trung bình $0{,}45 \pm 0{,}94$), còn ở $0{,}05$ và $0{,}1$ thì không. Giá trị $0{,}1$ cho
@@ -200,14 +201,16 @@ cả trung bình cao hơn lẫn phương sai nhỏ hơn nên được dùng cho 
 nhánh mask hội tụ ổn định trên NuInsSeg và MoNuSeg.
 
 Suy biến này là một thất bại của \emph{quá trình tối ưu hoá}: hàm mất mát bình phương trên bản đồ mật độ bị các
-điểm ảnh nền chi phối, và mô hình xuất giá trị hằng số $0$ cho mọi ảnh. Khi đó $R^2 = -\mu^2/\sigma^2$ với
-$\mu,\sigma$ là trung bình và độ lệch chuẩn của số nhân trên tập kiểm tra. Một hạt giống suy biến đủ để làm lệch
+điểm ảnh nền chi phối, và mô hình xuất giá trị hằng số $0$ cho mọi ảnh. Trường hợp này để lại một dấu vết nhận
+biết được từ chính kết quả báo cáo, vì khi dự đoán là hằng số $0$ thì $R^2 = -\mu^2/\sigma^2$, với $\mu$ và
+$\sigma$ là trung bình và độ lệch chuẩn của số nhân trên tập kiểm tra. Một hạt giống suy biến đủ để làm lệch
 trung bình, nên trung vị và số hạt giống suy biến được báo cáo kèm.
 
 \paragraph{Chỉ số và kiểm định.} Độ chính xác đếm được đo bằng $R^2$ và sai số tuyệt đối trung bình (MAE). Để
 so sánh hai chế độ giám sát, kiểm định Wilcoxon signed-rank bắt cặp được dùng trên sai số tuyệt đối của
 từng ảnh, trong đó sai số mỗi ảnh được lấy trung bình qua các hạt giống trên tập kiểm tra cố định; giá trị
-$p>0{,}05$ được diễn giải là không phát hiện khác biệt. Chất lượng khoảng dự đoán được đo bằng mức phủ biên,
+$p>0{,}05$ được hiểu là không đủ bằng chứng để bác bỏ giả thuyết không, chứ không phải bằng chứng cho sự tương
+đương. Chất lượng khoảng dự đoán được đo bằng mức phủ biên,
 mức phủ của cơ quan có mức phủ thấp nhất, độ rộng khoảng và điểm Winkler.
 
 %%============================================================%%
