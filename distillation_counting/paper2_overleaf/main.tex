@@ -480,7 +480,8 @@ cluster & 0,906 & 14,8 & \textbf{20,0} & 0,859 & 0/19 \\
 %%============================================================%%
 \section{Thảo luận}\label{sec:discuss}
 
-\paragraph{Vì sao chú thích mức ảnh là đủ.} Đối với đếm, giám sát ở mức điểm ảnh không mang lại lợi ích đo được
+\paragraph{Vì sao giám sát mức ảnh có thể đủ cho tác vụ đếm.} Trên các tập dữ liệu được xét, giám sát ở mức
+điểm ảnh không cho thấy lợi ích đo được
 so với giám sát count-only. Thí nghiệm gỡ nhân khoanh vùng cơ chế đứng sau điều đó, bằng cách loại trừ cả hai
 thái cực.
 
@@ -497,8 +498,9 @@ có thể suy giảm khi phân phối kích thước hoặc mật độ nhân d�
 \paragraph{Chuyển giao ngoài miền.} Cơ chế nêu trên dự đoán một chế độ hỏng cụ thể. Vì số đếm được tạo ra bằng
 cách tích hợp bằng chứng trên một thang không gian đã học, độ chính xác điểm sẽ suy giảm khi độ phóng đại hoặc
 kích thước nhân trên miền mới lệch nhiều so với miền huấn luyện, ngay cả khi kiểu mô là quen thuộc. Ngược lại,
-bảo đảm mức phủ của tầng conformal không phụ thuộc phân phối, nên sau khi hiệu chuẩn lại trên một tập hiệu chuẩn
-nhỏ của miền đích, mức phủ biên vẫn đạt mục tiêu \emph{bất kể} độ chính xác điểm có suy giảm hay không; khi đó
+tầng conformal không giả định một dạng phân phối cụ thể. Sau khi hiệu chuẩn lại trên một tập hiệu chuẩn nhỏ
+của miền đích, mức phủ biên vẫn đạt mục tiêu theo giả thiết khả hoán chuẩn của conformal, dù độ chính xác điểm
+có suy giảm; khi đó
 độ rộng khoảng nở ra chính là tín hiệu cảnh báo rằng mẫu nằm ngoài vùng tin cậy. Mức suy giảm cụ thể theo độ
 lệch phóng đại là một câu hỏi định lượng còn để ngỏ.
 
@@ -509,8 +511,9 @@ hay không, chẳng hạn bộ mã hóa dạng transformer hay các mạng phân
 nghiệm mở.
 
 Nhánh mask cũng được đánh giá dưới cùng kiến trúc bộ đếm, nên nó đo lợi ích của \emph{tín hiệu giám sát} chứ
-không phải năng lực tối đa của một quy trình phân vùng được tối ưu riêng. So sánh với các kiến trúc chuyên dụng
-ở Mục~\ref{sec:paradigm} bổ khuyết một phần cho khía cạnh này.
+không phải năng lực tối đa của một quy trình phân vùng được tối ưu riêng. Kết luận chính của bài báo do đó nên
+được hiểu là một phát biểu về vai trò của loại giám sát trong cùng một họ kiến trúc, không phải về giới hạn trên
+của các hệ phân vùng nhân chuyên dụng; Mục~\ref{sec:paradigm} chỉ bổ khuyết một phần cho khía cạnh sau.
 
 %%============================================================%%
 \section{Kết luận}\label{sec:conclusion}
