@@ -42,8 +42,8 @@ lượng số đếm thông qua phân vùng, phát hiện hoặc định vị nh
 kiện cần cho độ chính xác đếm cao. Giả định này được kiểm định bằng một thí nghiệm có kiểm soát: kiến trúc, dữ
 liệu và giao thức đánh giá được giữ nguyên, chỉ thay mức giám sát từ mặt nạ điểm ảnh sang một nhãn đếm duy nhất
 cho mỗi ảnh. Trên ba bộ dữ liệu độc lập (PanNuke, NuInsSeg và MoNuSeg), giám sát count-only đạt độ chính xác đếm
-tương đương giám sát bằng mặt nạ: trên tập lớn nhất, sai số đếm của hai chế độ tương đương trong biên $1{,}1\%$
-số nhân trung bình mỗi ảnh, còn trên hai tập còn lại count-only nhỉnh hơn. Một can thiệp có đối chứng xác nhận đáp ứng của mô hình đặc hiệu với
+tương đương giám sát bằng mặt nạ: trên tập lớn nhất, giám sát mặt nạ nhỉnh hơn một lượng bị chặn trên bởi
+$1{,}1\%$ số nhân trung bình mỗi ảnh, còn trên hai tập còn lại count-only nhỉnh hơn. Một can thiệp có đối chứng xác nhận đáp ứng của mô hình đặc hiệu với
 nội dung nhân: thay toàn bộ nhân được chú thích bằng mô không chứa nhân trong khi giữ nguyên hình dạng và diện
 tích làm số đếm dự đoán giảm còn $0{,}37$ lần, trong khi đối chứng giả duy trì ở mức $1{,}02$ lần. Trên PanNuke,
 bộ đếm $3{,}62$ triệu tham số huấn luyện với giám sát count-only đạt $R^2 = 0{,}918$ và vượt các đại diện của
@@ -255,8 +255,22 @@ phát hiện chênh lệch cỡ một phần năm nhân, nên có ý nghĩa th�
 thực tiễn. Phát biểu đầy đủ gồm cả hai vế: hai chế độ khác nhau một lượng đo được, và lượng đó bị chặn trên bởi
 khoảng $1\%$ số nhân mỗi ảnh.
 
+Hình~\ref{fig:equivalence} đặt khoảng tin cậy của chênh lệch cạnh các biên tương đương, để cả hai vế cùng đọc
+được trên một hình.
+
 Trên các tập nhỏ, phương sai giữa hạt giống chi phối và xếp hạng theo từng ảnh không ổn định giữa các tập con
 hạt giống, nên một chênh lệch trung bình dương không đủ để tuyên bố ưu thế.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_equivalence.pdf}
+\caption{Chênh lệch sai số tuyệt đối theo từng ảnh giữa hai chế độ giám sát trên PanNuke fold~3 ($n=2722$),
+kèm khoảng tin cậy bootstrap $90\%$, đặt cạnh các biên tương đương $\delta$ tính theo tỉ lệ số nhân trung bình
+mỗi ảnh. Khoảng tin cậy không chứa $0$, nên chênh lệch là có thật; đồng thời nó nằm gọn trong biên $2\%$, nên
+chênh lệch bị chặn trên ở mức đó. Biên nhỏ nhất còn cho kết luận tương đương là
+$\delta^\star = 0{,}27$ nhân.}
+\label{fig:equivalence}
+\end{figure}
 
 Đối với tác vụ đếm và trên cùng một kiến trúc, việc hạ chú thích từ mặt nạ ở mức điểm ảnh xuống một con số đếm
 cho mỗi ảnh do đó đi kèm một mức suy giảm nhỏ và đo được trên PanNuke, bị chặn trên bởi khoảng $1\%$ số nhân
@@ -276,8 +290,8 @@ Tập dữ liệu & count-only ($R^2$) & mask ($R^2$) & $\Delta R^2$ & $p$ & Di�
 \midrule
 PanNuke & $0{,}918\pm0{,}011$ & $0{,}931\pm0{,}006$ & $-0{,}013$ & $1{,}1{\times}10^{-13}$ &
 tương đương ở $\delta^\star{=}0{,}27$ nhân ($1{,}1\%$) \\
-MoNuSeg$^{\ddagger}$ & $0{,}459\pm0{,}194$ & $0{,}362\pm0{,}154$ & $+0{,}097$ & --- & tương đương (trong dao động) \\
 NuInsSeg$^{\dagger}$ & $0{,}913\pm0{,}022$ & $0{,}892\pm0{,}017$ & $+0{,}021$ & --- & tương đương \\
+MoNuSeg$^{\ddagger}$ & $0{,}459\pm0{,}194$ & $0{,}362\pm0{,}154$ & $+0{,}097$ & --- & tương đương (trong dao động) \\
 \bottomrule
 \end{tabular}
 \footnotetext{$^{\dagger}$ Vì NuInsSeg dùng chia ngẫu nhiên khác nhau theo hạt giống, tập kiểm tra không cố
@@ -300,7 +314,9 @@ có thể khai thác tương quan toàn cục (loại mô, mật độ tế bào
 tích dưới đây kiểm tra khả năng đó trên PanNuke fold~3 ($n=2722$ mảnh, số nhân trung bình $24{,}5$).
 
 \paragraph{Độ chính xác giữ được trên toàn bộ 19 loại mô.} Các phân tích dưới đây dùng ba mô hình count-only
-huấn luyện độc lập, đạt độ chính xác đếm như báo cáo ở Mục~\ref{sec:parity}, với các dự đoán nằm sát đường
+huấn luyện độc lập theo cùng giao thức ở Mục~\ref{sec:setup}, ở một đợt huấn luyện riêng với các mô hình của
+Bảng~\ref{tab:parity}; mô hình dùng cho Bảng~\ref{tab:perorgan} và Hình~\ref{fig:agreement} đạt
+$R^2 = 0{,}934$ và MAE $3{,}40$ trên toàn bộ tập kiểm tra. Các dự đoán nằm sát đường
 đếm đúng tuyệt đối trên toàn dải số nhân (Hình~\ref{fig:agreement}a). Khi phân tách theo loại mô (Bảng~\ref{tab:perorgan}), $R^2$ dương ở
 \emph{cả} $19/19$ loại, dao động từ $0{,}704$ (Ovarian, $n=52$) đến $0{,}976$ (Cervix, $n=86$); hai giá trị thấp
 nhất đều thuộc các loại mô có ít mảnh kiểm tra nhất. Phân tích Bland--Altman cho độ chệch $+0{,}70$ nhân, tức
@@ -321,10 +337,11 @@ dưới tại các mảnh nhiều nhân cho thấy khuynh hướng \emph{đếm 
 
 \begin{table}[!htbp]
 \centering
-\caption{Độ chính xác đếm theo từng loại mô trên PanNuke fold~3, cho \emph{một} trong ba mô hình count-only
-(Hình~\ref{fig:agreement} vẽ cùng mô hình này); mọi giá trị trong bảng, kể cả dòng toàn tập, là của riêng mô
-hình đó, còn số liệu tổng hợp qua các hạt giống được báo cáo ở Bảng~\ref{tab:parity}. $R^2$ dương ở toàn bộ
-$19/19$ loại mô.}\label{tab:perorgan}
+\caption{Độ chính xác đếm theo từng loại mô trên PanNuke fold~3, cho \emph{một} trong ba mô hình count-only của
+Mục~\ref{sec:fidelity} (Hình~\ref{fig:agreement} vẽ cùng mô hình này); mọi giá trị trong bảng, kể cả dòng toàn
+tập, là của riêng mô hình đó. Số liệu tổng hợp qua các hạt giống của phép so sánh chính được báo cáo riêng ở
+Bảng~\ref{tab:parity}, từ một đợt huấn luyện khác, nên hai dòng toàn tập không trùng nhau. Điều được đọc ở đây
+là \emph{sự phân bố} của độ chính xác giữa các loại mô: $R^2$ dương ở toàn bộ $19/19$ loại.}\label{tab:perorgan}
 \begin{tabular}{@{}lccc@{\hspace{2em}}lccc@{}}
 \toprule
 Loại mô & $n$ & $R^2$ & MAE & Loại mô & $n$ & $R^2$ & MAE \\
@@ -351,11 +368,11 @@ giả (sham) áp dụng \emph{đúng} phép thao tác đó với cùng số vùn
 vị trí không chứa nhân. Nó tách tác động của bản thân việc thay mô khỏi tác động của việc mất nhân. Chỉ những
 phép đo có diện tích gỡ khớp nhau tối thiểu $80\%$ giữa hai điều kiện được đưa vào kiểm định.
 
-Phép ghép mô được dùng thay cho inpainting vì inpainting lan màu từ biên vùng cần lấp, mà biên đó chính là viền
-nhân, nên nó để lại vết nhân trong ảnh. Ở cùng mức nở mặt nạ, inpainting Telea cho hệ số đáp ứng $0{,}34$ còn
-phép ghép mô cho $0{,}59$, và $33\%$ mảnh cho số đếm ở mức gỡ toàn bộ \emph{cao hơn} ở mức gỡ $75\%$
-(Hình~\ref{fig:doseresp}). Chênh lệch giữa hai cách gỡ do đó đến gần như hoàn toàn từ cách điền vùng đã gỡ, chứ
-không từ mức nở mặt nạ.
+Phép đo nhạy với cách điền vùng đã gỡ, và điều này tự nó là một kiểm chứng. Thay phép ghép mô bằng inpainting
+Telea ở cùng mức nở mặt nạ làm hệ số đáp ứng đo được rơi từ $0{,}59$ xuống $0{,}34$, và $33\%$ mảnh cho số đếm ở
+mức gỡ toàn bộ \emph{cao hơn} ở mức gỡ $75\%$ (Hình~\ref{fig:doseresp}). Inpainting lan màu từ biên vùng cần
+lấp, mà biên đó chính là viền nhân, nên nó để lại vết nhân trong ảnh và mô hình vẫn đáp ứng với vết đó. Độ nhạy
+đo được vì vậy là giới hạn dưới, đặt ra bởi mức triệt để của phép gỡ chứ không bởi mức nở mặt nạ.
 
 \begin{figure}[!htbp]
 \centering
@@ -428,26 +445,28 @@ $0{,}03$ (ba hạt giống). Hai quan sát cùng chỉ về một cơ chế, và
 \emph{đếm} nhưng không sinh ra khả năng định vị: đại lượng được giám sát là một tổng, nên nghiệm mô hình tìm được
 cũng chỉ cần đúng ở mức tổng.
 
-Kết quả không nhạy với mức nở mặt nạ, nên việc chú thích phủ chưa hết viền nhân không giải thích được phần
-thiếu hụt: trên cùng một mô hình, nở $0$, $2$ và $4$ điểm ảnh (diện tích can thiệp $18\%$, $25\%$ và $31\%$ ảnh)
-cho hệ số $0{,}59$, $0{,}60$ và $0{,}61$, tức toàn bộ khoảng biến thiên nhỏ hơn độ lệch giữa các mô hình. Mức nở
-lớn cũng làm khớp diện tích của đối chứng giả xấu đi, nên $2$ điểm ảnh được dùng cho các số liệu báo cáo.
-
-Hệ số $0{,}64$ là một giới hạn dưới của độ nhạy thực, vì phép gỡ chỉ tác động lên các nhân \emph{được chú thích}
-còn những nhân mà chú thích bỏ sót vẫn tiếp tục đóng góp vào số đếm (Hình~\ref{fig:qualitative}c). Lấy phần dự
-đoán vượt quá số nhân được chú thích trên ảnh nguyên vẹn làm chỉ dấu cho mức bỏ sót, số đếm còn lại sau khi gỡ
-toàn bộ tăng đơn điệu từ $0{,}36$ ở các mảnh không có dấu hiệu bỏ sót lên $0{,}70$ ở nhóm bỏ sót nhiều nhất
-(tương quan $+0{,}31$, $n=286$). Quy mô của yếu tố này nhỏ: mức vượt trung bình là $3{,}5\%$ số nhân so với số đếm
-còn lại $37{,}4\%$, nên phần lớn lượng còn lại không quy được cho chú thích bỏ sót.
+Hai kiểm tra khoanh vùng mức thiếu hụt này. Thứ nhất, nó không đến từ việc mặt nạ chú thích phủ chưa hết viền
+nhân: trên cùng một mô hình, nở $0$, $2$ và $4$ điểm ảnh (diện tích can thiệp $18\%$, $25\%$ và $31\%$ ảnh) cho
+hệ số $0{,}59$, $0{,}60$ và $0{,}61$, toàn bộ khoảng biến thiên nhỏ hơn độ lệch giữa các mô hình; mức nở lớn còn
+làm khớp diện tích của đối chứng giả xấu đi nên $2$ điểm ảnh được dùng cho các số liệu báo cáo. Thứ hai, nó chỉ
+một phần nhỏ đến từ các nhân mà chú thích bỏ sót, vốn không bị gỡ và vẫn đóng góp vào số đếm
+(Hình~\ref{fig:qualitative}c): lấy phần dự đoán vượt quá số nhân được chú thích làm chỉ dấu cho mức bỏ sót, số
+đếm còn lại sau khi gỡ toàn bộ tăng đơn điệu từ $0{,}36$ ở các mảnh không có dấu hiệu bỏ sót lên $0{,}70$ ở
+nhóm bỏ sót nhiều nhất (tương quan $+0{,}31$, $n=286$), nhưng mức vượt trung bình chỉ là $3{,}5\%$ số nhân so
+với số đếm còn lại $37{,}4\%$. Hệ số $0{,}64$ do đó là một giới hạn dưới của độ nhạy thực, và phần lớn khoảng
+cách tới $1{,}0$ không quy được cho chất lượng chú thích.
 
 
 \subsection{So sánh với ba paradigm dùng nhãn đắt}\label{sec:paradigm}
 
 Bộ đếm count-only nhẹ đạt $R^2$ và MAE tốt hơn cả ba đại diện của phân vùng, ước lượng mật độ và phát hiện, dù
 chỉ dùng nhãn đếm (Bảng~\ref{tab:paradigm}). Cả bốn phương pháp được huấn luyện lại và đánh giá trên cùng tập
-kiểm tra, ở cấp độ tác vụ đếm. Khác với phép so sánh có kiểm soát ở Mục~\ref{sec:parity}, ở đây kiến trúc, số
-tham số và siêu tham số đều khác nhau giữa các phương pháp, nên kết quả cho biết các paradigm này hoạt động ra
-sao ở cấu hình thông dụng của chúng trên tác vụ đếm, chứ không cô lập được một nguyên nhân duy nhất.
+kiểm tra, ở cấp độ tác vụ đếm. Số đếm của mỗi phương pháp so sánh được lấy bằng chính bước hậu xử lý chính thức
+của phương pháp đó: số thực thể sau phân tách với StarDist, số cực trị địa phương trên bản đồ mật độ tâm với
+DualU-Net, và số điểm còn lại sau bước triệt tiêu không cực đại với DeNuC. Khác với phép so sánh có kiểm soát ở
+Mục~\ref{sec:parity}, ở đây kiến trúc, số tham số và siêu tham số đều khác nhau giữa các phương pháp, nên kết
+quả cho biết các paradigm này hoạt động ra sao ở cấu hình thông dụng của chúng trên tác vụ đếm, chứ không cô lập
+được một nguyên nhân duy nhất.
 
 Phương pháp phát hiện suy giảm đơn điệu theo mật độ nhân: độ chệch đếm tăng từ $-0{,}8$ ở các mảnh thưa lên
 $-30{,}4$ ở các mảnh có từ $45$ nhân trở lên. Diễn biến này khớp với cơ chế bước triệt tiêu không cực đại loại bỏ
@@ -465,16 +484,19 @@ Phương pháp & Tham số & Nhãn & Paradigm & $R^2\uparrow$ & MAE$\downarrow$ 
 \midrule
 DensitySigmaUNet (count-only) & $3{,}62$M & đếm & hồi quy & $\mathbf{0{,}918\pm0{,}011}$ & $\mathbf{3{,}60\pm0{,}10}$ \\
 StarDist~\cite{stardist} & $1{,}43$M & mặt nạ & phân vùng & $0{,}841$ & $4{,}64$ \\
-DualU-Net & ${\sim}35$M & mặt nạ & mật độ & $0{,}804$ & $5{,}33$ \\
-DeNuC & $4{,}37$M & hộp/điểm & phát hiện & $0{,}455$ & $9{,}64$ \\
+DualU-Net~\cite{dualunet} & ${\sim}35$M & mặt nạ & mật độ tâm & $0{,}804$ & $5{,}33$ \\
+DeNuC~\cite{denuc} & $4{,}37$M & hộp/điểm & phát hiện & $0{,}455$ & $9{,}64$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsection{Hiệu quả chú thích}\label{sec:label}
-Một phần tư ngân sách chú thích đã đủ cho khoảng $93\%$ hiệu năng ở mức nhãn đầy đủ. Đường cong học trên PanNuke
-cho $R^2 = 0{,}85 \pm 0{,}03$ với $25\%$ nhãn và $R^2 = 0{,}918 \pm 0{,}011$ với toàn bộ nhãn. Độ chính xác đếm do
-đó không suy giảm nhanh khi cắt giảm nhãn, một đặc tính có giá trị khi ngân sách gán nhãn hạn chế.
+Một phần tư ngân sách chú thích đã đủ cho khoảng $93\%$ hiệu năng ở mức nhãn đầy đủ. Trên PanNuke, $R^2$ theo
+tỉ lệ ảnh có nhãn đếm là $0{,}453 \pm 0{,}208$ ở $5\%$, $0{,}742$ ở $10\%$, $0{,}849 \pm 0{,}029$ ở $25\%$,
+$0{,}859$ ở $50\%$ và $0{,}915 \pm 0{,}010$ ở toàn bộ nhãn (ba hạt giống, cùng giao thức đánh giá; giá trị ở mức
+toàn bộ khớp với Bảng~\ref{tab:parity}). Đường cong bão hoà sớm: phần lớn mức tăng đạt được trong một phần tư
+ngân sách đầu tiên, còn từ $25\%$ lên $100\%$ chỉ thêm $0{,}066$. Điểm $5\%$ cho thấy giới hạn dưới của chế độ
+này, nơi phương sai giữa các hạt giống lấn át giá trị trung bình.
 
 \subsection{Chi phí tính toán và chi phí chú thích}\label{sec:cost}
 Bộ đếm có $3{,}62$M tham số và $0{,}98$ GMACs ở đầu vào $256\times256$, độ trễ $6{,}0$\,ms trên GPU và
@@ -493,9 +515,12 @@ Khoảng dự đoán được hiệu chuẩn không chỉ ở cấp độ biên 
 phủ biên đạt mục tiêu $0{,}90$, và sơ đồ mondrian nâng mức phủ của cơ quan thấp nhất lên $0{,}906$ mà không để cơ
 quan nào thiếu phủ.
 
-Việc neo $\sigma$ vào nền phương sai Poisson quan trọng khi dải số đếm rộng. So với một $\sigma$ hằng số, dạng
-này thu hẹp đáng kể độ rộng khoảng và điểm Winkler ở cùng mức phủ trên dữ liệu dải rộng, trong khi không tạo
-khác biệt trên dải hẹp. Đầu $\sigma$ không làm giảm độ chính xác đếm, vì $\mu$ được tách khỏi nhánh bất định.
+Việc neo $\sigma$ vào nền phương sai Poisson quan trọng khi dải số đếm rộng. Trên NuInsSeg, nơi số đếm mỗi ảnh
+trải từ vài nhân tới hơn $500$, dạng neo Poisson cho độ rộng khoảng $37{,}7$ so với $67{,}9$ của một $\sigma$
+không neo ($-44\%$), điểm Winkler $45{,}4$ so với $78{,}1$ ($-42\%$), và mức phủ của cơ quan thấp nhất $0{,}864$
+so với $0{,}655$, ở cùng mức phủ biên ${\sim}0{,}93$. Trên PanNuke, nơi số đếm tập trung trong dải hẹp, hai dạng
+không khác nhau đáng kể. Neo Poisson do đó là lựa chọn thiết kế cho dữ liệu dải rộng chứ không phải cải thiện
+đồng đều. Đầu $\sigma$ không làm giảm độ chính xác đếm, vì $\mu$ được tách khỏi nhánh bất định.
 
 \begin{table}[!htbp]
 \centering
@@ -504,9 +529,9 @@ khác biệt trên dải hẹp. Đầu $\sigma$ không làm giảm độ chính 
 \toprule
 Sơ đồ & Phủ biên & Độ rộng & Winkler & Phủ cơ quan thấp nhất & Số cơ quan thiếu phủ \\
 \midrule
-global & 0,904 & 14,5 & 20,3 & 0,765 & 4/19 \\
-mondrian & 0,923 & 16,6 & 20,5 & \textbf{0,906} & \textbf{0/19} \\
-cluster & 0,906 & 14,8 & \textbf{20,0} & 0,859 & 0/19 \\
+global & $0{,}904$ & $14{,}5$ & $20{,}3$ & $0{,}765$ & $4/19$ \\
+mondrian & $0{,}923$ & $16{,}6$ & $20{,}5$ & $\mathbf{0{,}906}$ & $\mathbf{0/19}$ \\
+cluster & $0{,}906$ & $14{,}8$ & $\mathbf{20{,}0}$ & $0{,}859$ & $0/19$ \\
 \bottomrule
 \end{tabular}
 \end{table}
