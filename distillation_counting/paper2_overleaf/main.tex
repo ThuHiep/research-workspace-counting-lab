@@ -615,40 +615,46 @@ cluster & $0{,}906$ & $14{,}8$ & $\mathbf{20{,}0}$ & $0{,}859$ & $0/19$ \\
 %%============================================================%%
 \section{Thảo luận}\label{sec:discuss}
 
-\paragraph{Vì sao giám sát mức ảnh có thể đủ cho tác vụ đếm.} Trên tập dữ liệu lớn nhất, lợi ích của giám sát ở
-mức điểm ảnh so với giám sát count-only bị chặn trên bởi khoảng $1\%$ số nhân mỗi ảnh; trên hai tập còn lại
-chiều của chênh lệch đổi dấu, và ở tập có kiểm định gộp áp dụng được thì độ lớn cũng chỉ ở mức vài phần trăm. Thí nghiệm gỡ nhân thu hẹp tập cơ chế có thể giải thích
-điều đó, bằng cách loại trừ cả hai thái cực.
+\paragraph{Vì sao giám sát mức ảnh có thể đủ cho đếm nhân.} Kết quả trên ba tập dữ liệu cho thấy giám sát không
+gian dày đặc không mang lại lợi thế nhất quán cho tác vụ đếm. Trên PanNuke, bộ dữ liệu lớn nhất trong nghiên cứu
+này, lợi thế của giám sát mặt nạ có ý nghĩa thống kê nhưng bị chặn trên ở khoảng $1\%$ số nhân trung bình mỗi
+ảnh; trên NuInsSeg và MoNuSeg, chiều của chênh lệch đổi dấu. Các kết quả này gợi ý rằng thông tin vị trí chi
+tiết không phải lúc nào cũng là thành phần quyết định đối với độ chính xác đếm.
 
-Số đếm dự đoán \emph{không} phải sản phẩm của tương quan toàn cục thuần túy. Nó giảm đơn điệu khi nhân bị gỡ, và
-\emph{không} đổi khi một diện tích mô tương đương không chứa nhân bị gỡ. Nhưng mô hình cũng \emph{không} phát
-hiện rồi cộng từng thực thể: đáp ứng chỉ đạt khoảng $64\%$ mức của một bộ đếm cộng dồn trung thực với hệ số gần
-như không đổi qua mọi liều, và bản đồ mật độ của nó gần như không định vị được nhân.
+Các thí nghiệm can thiệp cung cấp một cách giải thích khả dĩ cho hiện tượng đó. Số đếm dự đoán giảm một cách đặc
+hiệu khi nhân bị loại bỏ khỏi ảnh nhưng hầu như không thay đổi dưới các can thiệp đối chứng giả có cùng diện
+tích. Đồng thời, đáp ứng duy trì ở mức dưới tuyến tính và bản đồ mật độ học được gần như không mang thông tin
+định vị. Hai quan sát này nhất quán với giả thuyết rằng mô hình học cách tích hợp bằng chứng liên quan tới nhân
+trên toàn ảnh thay vì phát hiện rồi cộng từng thực thể riêng lẻ. Trong trường hợp đó, một nhãn đếm ở mức ảnh có
+thể đã cung cấp phần lớn thông tin cần thiết cho tác vụ đếm.
 
-Cách đọc phù hợp là mô hình học một \emph{phép tích hợp} bằng chứng liên quan tới nhân trên toàn ảnh: một nghiệm
-chỉ cần đúng ở mức tổng, đúng như đại lượng được giám sát. Cách đọc này cũng dự đoán giới hạn của phương pháp:
-vì nghiệm chỉ bị ràng buộc ở mức tổng, không nên kỳ vọng bộ đếm cung cấp thông tin vị trí.
+\paragraph{Hàm ý thực tiễn.} Nếu mục tiêu cuối cùng là số đếm thay vì vị trí hoặc hình dạng của từng nhân, kết
+quả của nghiên cứu này cho thấy chi phí chú thích có thể được giảm đáng kể mà chỉ phải đánh đổi một lượng rất
+nhỏ về độ chính xác. Điều này đặc biệt quan trọng khi mở rộng sang cơ quan, trung tâm hoặc miền dữ liệu mới,
+nơi chi phí tạo mặt nạ thường là rào cản lớn nhất đối với việc xây dựng dữ liệu huấn luyện.
 
-\paragraph{Chuyển giao ngoài miền.} Cơ chế nêu trên dự đoán một chế độ hỏng cụ thể. Vì số đếm được tạo ra bằng
-cách tích hợp bằng chứng trên một thang không gian đã học, độ chính xác điểm sẽ suy giảm khi độ phóng đại hoặc
-kích thước nhân trên miền mới lệch nhiều so với miền huấn luyện, ngay cả khi kiểu mô là quen thuộc. Ngược lại,
-tầng conformal không giả định một dạng phân phối cụ thể. Sau khi hiệu chuẩn lại trên một tập hiệu chuẩn nhỏ
-của miền đích, mức phủ biên vẫn đạt mục tiêu theo giả thiết khả hoán chuẩn của conformal, dù độ chính xác điểm
-có suy giảm; khi đó
-độ rộng khoảng nở ra chính là tín hiệu cảnh báo rằng mẫu nằm ngoài vùng tin cậy.
+\paragraph{Chuyển giao ngoài miền.} Cơ chế tích hợp bằng chứng toàn ảnh cũng gợi ý một giới hạn tiềm tàng của
+phương pháp. Vì mô hình học các tín hiệu liên quan tới nhân ở một thang không gian nhất định, độ chính xác có
+thể suy giảm khi độ phóng đại hoặc kích thước biểu kiến của nhân thay đổi đáng kể giữa miền huấn luyện và miền
+triển khai. Ngược lại, các khoảng dự đoán conformal không giả định một dạng phân phối cụ thể: sau khi hiệu chuẩn
+lại trên một tập hiệu chuẩn nhỏ của miền đích, mức phủ mong muốn vẫn được duy trì theo giả thiết khả hoán, ngay
+cả khi độ chính xác điểm thay đổi. Khi đó, việc khoảng dự đoán nở rộng ra chính là một tín hiệu cảnh báo rằng
+mẫu nằm ngoài vùng mà mô hình còn đáng tin.
 
-\paragraph{Hạn chế và phạm vi khái quát.} Các phát hiện được thiết lập cho một họ kiến trúc cụ thể (bộ mã hóa
-nhẹ ghép bộ giải mã U-Net) và cho tác vụ đếm. Thiết kế có kiểm soát cố định kiến trúc để cô lập biến giám sát,
-nên kết luận về tính đủ của giám sát count-only gắn với chính họ kiến trúc này. Nó có mở rộng sang các họ khác
-hay không, chẳng hạn bộ mã hóa dạng transformer hay các mạng phân vùng nhân chuyên dụng, là một câu hỏi thực
-nghiệm mở.
+\paragraph{Hạn chế và phạm vi khái quát.} Nghiên cứu này được thiết kế như một thí nghiệm có kiểm soát nhằm cô
+lập vai trò của loại giám sát. Vì vậy, các kết luận được thiết lập trên cùng một họ kiến trúc gồm bộ mã hóa nhẹ
+kết hợp bộ giải mã kiểu U-Net. Việc các quan sát tương tự có tiếp tục xuất hiện trên các kiến trúc khác, chẳng
+hạn các mô hình transformer hoặc các hệ phân vùng nhân chuyên biệt, vẫn cần được kiểm chứng thực nghiệm. Cũng vì
+nhánh mask dùng chính kiến trúc của bộ đếm, phép so sánh chính đo vai trò của \emph{loại giám sát} chứ không
+thiết lập giới hạn trên của một quy trình phân vùng được tối ưu riêng; Mục~\ref{sec:paradigm} chỉ bổ khuyết một
+phần cho khía cạnh đó, và ở đó mỗi phương pháp so sánh chỉ được huấn luyện một lần nên chênh lệch giữa chúng cần
+được đọc kèm mức dao động giữa các hạt giống.
 
-Vì lý do đã nêu ở Mục~\ref{sec:parity}, kết luận chính là một phát biểu về vai trò của \emph{loại giám sát}
-trong cùng một họ kiến trúc, không phải về giới hạn trên của các hệ phân vùng nhân chuyên dụng;
-Mục~\ref{sec:paradigm} chỉ bổ khuyết một phần cho khía cạnh sau, với ba phương pháp so sánh mỗi phương pháp chỉ
-được huấn luyện một lần.
+Ngoài ra, bài báo chỉ xem xét tác vụ đếm. Kết quả không hàm ý rằng giám sát mức ảnh đủ cho các nhiệm vụ đòi hỏi
+thông tin không gian, chẳng hạn phân vùng thực thể, định vị nhân hoặc phân tích hình thái học. Trái lại, các kết
+quả can thiệp cho thấy mô hình count-only khó hình thành biểu diễn định vị có ý nghĩa, ngay cả khi đạt độ chính
+xác đếm cao.
 
-%%============================================================%%
 \section{Kết luận}\label{sec:conclusion}
 
 Trên ba tập dữ liệu mô bệnh học độc lập, khi giữ nguyên kiến trúc, dữ liệu và giao thức đánh giá, không chế độ
