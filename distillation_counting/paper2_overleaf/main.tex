@@ -38,16 +38,16 @@ centres. Most nuclei counting methods nonetheless rely on segmentation, density 
 implying that dense spatial supervision is a prerequisite for high accuracy. This paper tests that assumption
 directly with a controlled experiment in which the network architecture, the data and the evaluation protocol
 are held fixed while supervision type is the only variable. Given a single image-level count as its only label,
-a $3.62$M-parameter model reaches $R^2 = 0.918$ on PanNuke and outperforms the surveyed representatives of
+a 3.62M-parameter model achieved an $R^2$ of 0.918 on PanNuke and outperforms the surveyed representatives of
 segmentation, density estimation and detection on the same counting task and the same test set, even though all
 three require localisation labels. Comparing count supervision with mask supervision on PanNuke, NuInsSeg and
 MoNuSeg, the sign of the difference reverses across datasets, so neither regime is consistently superior. On
 PanNuke the advantage of mask supervision is statistically significant but bounded above by an equivalence test
-at $1.1\%$ of the mean nuclei per image, while count labels are at least eight times cheaper than full
+at 1.1\% of the mean nuclei per image, while count labels are at least eight times cheaper than full
 delineation. Sham-controlled intervention experiments show that the model responds specifically to nuclear
 content, yet forms its prediction by integrating evidence over the whole image rather than by localising
 individual instances. Organ-conditional conformal prediction intervals attain the target coverage across all
-$19$ tissue types. Dense spatial annotation is therefore not a prerequisite for accurate nuclei counting.
+19 tissue types. Dense spatial annotation is therefore not a prerequisite for accurate nuclei counting.
 }
 \keywords{nuclei counting, annotation efficiency, weak supervision, uncertainty quantification,
 conformal prediction, computational pathology}
@@ -212,7 +212,7 @@ prediction interval $[\mu - q\sigma,\ \mu + q\sigma]$ at target coverage $1-\alp
 reported results. Three calibration strategies are considered: a global threshold, an organ-conditional
 threshold (mondrian) and a difficulty-cluster threshold. They represent different trade-offs between interval
 width and per-group coverage guarantees. This is standard split conformal prediction; it assesses the practical
-deployability of the counter and is not a central contribution of the paper.
+deployability of the counter.
 
 %%============================================================%%
 \section{Experimental setup}\label{sec:setup}
@@ -414,7 +414,7 @@ Colon         & $494$ & $0.923$ & $3.93$ & Stomach    & $48$  & $0.963$ & $3.95$
 Esophagus     & $141$ & $0.897$ & $3.19$ & Testis     & $57$  & $0.949$ & $3.05$ \\
 Head \& neck  & $145$ & $0.954$ & $3.17$ & Thyroid    & $62$  & $0.873$ & $3.30$ \\
 Kidney        & $41$  & $0.958$ & $4.51$ & Uterus     & $163$ & $0.907$ & $6.70$ \\
-Liver         & $93$  & $0.884$ & $3.39$ & \textbf{Overall} & $\mathbf{2722}$ & $\mathbf{0.934}$ & $\mathbf{3.40}$ \\
+Liver         & $93$  & $0.884$ & $3.39$ & \textbf{Overall} & $2722$ & $0.934$ & $3.40$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -536,7 +536,7 @@ of between-seed variation shown by the count-only column.}\label{tab:paradigm}
 \toprule
 Method & Params & Labels & Paradigm & $R^2\uparrow$ & MAE$\downarrow$ \\
 \midrule
-DensitySigmaUNet (count-only) & $3.62$M & counts & regression & $\mathbf{0.918\pm0.011}$ & $\mathbf{3.60\pm0.10}$ \\
+DensitySigmaUNet (count-only) & $3.62$M & counts & regression & $0.918\pm0.011$ & $3.60\pm0.10$ \\
 StarDist~\cite{stardist} & $1.43$M & masks & segmentation & $0.841$ & $4.64$ \\
 DualU-Net~\cite{dualunet} & ${\sim}35$M & masks & centroid density & $0.804$ & $5.33$ \\
 DeNuC~\cite{denuc} & $4.37$M & boxes or points & detection & $0.455$ & $9.64$ \\
@@ -601,8 +601,8 @@ $0.859$ and yet no tissue type counted as under-covered.}\label{tab:uq}
 Scheme & Marginal coverage & Width & Winkler & Worst-organ coverage & Under-covered organs \\
 \midrule
 global & $0.904$ & $14.5$ & $20.3$ & $0.765$ & $4/19$ \\
-mondrian & $0.923$ & $16.6$ & $20.5$ & $\mathbf{0.906}$ & $\mathbf{0/19}$ \\
-cluster & $0.906$ & $14.8$ & $\mathbf{20.0}$ & $0.859$ & $0/19$ \\
+mondrian & $0.923$ & $16.6$ & $20.5$ & $0.906$ & $0/19$ \\
+cluster & $0.906$ & $14.8$ & $20.0$ & $0.859$ & $0/19$ \\
 \bottomrule
 \end{tabular}
 \end{table}
