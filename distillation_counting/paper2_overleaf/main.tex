@@ -164,8 +164,14 @@ luyện trên ImageNet ghép với một bộ giải mã kiểu U-Net~\cite{unet
 \begin{equation}
 \sigma = \sqrt{\max(\mu,1)}\;\exp\!\big(\mathrm{clamp}(\log s,-2,2)\big).
 \end{equation}
-Với phân phối Poisson thì $\sigma = \sqrt{\mu}$; thừa số mũ cho phép mạng học mức tán xạ lệch khỏi nền đó, còn
-$\mu$ được tách gradient khỏi nhánh $\sigma$. Cấu hình sử dụng cho $3{,}62$ triệu tham số.
+Nền Poisson được chọn vì đại lượng cần dự đoán là một phép đếm các thực thể rời rạc, mà với phân phối Poisson
+thì $\sigma = \sqrt{\mu}$; đó là mức tán xạ tối thiểu hợp lý khi chưa biết gì thêm, và neo vào đó giúp $\sigma$
+tự co giãn theo số đếm thay vì phải học lại quan hệ này từ dữ liệu. Thừa số mũ cho phép mạng lệch khỏi nền đó
+theo cả hai chiều: khoảng chặn $[-2, 2]$ ứng với hệ số từ $0{,}14$ đến $7{,}4$ lần $\sqrt{\mu}$, đủ rộng để bao
+cả chế độ tán xạ dưới lẫn trên mức Poisson, nên phép chặn đóng vai trò một rào số học ngăn $\beta$-NLL phân kỳ
+ở các bước đầu chứ không phải một ràng buộc mô hình. Lựa chọn neo này được đối chiếu trực tiếp với một $\sigma$
+không neo ở Mục~\ref{sec:uq}. Gradient của $\mu$ được tách khỏi nhánh $\sigma$. Cấu hình sử dụng cho $3{,}62$
+triệu tham số.
 
 \subsection{Các chế độ giám sát}
 Biến giám sát được cô lập bằng cách giữ nguyên kiến trúc, dữ liệu và giao thức đánh giá, chỉ thay đổi trọng số hàm
@@ -177,9 +183,20 @@ không dùng bản đồ mục tiêu ở mức điểm ảnh.
 \item \textbf{mask} ($w_d{=}1$): mô hình học khớp bản đồ mật độ dựng từ mặt nạ thực; một trọng số đếm nhỏ $w_c$
 được giữ để tránh nghiệm suy biến của hàm mất mát mật độ, với giá trị và cách chọn nêu ở Mục~\ref{sec:setup}.
 \end{itemize}
+$\mathcal{L}_{\text{mật độ}}$ là sai số bình phương trung bình theo từng điểm ảnh giữa bản đồ dự đoán và bản đồ
+mục tiêu; $\mathcal{L}_{\text{đếm}} = |\mu - N|$ lấy trung bình theo lô, với $N$ là số nhân thực của ảnh; còn
 $\mathcal{L}_{\text{NLL}}$ là hàm hợp lý âm dạng $\beta$-NLL~\cite{bnll}, huấn luyện $\sigma$ mà không ảnh hưởng
 $\mu$. Đầu bất định vì thế được huấn luyện trước bằng $\beta$-NLL, còn các khoảng dự đoán cuối cùng được hiệu
 chuẩn hậu nghiệm như trình bày dưới đây.
+
+Hai nhận xét về thiết kế này. Thứ nhất, trong chế độ count-only hàm mất mát chỉ ràng buộc \emph{tổng} của bản đồ
+mật độ, mà vô số bản đồ khác nhau cùng thoả một tổng cho trước. Bản đồ mà mạng thực sự học được do đó không do
+hàm mất mát quy định, và việc nó có mang thông tin vị trí hay không là một câu hỏi thực nghiệm; câu hỏi này được
+đo trực tiếp ở Mục~\ref{sec:fidelity}. Thứ hai, vì $w_c > 0$ ở nhánh mask, hai chế độ không hoàn toàn đối xứng:
+nhánh mask nhận cả giám sát mật độ lẫn một phần giám sát đếm, còn count-only chỉ nhận giám sát đếm. Bất đối xứng
+này nghiêng về phía \emph{có lợi} cho nhánh mask, vì nó được cấp thêm đúng tín hiệu khớp với chỉ số dùng để đánh
+giá. Chênh lệch đo được ở Mục~\ref{sec:parity} vì vậy là một chặn trên của chênh lệch mà giám sát mặt nạ thuần
+tuý tạo ra, nên lựa chọn này không làm nới lỏng kết luận của bài.
 
 \subsection{Hiệu chuẩn khoảng dự đoán}
 Sau huấn luyện, conformal prediction theo lối chia (split-conformal)~\cite{vovk,cqr} được áp dụng trên một
@@ -191,7 +208,9 @@ chuẩn hoá bất định theo phương sai Poisson--Binomial và cập nhật 
 trình trước của cùng nhóm tác giả~\cite{pbjci} và không được sử dụng ở đây. Ba biến thể này khảo sát cùng một đánh đổi. Một ngưỡng chung dùng toàn bộ dữ liệu hiệu chuẩn và
 thường cho khoảng dự đoán hẹp nhất, nhưng chỉ bảo đảm mức phủ trên toàn bộ tập. Ngược lại, ngưỡng theo nhóm bảo
 đảm mức phủ trong \emph{từng} nhóm riêng biệt, đổi lại khoảng dự đoán rộng hơn và ít dữ liệu hiệu chuẩn hơn cho
-mỗi nhóm.
+mỗi nhóm. Cần nói rõ vị trí của phần này trong bài: đây là một phân tích bổ trợ nhằm đưa bộ đếm tới trạng thái
+dùng được trên thực tế, không phải đóng góp trung tâm. Câu hỏi trung tâm vẫn là so sánh hai chế độ giám sát ở
+Mục~\ref{sec:parity}.
 
 %%============================================================%%
 \section{Thiết lập thực nghiệm}\label{sec:setup}
