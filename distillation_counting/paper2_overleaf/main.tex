@@ -291,7 +291,8 @@ $\delta^\star = 0{,}27$ nhân.}
 
 Đối với tác vụ đếm và trên cùng một kiến trúc, hạ chú thích từ mặt nạ ở mức điểm ảnh xuống một con số đếm cho
 mỗi ảnh đi kèm một mức suy giảm nhỏ và đo được trên PanNuke, bị chặn trên bởi khoảng $1\%$ số nhân mỗi ảnh.
-Trên hai tập còn lại không có suy giảm nào. Cần lưu ý phạm vi của phép so sánh này: nhánh mask dùng
+Trên hai tập còn lại, chênh lệch trung bình nghiêng về phía count-only nhưng dao động giữa các lần chạy lớn
+hơn chênh lệch, nên ở đó không quan sát được suy giảm nào có tính nhất quán. Cần lưu ý phạm vi của phép so sánh này: nhánh mask dùng
 \emph{cùng} kiến trúc với count-only nhằm cô lập ảnh hưởng của \emph{loại giám sát}, nên nó không đo năng lực của
 một kiến trúc phân vùng được tối ưu riêng. Mục~\ref{sec:paradigm} xét câu hỏi đó tách biệt.
 
@@ -546,7 +547,9 @@ không khác nhau đáng kể. Neo Poisson do đó là lựa chọn thiết kế
 \centering
 \caption{Chất lượng khoảng dự đoán sau hiệu chuẩn conformal trên PanNuke fold~3 ($n=2722$), trung bình trên
 $20$ lần chia hiệu chuẩn ngẫu nhiên. Mức phủ mục tiêu là $0{,}90$; độ rộng và điểm Winkler tính bằng đơn vị
-nhân, càng thấp càng tốt.}\label{tab:uq}
+nhân, càng thấp càng tốt. Một loại mô được tính là thiếu phủ khi mức phủ của nó thấp hơn mục tiêu quá
+$0{,}05$, tức dưới $0{,}85$; ngưỡng dung sai này giải thích vì sao sơ đồ cluster có mức phủ thấp nhất
+$0{,}859$ mà vẫn không loại mô nào bị tính là thiếu phủ.}\label{tab:uq}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
 Sơ đồ & Phủ biên & Độ rộng & Winkler & Phủ cơ quan thấp nhất & Số cơ quan thiếu phủ \\
