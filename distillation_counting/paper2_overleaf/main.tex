@@ -525,13 +525,17 @@ Bộ đếm có $3{,}62$M tham số và $0{,}98$ GMACs ở đầu vào $256\time
 $46$\,ms trên CPU, đỉnh bộ nhớ $37{,}9$\,MB. Các chỉ số này cho phép suy luận thời gian thực trên cả GPU phổ
 thông lẫn CPU.
 
-Chênh lệch lớn hơn nằm ở phía chú thích. Qu và cộng sự~\cite{qu2020} báo cáo rằng khoanh viền đầy đủ mọi nhân
-trong một ảnh (trung bình khoảng $600$ nhân) tốn khoảng $115$ phút, còn đánh dấu điểm cho toàn bộ nhân tốn khoảng
-$14$ phút. Chi phí của nhãn đếm ở mức ảnh chưa được đo trực tiếp trong y văn, nhưng nó bị chặn trên bởi chi phí
-đánh dấu điểm: đếm đòi hỏi duyệt qua các nhân đúng như khi đánh dấu, mà không cần đặt chính xác từng điểm và
-không cần khoanh viền. Nhãn đếm do đó rẻ hơn mặt nạ đầy đủ ít nhất $8$ lần, và con số xấp xỉ còn rẻ hơn nữa.
-Đặt cạnh mức suy giảm độ chính xác đo được ở Mục~\ref{sec:parity}, bị chặn trên bởi khoảng $1\%$ số nhân mỗi
-ảnh, sự bất đối xứng chi phí này là luận điểm hiệu quả trung tâm của bài báo.
+Chênh lệch lớn hơn nằm ở phía chú thích. Qu và cộng sự~\cite{qu2020} cho một nhà bệnh học chú thích tám ảnh
+theo ba cách và đo thời gian: với ảnh trung bình khoảng $600$ nhân, khoanh viền đầy đủ tốn khoảng $115$ phút,
+hộp bao khoảng $67$ phút, còn đánh dấu điểm cho toàn bộ nhân chỉ khoảng $14$ phút. Chi phí của nhãn đếm ở mức
+ảnh chưa được đo trực tiếp trong y văn, nhưng nó bị chặn trên bởi chi phí đánh dấu điểm: đếm đòi hỏi duyệt qua
+các nhân đúng như khi đánh dấu, mà không cần đặt chính xác từng điểm và không cần khoanh viền. Theo số liệu đó,
+nhãn đếm rẻ hơn mặt nạ đầy đủ ít nhất $8$ lần, và một số đếm xấp xỉ còn rẻ hơn nữa. Tỉ số này nên được đọc như
+một bậc độ lớn chứ không phải một hằng số chuyển được: nó dựa trên tám ảnh của một người chú thích, và ảnh ở đó
+dày hơn nhiều so với các mảnh $256\times256$ dùng trong bài (trung bình $24{,}5$ nhân). Điều được bảo toàn giữa
+hai chế độ là chi phí \emph{cho mỗi nhân}: theo cùng số liệu trên, khoanh viền tốn khoảng $11{,}5$ giây mỗi
+nhân còn đánh dấu điểm khoảng $1{,}4$ giây, và đếm không thể đắt hơn đánh dấu. Đặt cạnh mức suy giảm độ chính xác đo được ở Mục~\ref{sec:parity}, bị chặn trên bởi khoảng $1\%$ số
+nhân mỗi ảnh, bất đối xứng đó là luận điểm hiệu quả trung tâm của bài báo.
 
 \subsection{Định lượng bất định cho triển khai tin cậy}\label{sec:uq}
 Khoảng dự đoán được hiệu chuẩn không chỉ ở cấp độ biên mà còn theo điều kiện cơ quan (Bảng~\ref{tab:uq}). Cả

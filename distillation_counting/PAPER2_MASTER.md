@@ -285,6 +285,15 @@ Chỉ PanNuke đủ lực để bán biên hẹp. MoNuSeg cũng hạ xuống "da
 
 **Định vị honest (cập nhật):** *"bộ đếm nhân 3.6M, count-only (không mask), R² **0.920** leak-free — **thắng cả 3 paradigm nhãn-đắt** (density DualU-Net 35M, instance StarDist, detection DeNuC) ở bài đếm với **nhãn rẻ hơn 1 bậc**; kèm UQ calibrated (worst-organ robust, transfer 3 dataset)."* = **applied efficiency + UQ**, honest, mid-Q1-applied. Xem [[paper2-main-table-leakfree]], [[paper2-main-is-new-method]].
 
+**★ Nguồn số "rẻ hơn ít nhất 8 lần" (Bảng chi phí chú thích, §4.5 + abstract) — VERIFIED 2026-07-31:**
+Qu et al., TMI 2020 (arXiv 2007.05448, `\cite{qu2020}`): **một** nhà bệnh học chú thích **8 ảnh** tập LC
+(Lung Cancer) theo 3 cách. Trung bình mỗi ảnh (**~600 nhân**): mặt nạ đầy đủ **115 phút**, hộp bao **67 phút**,
+điểm toàn bộ **~14 phút**, 10% điểm **<2 phút**. → per-nhân: viền 11,5 s, điểm 1,4 s.
+- Bài dùng: 115/14 = **8,2×** → viết "ít nhất 8 lần". Chi phí nhãn ĐẾM **chưa ai đo** → bài chặn trên bằng chi
+  phí điểm (đếm phải duyệt từng nhân như đánh dấu, không cần đặt điểm/vẽ viền). Đây là LẬP LUẬN, không phải đo.
+- ⚠️ Yếu điểm reviewer sẽ bắt: n=8 ảnh, 1 người, 1 dataset; ảnh ~600 nhân vs mảnh PanNuke 24,5 nhân.
+  → §4.5 đã ghi rõ cả ba caveat + neo lại bằng chi phí per-nhân (bậc độ lớn, không phải hằng số chuyển được).
+
 ---
 
 ## 1. IDENTITY & RANH GIỚI
