@@ -197,6 +197,19 @@ Scaling **bão hoà ở 3.6M** (lớn hơn tệ đi) = lập luận **efficiency
 | StarDist (retrain fold_1+2) | 1.43M (U-Net) | mask | 0.841 | 4.64 | ✅ (under-count 20.8; nhỏ hơn efflite0 nhưng cần mask + kém acc) |
 | ↳ **param VERIFIED 2026-08-01** | **1,425,761** (= 1.43M, khớp bảng) | — | — | — | cộng mọi dataset trong `weights_best.h5` (kaggle `dattong12/stardist-ckpt-fold1-2-pannuke`); gồm cả non-trainable (BN moving stats) |
 | **PACT efflite0 (ours)** | **3.62M** | **count-only** | **0.920±0.005** | **3.61±0.07** | ✅ **thắng CẢ 3 paradigm** |
+
+**★ KIỂM PARAM Bảng 4 (2026-08-01) — 2/4 ô từng SAI, đừng tin ô nào chưa có dấu ✅:**
+
+| ô | trạng thái | nguồn |
+|---|---|---|
+| DensitySigmaUNet 3.62M | ⬜ chưa kiểm lại | tự tính lúc train |
+| StarDist 1.43M | ✅ **1,425,761** khớp | kaggle `dattong12/stardist-ckpt-fold1-2-pannuke`, `weights_best.h5` |
+| DualU-Net ~35M | ❌ **SAI → 41.0M** | `~/Downloads/resnext_pannuke_fold12_epoch_50.zip` key `model` |
+| DeNuC 4.37M | ⬜ chưa kiểm | — |
+
+- Cùng đợt: cột Nhãn của DeNuC **`box/point` → `points`** (MASTER:194 ghi centroid; `denuc_count_eval.py` đọc `gt_coords` Nx2).
+- **Bài học:** ô có dấu `~` hoặc dấu `/` là ô viết lúc CHƯA biết chắc; các vòng kiểm sau chỉ dò con số nên không bao giờ chạm tới.
+  Xem [[feedback-audit-bang-o-trong]].
 | KongNet (2510.23559, 10/2025) SOTA | — | mask | — | — | **cite** |
 | Distill-H-Optimus (2502.19217, 02/2025) | ~24M | mask | 0.871 (họ báo) | — | **cite peer (no-UQ)** |
 
