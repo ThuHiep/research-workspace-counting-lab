@@ -320,8 +320,8 @@ từng chia, và biên chặt nhất đạt được là trung vị $6{,}6\%$.
 
 Ba giá trị $\delta^\star$ xếp theo đúng lực kiểm định mà mỗi tập cho phép: $1{,}1\%$ với $2722$ mảnh kiểm tra
 cố định, $3{,}0\%$ với $224$ mảnh, và $6{,}6\%$ khi tập kiểm tra chỉ có ${\sim}133$ ảnh và còn đổi theo hạt
-giống; giá trị của MoNuSeg còn lạc quan hơn con số ghi trong bảng, vì $224$ mảnh ở đó đến từ $14$ ảnh nên không
-độc lập với nhau. Điều đọc được từ ba tập gộp lại không phải là một chế độ tốt hơn chế độ kia, mà là chiều của chênh lệch
+giống. Riêng với MoNuSeg, $224$ mảnh đến từ $14$ ảnh nên không độc lập với nhau; gộp về mức ảnh chỉ nới
+$\delta^\star$ từ $3{,}0\%$ lên $3{,}3\%$ mà không đổi kết luận. Điều đọc được từ ba tập gộp lại không phải là một chế độ tốt hơn chế độ kia, mà là chiều của chênh lệch
 \emph{đổi dấu} giữa các tập trong khi độ lớn của nó luôn bị chặn trong vài phần trăm số nhân mỗi ảnh.
 
 \begin{figure}[!htbp]
@@ -368,9 +368,12 @@ với PanNuke: với ${\sim}133$ ảnh mỗi chia, lực kiểm định thấp h
 phép một kiểm định gộp như trên PanNuke; số liệu lấy trung bình $5$ hạt giống với thuật toán huấn luyện tất
 định. Chiều của chênh lệch ở đây \emph{ngược} với PanNuke: sai số tuyệt đối theo từng mảnh của count-only thấp
 hơn ($6{,}84$ so với $7{,}50$ nhân) và khác biệt có ý nghĩa thống kê, trong khi $R^2$ của \emph{cả hai} chế độ
-dao động mạnh giữa các hạt giống vì tập huấn luyện chỉ có $37$ ảnh. Cần lưu ý $224$ mảnh kiểm tra được cắt từ
-$14$ ảnh nên các mảnh thuộc cùng một ảnh không độc lập; $p$ và $\delta^\star$ ở hàng này do đó là ước lượng lạc
-quan.}
+dao động mạnh giữa các hạt giống vì tập huấn luyện chỉ có $37$ ảnh. Vì $224$ mảnh kiểm tra được cắt từ $14$ ảnh
+nên các mảnh thuộc cùng một ảnh không độc lập, và kiểm định ở mức mảnh có xu hướng lạc quan. Phép gộp $16$ mảnh
+của mỗi ảnh thành một số đếm duy nhất cho ảnh đó đưa đơn vị phân tích về đúng đơn vị lấy mẫu: với $n = 14$ ảnh,
+chênh lệch trung bình là $-8{,}2$ nhân trên mỗi ảnh (khoảng tin cậy $90\%$ $[-15{,}7;\ -1{,}2]$, không chứa $0$)
+trên số đếm trung bình $478$ nhân, và $\delta^\star$ nới từ $3{,}0\%$ lên $3{,}3\%$. Chiều, tính có ý nghĩa và
+độ lớn tương đối của chênh lệch do đó không đổi khi bỏ giả thiết độc lập giữa các mảnh.}
 \end{table}
 
 \subsection{Số đếm dự đoán phản hồi nhân quả với nội dung nhân}\label{sec:fidelity}

@@ -312,6 +312,23 @@ count-only **0,4585 ± 0,1944** / MAE 6,841 ± 1,506 vs mask **0,3615 ± 0,1541*
   5 seed + cuDNN tất định, và R² lẫn MAE **cùng chiều** nên nhất quán nội bộ.
 - ⛔ **BACKUP `monuseg_parity_5seed.npz` lên Kaggle dataset NGAY** = 10 lần train (~3 giờ).
 
+**★ MoNuSeg kiểm định lại ở MỨC ẢNH (2026-07-31, gộp từ chính npz, KHÔNG train lại) — trả lời phản biện phân cụm:**
+224 mảnh cắt từ 14 ảnh, mảnh cùng ảnh KHÔNG độc lập → kiểm định mức mảnh lạc quan. **Ánh xạ mảnh→ảnh suy ra
+được từ thứ tự**: `build_patches` duyệt từng ảnh, 2 vòng `gy,gx` trên `GRID=4` → LUÔN đúng 16 mảnh/ảnh, không
+lọc; `te` và `eval_r2` giữ nguyên thứ tự ⇒ **mảnh k thuộc ảnh k//16**. (Không cần biết ảnh NÀO, chỉ cần nhóm.)
+
+| | mức mảnh (n=224) | mức ảnh (n=14) |
+|---|---|---|
+| Δ|err| | −0,654 nhân | **−8,18 nhân** |
+| CI90 | [−0,889; −0,427] | **[−15,74; −1,24]** (không chứa 0) |
+| δ* | 0,889 = **3,0%** | 15,74 = **3,3%** |
+| MAE c/m | 6,84 / 7,50 | 89,68 / 97,86 |
+| gt TB | 29,9/mảnh | **478,36/ảnh** |
+
+⇒ **Bỏ giả thiết độc lập chỉ nới δ* 3,0% → 3,3%; chiều + ý nghĩa + độ lớn tương đối KHÔNG đổi.** Chú thích ‡
+Bảng 1 giờ ghi số đo này thay vì chỉ cảnh báo "lạc quan". Cross-check phép gộp: 224×29,9/14 = 478,4 ✓.
+⚠️ Còn thiếu: Wilcoxon p ở mức ảnh + số ảnh nghiêng mỗi bên (k/14) — chưa dán về.
+
 ---
 
 ## 1. IDENTITY & RANH GIỚI
