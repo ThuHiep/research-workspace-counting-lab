@@ -137,6 +137,8 @@ def main():
                     help="TOST: biên tương đương (đơn vị NHÂN). Mặc định None -> suy từ --delta_frac.")
     ap.add_argument("--delta_frac", type=float, default=0.05,
                     help="TOST: biên = delta_frac * số nhân trung bình của tập kiểm tra (mặc định 5%%).")
+    ap.add_argument("--dump_preds", default=None,
+                    help="lưu .npz per-image (gt + pred mỗi seed/arm) -> chạy lại Wilcoxon/TOST khỏi train lại")
     ap.add_argument("--w_count_mask", type=float, default=0.1,
                     help="neo count cho config mask (MoNuSeg count~40 -> cần >0.01 để density-MSE không sập; "
                          "PanNuke count nhỏ dùng 0.01 đủ)")
@@ -196,6 +198,11 @@ def main():
             print(f"  [{name:18s} seed{seed}] split={args.split} test {len(te)} patch  "
                   f"R² {r2:+.4f}  MAE {mae:.3f}")
         results[name] = (np.nanmean(r2s), np.nanstd(r2s), np.nanmean(maes), np.nanstd(maes))
+
+    if args.dump_preds and yt_ref is not None:   # lưu TRƯỚC khi chạy test (test lỗi -> vẫn còn dữ liệu train)
+        os.makedirs(os.path.dirname(args.dump_preds) or ".", exist_ok=True)
+        np.savez(args.dump_preds, gt=yt_ref, seeds=np.array(seeds),
+                 **{n.split()[0]: np.stack(per_img[n]) for n, _, _ in configs})
 
     print(f"\n=== MoNuSeg IN-DOMAIN efflite0 ({len(seeds)} seed, split={args.split}) — dataset thứ 3 ===")
     for name, (r2m, r2s, maem, maes) in results.items():
