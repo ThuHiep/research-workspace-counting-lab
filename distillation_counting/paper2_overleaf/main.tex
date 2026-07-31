@@ -36,21 +36,22 @@ nuclei counting}
 \orgaddress{\city{Ho Chi Minh City}, \country{Vietnam}}}
 
 \abstract{%
-Đếm nhân tế bào là một nhiệm vụ nền tảng trong bệnh học số, nhưng chú thích nhân ở mức điểm ảnh đòi hỏi nhiều
-giờ công chuyên gia và khó mở rộng sang loại mô, cơ quan hoặc trung tâm mới. Phần lớn phương pháp hiện nay ước
-lượng số đếm thông qua phân vùng, phát hiện hoặc định vị nhân, hàm ý rằng giám sát không gian dày đặc là điều
-kiện cần cho độ chính xác đếm cao. Giả định này được kiểm định bằng một thí nghiệm có kiểm soát: kiến trúc, dữ
-liệu và giao thức đánh giá được giữ nguyên, chỉ thay mức giám sát từ mặt nạ điểm ảnh sang một nhãn đếm duy nhất
-cho mỗi ảnh. Trên ba bộ dữ liệu độc lập (PanNuke, NuInsSeg và MoNuSeg), không chế độ nào chiếm ưu thế nhất
-quán: $R^2$ trung bình của count-only cao hơn trên hai tập, và trên tập lớn nhất, nơi tập kiểm tra cố định đủ
-lớn cho một kiểm định tương đương, giám sát mặt nạ nhỉnh hơn một lượng bị chặn trên bởi $1{,}1\%$ số nhân trung
-bình mỗi ảnh. Một can thiệp có đối chứng giả xác nhận đáp ứng của
-mô hình đặc hiệu với nội dung nhân: thay toàn bộ nhân bằng mô không chứa nhân, giữ nguyên hình dạng và diện
-tích, làm số đếm dự đoán giảm còn $0{,}37$ lần, trong khi đối chứng giả duy trì ở mức $1{,}02$ lần. Trên PanNuke,
-bộ đếm $3{,}62$ triệu tham số huấn luyện count-only đạt $R^2 = 0{,}918$, vượt các đại diện của phân vùng, ước
-lượng mật độ và phát hiện trên cùng tác vụ đếm, và hiệu chuẩn conformal theo từng cơ quan cho khoảng dự đoán
-không bỏ sót loại mô nào trong số $19$ loại. Vì nhãn đếm ở mức ảnh rẻ hơn ít nhất tám lần so với khoanh viền
-đầy đủ, giám sát không gian dày đặc không phải là điều kiện cần để đếm nhân chính xác.
+Chú thích nhân ở mức điểm ảnh tốn nhiều giờ công chuyên gia và khó mở rộng sang mô, cơ quan hoặc trung tâm mới.
+Phần lớn phương pháp đếm nhân hiện nay suy ra số đếm từ phân vùng hoặc phát hiện, hàm ý rằng giám sát không gian
+dày đặc là điều kiện cần cho độ chính xác đếm cao. Giả định này được kiểm định bằng một thí nghiệm có kiểm soát:
+kiến trúc, dữ liệu và giao thức đánh giá giữ nguyên, chỉ thay mức giám sát từ mặt nạ điểm ảnh sang một nhãn đếm
+duy nhất cho mỗi ảnh. Trên ba bộ dữ liệu độc lập (PanNuke, NuInsSeg và MoNuSeg), không chế độ nào chiếm ưu thế
+nhất quán: $R^2$ trung bình của count-only cao hơn trên hai tập, còn trên tập lớn nhất, một kiểm định tương
+đương chặn phần nhỉnh hơn của giám sát mặt nạ ở $1{,}1\%$ số nhân trung bình mỗi ảnh. Một can thiệp có đối chứng
+giả cho thấy đáp ứng đặc hiệu với nội dung nhân: gỡ dần nhân và thay bằng mô không chứa nhân cùng hình dạng làm
+số đếm giảm đơn điệu, còn $0{,}37$ lần khi gỡ hết, trong khi gỡ cùng diện tích mô không chứa nhân giữ số đếm ở
+$1{,}00$--$1{,}02$. Đáp ứng chỉ đạt
+khoảng $0{,}64$ mức của một bộ đếm cộng dồn trung thực và bản đồ mật độ gần như không định vị được nhân, cho
+thấy mô hình tích hợp bằng chứng nhân trên toàn ảnh thay vì cộng từng thực thể. Trên PanNuke, bộ đếm count-only
+$3{,}62$ triệu tham số đạt $R^2 = 0{,}918$, vượt các đại diện của phân vùng, ước lượng mật độ và phát hiện trên
+cùng tác vụ đếm; hiệu chuẩn conformal theo cơ quan không bỏ sót loại mô nào trong $19$ loại. Nhãn đếm ở mức ảnh
+rẻ hơn ít nhất tám lần so với khoanh viền đầy đủ, nên giám sát không gian dày đặc không cần thiết cho việc đếm
+nhân chính xác.
 }
 \keywords{nuclei counting, annotation efficiency, weak supervision, uncertainty quantification,
 conformal prediction, computational pathology}
@@ -84,12 +85,14 @@ Các đóng góp chính của bài báo như sau.
 Trên tập kiểm tra cố định và đủ lớn, kiểm định tương đương bắt cặp theo từng ảnh chặn chênh lệch ở mức
 $1{,}1\%$ số nhân trung bình mỗi ảnh; trên hai tập nhỏ hơn, phương sai giữa các chia lấn át và biên chặt nhất
 đạt được rộng hơn khoảng sáu lần (Mục~\ref{sec:parity}).
-\item Một thí nghiệm can thiệp có đối chứng giả kiểm tra liệu dự đoán của mô hình có phụ thuộc đặc hiệu vào nội
-dung nhân hay không, qua đó khoanh vùng cơ chế đứng sau kết quả tương đương (Mục~\ref{sec:fidelity}).
+\item Một thí nghiệm can thiệp có đối chứng giả cho thấy dự đoán của mô hình phụ thuộc đặc hiệu vào nội dung
+nhân, nhưng đáp ứng dưới tuyến tính và bản đồ mật độ không định vị được nhân. Hai quan sát này cùng khoanh vùng
+cơ chế đứng sau kết quả ở Mục~\ref{sec:parity} (Mục~\ref{sec:fidelity}).
 \item Khi được huấn luyện lại và đánh giá trên cùng phân chia dữ liệu, bộ đếm count-only nhẹ vượt các đại diện
 của ba dòng phương pháp dùng nhãn đắt trên tác vụ đếm. Phương pháp phát hiện suy giảm có hệ thống ở vùng nhân dày đặc (Mục~\ref{sec:paradigm}).
-\item Bài báo định lượng hiệu quả chú thích qua đường cong học theo tỉ lệ nhãn, và trang bị cho bộ đếm một đầu
-bất định được hiệu chuẩn cho triển khai tin cậy (Mục~\ref{sec:label},~\ref{sec:uq}).
+\item Bài báo định lượng hiệu quả chú thích qua đường cong học theo tỉ lệ nhãn, đối chiếu chi phí chú thích với
+chi phí tính toán, và trang bị cho bộ đếm một đầu bất định được hiệu chuẩn cho triển khai tin cậy
+(Mục~\ref{sec:label}--\ref{sec:uq}).
 \end{itemize}
 
 %%============================================================%%
