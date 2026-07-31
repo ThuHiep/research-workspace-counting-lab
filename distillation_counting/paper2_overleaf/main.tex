@@ -2,7 +2,6 @@
 %%
 %% >>> Bien dich pdfLaTeX. Tieng Viet: babel + [T5]{fontenc}. Neu dau loi -> XeLaTeX:
 %%     \usepackage{fontspec}\usepackage{polyglossia}\setmainlanguage{vietnamese}
-%% CHO TRONG (dien khi co ket qua) danh dau bang \pending -> mau do [dang chay].
 \documentclass[pdflatex,sn-mathphys-num]{sn-jnl}
 
 \usepackage{lmodern}
@@ -18,8 +17,6 @@
 \usepackage{multirow}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{booktabs}
-\usepackage{xcolor}
-\newcommand{\pending}{{\color{red}\,[\textsc{đang chạy}]\,}}
 
 \raggedbottom
 \begin{document}
@@ -83,8 +80,8 @@ Các đóng góp chính của bài báo như sau.
 lập (PanNuke~\cite{pannuke}, NuInsSeg~\cite{nuinsseg}, MoNuSeg~\cite{monuseg}) với cùng một kiến trúc. Không
 chế độ nào chiếm ưu thế nhất quán \emph{giữa các tập}; trên tập lớn nhất, phần nhỉnh hơn của giám sát mặt nạ
 tuy có ý nghĩa thống kê nhưng bị một kiểm định tương đương chặn trên ở $1{,}1\%$ số nhân trung bình mỗi ảnh,
-tức dưới một nhân trên mỗi mảnh ảnh; trên MoNuSeg chiều của chênh lệch đổi dấu và cũng bị chặn ở mức vài phần
-trăm (Mục~\ref{sec:parity}).
+tức chưa tới một nhân; trên MoNuSeg chiều của chênh lệch đổi dấu và cũng bị chặn ở mức vài phần trăm
+(Mục~\ref{sec:parity}).
 \item Một thí nghiệm can thiệp với đối chứng giả khớp diện tích cho thấy dự đoán của mô hình phụ thuộc đặc hiệu
 vào nội dung nhân, đồng thời cho thấy đáp ứng là dưới tuyến tính và bản đồ mật độ hầu như không định vị được
 nhân. Hai quan sát này cùng thu hẹp tập cơ chế có thể giải thích kết quả ở Mục~\ref{sec:parity}
@@ -225,7 +222,9 @@ loại ung thư,
 $256\times256$, 19 loại mô; huấn luyện trên fold~1--2 với $5179$ mảnh, kiểm tra trên fold~3 với $2722$ mảnh),
 NuInsSeg~\cite{nuinsseg} ($665$ ảnh đa cơ quan, chia ngẫu nhiên $80/20$ theo từng hạt giống) và
 MoNuSeg~2018~\cite{monuseg} (đa cơ quan từ TCGA, $37$ ảnh huấn luyện và $14$ ảnh kiểm tra theo phân chia chính
-thức; ảnh $1000\times1000$ được cắt thành các mảnh $256$ ở độ phân giải gốc).
+thức; ảnh $1000\times1000$ được cắt thành các mảnh $256$ ở độ phân giải gốc). Đơn vị đánh giá vì thế là mảnh
+$256\times256$ với PanNuke và MoNuSeg, và ảnh nguyên với NuInsSeg; để cho gọn, phần kết quả gọi chung đơn vị
+này là ``ảnh'' trừ khi cần phân biệt.
 
 \paragraph{Chi tiết huấn luyện.} Bộ mã hóa khởi tạo từ trọng số ImageNet, bộ giải mã dùng $32$ kênh. Mọi mô hình
 huấn luyện $60$ epoch bằng Adam với tốc độ học $10^{-3}$, cỡ lô $16$, đầu vào $256\times256$, kèm cắt chuẩn
@@ -237,12 +236,12 @@ nhau ở cặp $(w_d, w_c)$, nên biến thực nghiệm duy nhất là loại n
 trên cùng tập kiểm tra. Mỗi cấu hình lặp lại với nhiều hạt giống ngẫu nhiên, báo cáo trung bình cùng độ lệch
 chuẩn.
 
-Nhánh mask được cho cấu hình thuận lợi nhất trong số các giá trị được khảo sát, để phép so sánh không có lợi cho
-count-only. Giám sát mật độ trên bản đồ mục tiêu thưa suy về nghiệm hằng số khi trọng số đếm $w_c$ quá nhỏ. Trên
+Nhánh mask được đánh giá ở cấu hình thuận lợi nhất trong số các giá trị được khảo sát, để phép so sánh không
+thiên vị count-only. Giám sát mật độ trên bản đồ mục tiêu thưa suy về nghiệm hằng số khi trọng số đếm $w_c$ quá nhỏ. Trên
 PanNuke, khảo sát $w_c \in \{0{,}01;\ 0{,}05;\ 0{,}1\}$ cho thấy ở $0{,}01$ nhánh mask suy biến ở $1/5$ hạt
 giống ($R^2$ trung bình $0{,}45 \pm 0{,}94$), còn ở $0{,}05$ và $0{,}1$ thì không. Giá trị $0{,}1$ cho cả trung
-bình cao hơn lẫn phương sai nhỏ hơn nên được dùng cho \emph{cả ba} tập dữ liệu, và cũng là mức nhỏ nhất giữ nhánh
-mask hội tụ ổn định trên NuInsSeg và MoNuSeg.
+bình cao hơn lẫn phương sai nhỏ hơn nên được dùng cho \emph{cả ba} tập dữ liệu, và cũng đủ để giữ nhánh mask hội
+tụ ổn định trên NuInsSeg và MoNuSeg.
 
 Suy biến này là một thất bại của \emph{quá trình tối ưu hoá}: hàm mất mát bình phương trên bản đồ mật độ bị các
 điểm ảnh nền chi phối, và mô hình xuất giá trị hằng số $0$ cho mọi ảnh. Trường hợp này để lại một dấu vết nhận
@@ -255,7 +254,9 @@ quả báo cáo, không hạt giống nào suy biến trên bất kỳ tập d�
 so sánh hai chế độ giám sát, kiểm định Wilcoxon signed-rank bắt cặp được dùng trên sai số tuyệt đối của
 từng ảnh, trong đó sai số mỗi ảnh được lấy trung bình qua các hạt giống trên tập kiểm tra cố định; giá trị
 $p>0{,}05$ được hiểu là không đủ bằng chứng để bác bỏ giả thuyết không, chứ không phải bằng chứng cho sự tương
-đương.
+đương. Khi các đơn vị đánh giá được cắt ra từ một số ít ảnh gốc, chúng không độc lập với nhau và kiểm định có
+xu hướng lạc quan; trong trường hợp đó phép kiểm định được chạy lại sau khi gộp các mảnh của mỗi ảnh thành một
+số đếm duy nhất, và cả hai kết quả đều được báo cáo.
 
 Vì vậy kết luận tương đương được thiết lập bằng một kiểm định riêng. Hai kiểm định một phía (TOST) chạy trên
 cùng các sai số bắt cặp đó bác bỏ giả thuyết không $|\Delta| \ge \delta$, với $\Delta$ là chênh lệch trung bình
@@ -323,8 +324,8 @@ từng chia, và biên chặt nhất đạt được là trung vị $6{,}6\%$.
 
 Ba giá trị $\delta^\star$ xếp theo đúng lực kiểm định mà mỗi tập cho phép: $1{,}1\%$ với $2722$ mảnh kiểm tra
 cố định, $3{,}0\%$ với $224$ mảnh, và $6{,}6\%$ khi tập kiểm tra chỉ có ${\sim}133$ ảnh và còn đổi theo hạt
-giống. Riêng với MoNuSeg, $224$ mảnh đến từ $14$ ảnh nên không độc lập với nhau; gộp về mức ảnh chỉ nới
-$\delta^\star$ từ $3{,}0\%$ lên $3{,}3\%$, tức kết luận về \emph{biên} không phụ thuộc vào đơn vị phân tích. Điều đọc được từ ba tập gộp lại không phải là một chế độ tốt hơn chế độ kia, mà là chiều của chênh lệch
+giống; riêng giá trị của MoNuSeg gần như không đổi khi kiểm lại ở mức ảnh như vừa nêu. Điều đọc được từ ba tập
+gộp lại không phải là một chế độ tốt hơn chế độ kia, mà là chiều của chênh lệch
 \emph{đổi dấu} giữa các tập trong khi độ lớn của nó luôn bị chặn trong vài phần trăm số nhân mỗi ảnh.
 
 \begin{figure}[!htbp]
@@ -392,8 +393,10 @@ huấn luyện độc lập theo cùng giao thức ở Mục~\ref{sec:setup}, �
 Bảng~\ref{tab:parity}; mô hình dùng cho Bảng~\ref{tab:perorgan} và Hình~\ref{fig:agreement} đạt
 $R^2 = 0{,}934$ và MAE $3{,}40$ trên toàn bộ tập kiểm tra. Các dự đoán nằm sát đường
 đếm đúng tuyệt đối trên toàn dải số nhân (Hình~\ref{fig:agreement}a). Khi phân tách theo loại mô (Bảng~\ref{tab:perorgan}), $R^2$ dương ở
-\emph{cả} $19/19$ loại, dao động từ $0{,}704$ (Ovarian, $n=52$) đến $0{,}976$ (Cervix, $n=86$); hai giá trị thấp
-nhất đều thuộc các loại mô có ít mảnh kiểm tra nhất. Phân tích Bland--Altman cho độ chệch $+0{,}70$ nhân, tức
+\emph{cả} $19/19$ loại, dao động từ $0{,}704$ (Ovarian, $n=52$) đến $0{,}976$ (Cervix, $n=86$). Hai giá trị
+thấp nhất rơi vào các loại mô có ít mảnh kiểm tra, nơi ước lượng $R^2$ kém ổn định, nhưng quan hệ không đơn
+điệu: loại mô ít mảnh nhất (Pancreatic, $n=28$) vẫn đạt $0{,}901$, còn giá trị thấp thứ ba lại thuộc một loại
+mô nhiều mảnh (Adrenal gland, $n=155$, $R^2 = 0{,}818$). Phân tích Bland--Altman cho độ chệch $+0{,}70$ nhân, tức
 khoảng $3\%$ của số nhân trung bình, với giới hạn tương hợp $\pm10{,}2$ nhân (Hình~\ref{fig:agreement}b); nghĩa
 là sai số không mang thiên lệch hệ thống theo một hướng. Như vậy độ chính xác tổng thể không đến từ việc khớp tốt
 một vài loại mô chiếm đa số.
@@ -676,8 +679,9 @@ pháp dùng nhãn đắt trên tác vụ đếm, và có thể được trang b�
 
 Các hướng phát triển gồm kiểm chứng tính khái quát của phát hiện qua nhiều họ kiến trúc, trong đó có bộ mã hóa
 dạng transformer và các mạng phân vùng chuyên dụng; truy nguyên những đặc trưng ảnh cấu thành phép tích hợp mà
-bộ đếm học được, và vì sao hệ số đáp ứng của nó nhỏ hơn một; khắc phục sự phụ thuộc độ phân giải bằng học đa tỉ
-lệ; và mở rộng đầu bất định để nắm bắt sai số do dịch chuyển miền.
+bộ đếm học được, và vì sao hệ số đáp ứng của nó nhỏ hơn một; đo và khắc phục mức phụ thuộc vào độ phân giải mà
+cơ chế nêu trên dự đoán, chẳng hạn bằng học đa tỉ lệ; và mở rộng đầu bất định để nắm bắt sai số do dịch chuyển
+miền.
 
 %%============================================================%%
 \backmatter
