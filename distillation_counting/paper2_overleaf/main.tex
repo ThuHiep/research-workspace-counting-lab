@@ -79,20 +79,20 @@ giữ cố định. Biến thực nghiệm duy nhất là loại giám sát: m�
 
 Các đóng góp chính của bài báo như sau.
 \begin{itemize}
-\item Trên ba tập dữ liệu độc lập và cùng một kiến trúc, không chế độ giám sát nào chiếm ưu thế nhất quán
-\emph{giữa các tập}. Trên PanNuke~\cite{pannuke}, tập lớn nhất và có tập kiểm tra cố định, chênh lệch theo từng
-ảnh tuy có ý nghĩa thống kê nhưng được một kiểm định tương đương chặn trên ở $1{,}1\%$ số nhân trung bình mỗi
-ảnh; trên NuInsSeg~\cite{nuinsseg}, biên chặt nhất đạt được rộng gấp khoảng sáu lần, còn trên
-MoNuSeg~\cite{monuseg} phương sai giữa các hạt giống lấn át chênh lệch giữa hai chế độ (Mục~\ref{sec:parity}).
+\item Một phép đo có kiểm soát về mức giám sát tối thiểu cần cho việc đếm, thực hiện trên ba tập dữ liệu độc
+lập (PanNuke~\cite{pannuke}, NuInsSeg~\cite{nuinsseg}, MoNuSeg~\cite{monuseg}) với cùng một kiến trúc. Không
+chế độ nào chiếm ưu thế nhất quán \emph{giữa các tập}; trên tập lớn nhất, phần nhỉnh hơn của giám sát mặt nạ
+tuy có ý nghĩa thống kê nhưng bị một kiểm định tương đương chặn trên ở $1{,}1\%$ số nhân trung bình mỗi ảnh
+(Mục~\ref{sec:parity}).
 \item Một thí nghiệm can thiệp với đối chứng giả khớp diện tích cho thấy dự đoán của mô hình phụ thuộc đặc hiệu
 vào nội dung nhân, nhưng đáp ứng dưới tuyến tính và bản đồ mật độ không định vị được nhân. Hai quan sát này cùng
 khoanh vùng cơ chế đứng sau kết quả ở Mục~\ref{sec:parity} (Mục~\ref{sec:fidelity}).
 \item Khi được huấn luyện lại và đánh giá trên cùng phân chia dữ liệu, bộ đếm count-only nhẹ vượt các đại diện
 của ba dòng phương pháp dùng nhãn đắt trên tác vụ đếm. Phương pháp phát hiện suy giảm có hệ thống ở vùng nhân dày đặc (Mục~\ref{sec:paradigm}).
-\item Hiệu quả chú thích được định lượng ở cả hai phía: một phần tư ngân sách nhãn đạt khoảng $93\%$ hiệu năng
-ở mức nhãn đầy đủ (Mục~\ref{sec:label}), và chi phí chú thích được đối chiếu trực tiếp với chi phí tính toán
-(Mục~\ref{sec:cost}). Bộ đếm được trang bị khoảng dự đoán hiệu chuẩn theo cơ quan, đạt mức phủ mục tiêu trên
-toàn bộ $19$ loại mô (Mục~\ref{sec:uq}).
+\item Một phân tích hiệu quả chú thích đặt cạnh nhau đường cong học theo tỉ lệ nhãn, trong đó một phần tư ngân
+sách đã đạt khoảng $93\%$ hiệu năng ở mức nhãn đầy đủ, và chi phí tính toán khi triển khai
+(Mục~\ref{sec:label}--\ref{sec:cost}). Bộ đếm được trang bị khoảng dự đoán hiệu chuẩn theo từng loại mô cho
+triển khai tin cậy (Mục~\ref{sec:uq}).
 \end{itemize}
 
 %%============================================================%%
