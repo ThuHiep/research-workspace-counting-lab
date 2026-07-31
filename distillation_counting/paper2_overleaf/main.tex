@@ -528,15 +528,15 @@ dominates in the high density regime.
 
 \begin{table}[!htbp]
 \centering
-\caption{Comparison of four paradigms on PanNuke (same test set, counting task). The count-only counter reports
-the mean and standard deviation over $5$ seeds, the same figures as in Table~\ref{tab:parity}; the three
-compared methods are a single training run each, so differences between them should be read against the level
-of between-seed variation shown by the count-only column. The best value in each column is in bold.}\label{tab:paradigm}
+\caption{Comparison of four paradigms on PanNuke (same test set, counting task). DensitySigmaUNet reports the
+mean and standard deviation over $5$ seeds, the same figures as in Table~\ref{tab:parity}; the three compared
+methods are a single training run each, so differences between them should be read against the level of
+between-seed variation shown in its row. The best value in each column is in bold.}\label{tab:paradigm}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
 Method & Params & Labels & Paradigm & $R^2\uparrow$ & MAE$\downarrow$ \\
 \midrule
-DensitySigmaUNet (count-only) & $3.62$M & counts & regression & $\mathbf{0.918\pm0.011}$ & $\mathbf{3.60\pm0.10}$ \\
+DensitySigmaUNet & $3.62$M & counts & regression & $\mathbf{0.918\pm0.011}$ & $\mathbf{3.60\pm0.10}$ \\
 StarDist~\cite{stardist} & $1.43$M & masks & segmentation & $0.841$ & $4.64$ \\
 DualU-Net~\cite{dualunet} & ${\sim}35$M & masks & centroid density & $0.804$ & $5.33$ \\
 DeNuC~\cite{denuc} & $4.37$M & boxes or points & detection & $0.455$ & $9.64$ \\
