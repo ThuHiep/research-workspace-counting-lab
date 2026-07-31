@@ -239,6 +239,16 @@ Scaling **bão hoà ở 3.6M** (lớn hơn tệ đi) = lập luận **efficiency
   còn là .npz → script nạp phải dò theo nội dung `gt.npy` + `pred__*.npy`, đừng glob theo đuôi `.npz`).
 - Bảng 4 paradigm (0,920/3,61) = mô hình hạt giống **trung vị** (0,9197 ≈ 0,920) → đã ghi rõ trong caption.
 
+**★ Cross-backbone pvt_v2_b0 — DÒ lr (2026-07-29, log cũ, chép vào đây 2026-07-31):**
+`sup_compare.py --backbone pvt_v2_b0 --seeds 42 --epochs 3 --lr 3e-4 --w_count_mask 0.01`
+→ count-only **+0,8563** / MAE 4,50; mask **+0,9178** / MAE 3,63; Δ −0,0615; Wilcoxon p=2,2e−18.
+- ⟹ **lr 3e-4 KHÔNG sập** (lr 1e-3 sập cả 2 nhánh về hằng số, R²=−1,43 = chữ ký −μ²/σ² của fold3). **Dùng 3e-4.**
+- ⛔ **KHÔNG được trích số trên làm kết quả:** mới **3 epoch** (giao thức là 60), **1 seed**, và `w_count_mask=0.01`
+  thay vì 0,1 của giao thức. Ở 3 epoch nhánh mask nhận ~65k giá trị giám sát mỗi ảnh còn count-only nhận **1**,
+  nên mask dẫn trước là chuyện hội tụ, không phải chuyện tính đủ của giám sát.
+- Đối chiếu: efflite0 60 epoch cho Δ −0,013. Ở 3 epoch PVT cho −0,062 (gấp ~5). Câu hỏi thật là gap còn lại bao
+  nhiêu **khi hội tụ** → phải chạy 60 epoch × 3 seed × 2 nhánh, **cùng lr 3e-4 cho CẢ HAI nhánh**, w_count_mask=0,1.
+
 **★★ NuInsSeg parity 5 chia + TOST (2026-07-31, `parity_nuinsseg.py`, npz `nuinsseg_parity_5split.npz`) — SỐ CHỐT BẢNG 1:**
 count-only **0,8951 ± 0,0454** vs mask **0,8832 ± 0,0712** → ΔR² **+0,012**. (Số cũ 0,913/0,892 = **SUPERSEDED**,
 run khác, KHÔNG được ghép với δ* của run này.)
