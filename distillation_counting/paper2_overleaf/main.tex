@@ -112,10 +112,12 @@ mức được đề xuất trải từ một điểm cho mỗi nhân~\cite{pseu
 hơn một nhân; các tác giả ước tính mức chú thích này chỉ tốn khoảng $17{,}5\%$ công so với đánh dấu điểm cho
 từng nhân~\cite{lirnet}.
 
-Điểm chung của các công trình này là mô hình cuối cùng vẫn dự đoán vị trí hoặc hình dạng của từng nhân. Để khôi
-phục phần thông tin không gian mà nhãn yếu không cung cấp, các công trình này thường bổ sung những cơ chế như
-sinh nhãn giả, học theo chu kỳ hoặc mạng phụ trợ. Trong bệnh học tính toán, giám sát ở mức ảnh cũng đã được khai thác rộng rãi ở cấp lát cắt
-cho các bài toán phân loại thông qua học đa thực thể~\cite{campanella}. Câu hỏi được đặt ra ở đây khác về bản
+Điểm chung của các công trình này là mục tiêu cuối cùng vẫn bao gồm định vị hoặc suy luận hình dạng của từng
+nhân. Do đó, dù mức chú thích được giảm đáng kể so với mặt nạ đầy đủ, thông tin không gian vẫn đóng vai trò
+trung tâm trong quá trình huấn luyện. Để bù đắp phần thông tin mà nhãn yếu không cung cấp, các phương pháp
+thường kết hợp thêm những cơ chế như sinh nhãn giả, học theo chu kỳ hoặc tín hiệu giám sát bổ trợ. Trong bệnh
+học tính toán, giám sát ở mức ảnh cũng đã được khai thác rộng rãi ở cấp lát cắt cho các bài toán phân loại
+thông qua học đa thực thể~\cite{campanella}. Câu hỏi được đặt ra ở đây khác về bản
 chất: khi đại lượng cần dùng \emph{chính là số đếm}, giám sát không gian có còn cần thiết hay không.
 
 \paragraph{Đếm bằng hồi quy mật độ.} Lempitsky và Zisserman~\cite{lempitsky} đặt nền cho việc đếm bằng cách hồi
@@ -129,26 +131,29 @@ nạ.
 một nhánh riêng. Một con số cho mỗi ảnh là tín hiệu huấn luyện yếu, nên các công trình ở đây bổ sung thêm nguồn
 tín hiệu khác: nhiệm vụ phụ trợ~\cite{matt}, thông tin thứ tự ẩn giữa các ảnh~\cite{sorting}, hoặc mô hình hoá
 ngữ cảnh toàn cục bằng transformer~\cite{transcrowd}. Lei và cộng sự~\cite{matt} ghi nhận rằng hồi quy trực
-tiếp tích phân của bản đồ mật độ về tổng số cho kết quả không thỏa đáng nếu thiếu ràng buộc bổ trợ. Nhận định
-đó được rút ra trên ảnh đám đông. Bài báo này đo lại chính phép hồi quy đó trong đếm nhân mô bệnh học, tách
-riêng hai khía cạnh mà nhánh đếm đám đông thường xét cùng nhau: độ chính xác của số đếm
-(Mục~\ref{sec:parity}) và chất lượng định vị của bản đồ mật độ thu được (Mục~\ref{sec:fidelity}).
+tiếp tích phân của bản đồ mật độ về tổng số cho kết quả không thỏa đáng nếu thiếu ràng buộc bổ trợ. Tuy nhiên,
+các kết quả này chủ yếu được thiết lập trên ảnh đám đông trong môi trường tự nhiên. Mức độ mà các kết luận đó
+còn đúng đối với ảnh mô bệnh học, nơi đối tượng phân bố dày, hình thái tương đối đồng nhất và bối cảnh ít biến
+thiên, vẫn chưa được khảo sát một cách hệ thống.
 
-Nhánh này cũng cung cấp một quan sát quan trọng đối với bài báo: mô hình huấn luyện bằng nhãn đếm \emph{không}
-tự nhiên sinh ra bản đồ không gian có ý nghĩa. Để khôi phục mật độ định vị từ nhãn đếm,
-Count2Density~\cite{count2density} kết hợp thêm một số thành phần nhằm tái tạo cấu trúc không gian, gồm tiên
-nghiệm nổi bật không giám sát, ngân hàng bản đồ lịch sử và ràng buộc chính quy hóa không gian.
+Một quan sát phổ biến trong nhánh nghiên cứu này là mô hình huấn luyện chỉ bằng nhãn đếm không nhất thiết sinh
+ra bản đồ không gian có ý nghĩa. Để khôi phục thông tin định vị từ giám sát count-only,
+Count2Density~\cite{count2density} kết hợp thêm nhiều thành phần bổ trợ nhằm tái tạo cấu trúc mật độ, gồm tiên
+nghiệm nổi bật không giám sát, ngân hàng bản đồ lịch sử và ràng buộc chính quy hoá không gian.
 
 Ngoài ảnh tự nhiên, giám sát count-only mới được chuyển sang một số bài toán đếm vi sinh vật trên ảnh hiển
 vi~\cite{microvit}, còn trong đếm nhân mô bệnh học thì vẫn hiếm gặp.
 
-\paragraph{Khoảng trống.} Điều còn thiếu do đó không phải là một kiến trúc mới, mà là một \emph{phép đo có kiểm
-soát}. Với cùng kiến trúc, cùng dữ liệu và cùng giao thức đánh giá, việc hạ nhãn từ mặt nạ ở mức điểm ảnh xuống
-một con số cho mỗi ảnh thực sự làm mất bao nhiêu độ chính xác đếm? Và mô hình thu được phản ứng với nội dung ảnh
-nào? Bên cạnh đó, các mô hình định lượng nhân nhẹ gần đây, hoặc chưng cất từ một mô hình nền bệnh
-học~\cite{distillfm}, hoặc dùng kiến trúc đa đầu chuyên biệt~\cite{kongnet}, báo cáo độ chính xác tốt nhưng đều
-được huấn luyện bằng nhãn dày đặc và nhìn chung không kèm định lượng bất định. Bài báo được thiết kế để trả lời
-trực tiếp các câu hỏi trên.
+\paragraph{Khoảng trống.} Mặc dù đã có nhiều nỗ lực giảm chi phí chú thích trong phân tích nhân, phần lớn các
+nghiên cứu vẫn giả định rằng một mức độ giám sát không gian nào đó là cần thiết. Do đó, điều còn thiếu không
+phải là một kiến trúc mới mà là một \emph{đánh giá có kiểm soát} về giá trị thực sự của thông tin không gian
+đối với bài toán đếm. Cụ thể, với cùng kiến trúc, cùng dữ liệu và cùng giao thức đánh giá, việc thay thế mặt nạ
+ở mức điểm ảnh bằng một nhãn đếm duy nhất cho mỗi ảnh làm suy giảm độ chính xác đến mức nào vẫn chưa được lượng
+hoá trực tiếp; và nếu mức suy giảm đó nhỏ, thì mô hình chỉ học từ số đếm dựa vào bằng chứng nào trong ảnh cũng
+là câu hỏi chưa được kiểm tra. Bên cạnh đó, các mô hình định lượng nhân nhẹ gần đây, hoặc chưng cất từ một mô
+hình nền bệnh học~\cite{distillfm}, hoặc dùng kiến trúc đa đầu chuyên biệt~\cite{kongnet}, báo cáo độ chính xác
+tốt nhưng đều được huấn luyện bằng nhãn dày đặc và nhìn chung không đi kèm cơ chế định lượng bất định. Bài báo
+được thiết kế để trả lời trực tiếp các câu hỏi trên.
 
 %%============================================================%%
 \section{Phương pháp}\label{sec:method}
