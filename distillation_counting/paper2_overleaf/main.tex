@@ -59,43 +59,39 @@ conformal prediction, computational pathology}
 %%============================================================%%
 \section{Giới thiệu}\label{sec:intro}
 
-Số lượng và mật độ nhân tế bào là những đại lượng định lượng nền tảng trong bệnh học, làm cơ sở cho việc đánh
-giá mức độ tăng sinh, phân độ khối u và phân tích thành phần vi môi trường mô. Phần lớn phương pháp học sâu dẫn
-đầu cho định lượng nhân tiếp cận bài toán một cách gián tiếp: trước hết \emph{phân vùng} hoặc \emph{phát hiện}
-từng nhân, rồi suy ra số đếm từ kết quả đó. Cách tiếp cận này đạt độ chính xác cao nhưng đặt ra một yêu cầu chú
-thích nặng nề: mỗi nhân trong tập huấn luyện phải được khoanh viền hoặc đánh dấu thủ công. Chi phí và tính khó
-mở rộng của loại nhãn ở mức điểm ảnh là một rào cản thực tiễn cố hữu khi triển khai trên mô, cơ quan hoặc trung
-tâm mới.
+Số lượng và mật độ nhân tế bào là những đại lượng định lượng nền tảng trong bệnh học, phục vụ đánh giá mức độ
+tăng sinh, phân độ khối u và phân tích vi môi trường mô. Phần lớn các phương pháp học sâu hiện nay tiếp cận bài
+toán đếm nhân một cách gián tiếp, thông qua \emph{phân vùng} hoặc \emph{phát hiện} từng nhân rồi suy ra số đếm
+từ kết quả đó. Mặc dù đạt độ chính xác cao, các phương pháp này đòi hỏi chú thích ở mức điểm ảnh hoặc mức thực
+thể, vốn tốn nhiều giờ công chuyên gia cho mỗi ảnh và khó mở rộng sang các mô, cơ quan hoặc trung tâm mới.
 
-Ẩn sau chuẩn mực này là một giả định ít khi được kiểm chứng: rằng để đếm nhân chính xác, mô hình cần được dạy
-\emph{vị trí} của từng nhân. Trong các lĩnh vực lân cận như đếm đám đông, giám sát chỉ bằng tổng số đối tượng ở
-mức ảnh (\emph{count-only}) đã được nghiên cứu rộng rãi. Trái lại, đếm nhân mô bệnh học vẫn chủ yếu dựa trên chú
-thích không gian dưới dạng điểm hoặc mặt nạ. Do đó, mức giám sát tối thiểu thực sự cần cho việc đếm vẫn là một
-câu hỏi mở.
+Ẩn sau chuẩn mực này là một giả định ít khi được kiểm chứng trực tiếp: rằng để đếm nhân chính xác, mô hình cần
+được cung cấp thông tin \emph{vị trí} của từng nhân trong quá trình huấn luyện. Trong khi giám sát chỉ bằng
+tổng số đối tượng ở mức ảnh (\emph{count-only}) đã được nghiên cứu rộng rãi trong đếm đám đông và một số bài
+toán đếm đối tượng khác, đếm nhân mô bệnh học vẫn chủ yếu dựa vào các dạng chú thích không gian như điểm hoặc
+mặt nạ. Do đó, mức giám sát tối thiểu thực sự cần cho bài toán đếm nhân vẫn là một câu hỏi mở.
 
-Bài báo trả lời câu hỏi này bằng một \emph{thí nghiệm có kiểm soát}. Kiến trúc (bộ mã hóa nhẹ có sẵn
-EfficientNet-lite0~\cite{efficientnet} ghép bộ giải mã U-Net~\cite{unet}), dữ liệu và giao thức đánh giá được
-giữ cố định. Biến thực nghiệm duy nhất là loại giám sát: mặt nạ ở mức điểm ảnh, hoặc một nhãn đếm duy nhất cho mỗi ảnh. Mọi khác biệt quan sát được do đó quy về
-\emph{chú thích}, không quy về sức mạnh mô hình.
+Bài báo này trả lời câu hỏi đó bằng một \emph{thí nghiệm có kiểm soát}. Kiến trúc mô hình, dữ liệu và giao thức
+đánh giá được giữ cố định, còn biến thực nghiệm duy nhất là loại giám sát: mặt nạ ở mức điểm ảnh, hoặc một nhãn
+đếm duy nhất cho mỗi ảnh. Mọi khác biệt quan sát được do đó quy về \emph{chú thích}, không quy về sức mạnh mô
+hình.
 
 Các đóng góp chính của bài báo như sau.
 \begin{itemize}
-\item Một phép đo có kiểm soát về mức giám sát tối thiểu cần cho việc đếm, thực hiện trên ba tập dữ liệu độc
-lập (PanNuke~\cite{pannuke}, NuInsSeg~\cite{nuinsseg}, MoNuSeg~\cite{monuseg}) với cùng một kiến trúc. Không
-chế độ nào chiếm ưu thế nhất quán \emph{giữa các tập}; trên tập lớn nhất, phần nhỉnh hơn của giám sát mặt nạ
-tuy có ý nghĩa thống kê nhưng bị một kiểm định tương đương chặn trên ở $1{,}1\%$ số nhân trung bình mỗi ảnh,
-tức chưa tới một nhân; trên MoNuSeg chiều của chênh lệch đổi dấu và cũng bị chặn ở mức vài phần trăm
-(Mục~\ref{sec:parity}).
-\item Một thí nghiệm can thiệp với đối chứng giả khớp diện tích cho thấy dự đoán của mô hình phụ thuộc đặc hiệu
-vào nội dung nhân, đồng thời cho thấy đáp ứng là dưới tuyến tính và bản đồ mật độ hầu như không định vị được
-nhân. Hai quan sát này cùng thu hẹp tập cơ chế có thể giải thích kết quả ở Mục~\ref{sec:parity}
-(Mục~\ref{sec:fidelity}).
-\item Khi được huấn luyện lại và đánh giá trên cùng phân chia dữ liệu, bộ đếm count-only nhẹ đạt độ chính xác
-đếm cao hơn các đại diện của ba dòng phương pháp dùng nhãn đắt, ở cấu hình thông dụng của chúng và trên chính
-tác vụ đếm. Phương pháp phát hiện suy giảm có hệ thống ở vùng nhân dày đặc (Mục~\ref{sec:paradigm}).
-\item Một phân tích hiệu quả chú thích đặt cạnh nhau đường cong học theo tỉ lệ nhãn, chi phí chú thích và chi
-phí tính toán khi triển khai (Mục~\ref{sec:label}--\ref{sec:cost}). Bộ đếm được trang bị khoảng dự đoán hiệu
-chuẩn theo từng loại mô cho triển khai tin cậy (Mục~\ref{sec:uq}).
+\item Một nghiên cứu có kiểm soát về tác động của mức giám sát đối với độ chính xác đếm, trên ba tập dữ liệu
+độc lập và cùng một kiến trúc. Không chế độ nào chiếm ưu thế nhất quán \emph{giữa các tập}: chiều của chênh
+lệch đổi dấu, và trên tập kiểm tra lớn nhất, phần nhỉnh hơn của giám sát mặt nạ tuy có ý nghĩa thống kê nhưng
+bị một kiểm định tương đương chặn trên ở $1{,}1\%$ số nhân trung bình mỗi ảnh (Mục~\ref{sec:parity}).
+\item Một phân tích cơ chế bằng thí nghiệm can thiệp có đối chứng giả khớp diện tích: dự đoán phụ thuộc đặc
+hiệu vào nội dung nhân, nhưng đáp ứng là dưới tuyến tính và bản đồ mật độ hầu như không định vị được nhân. Hai
+quan sát này cùng thu hẹp tập cơ chế có thể giải thích kết quả trên (Mục~\ref{sec:fidelity}).
+\item So sánh với các đại diện của ba hướng tiếp cận dùng nhãn định vị (phân vùng, ước lượng mật độ và phát
+hiện) dưới cùng dữ liệu và cùng giao thức đánh giá: bộ đếm count-only nhẹ đạt độ chính xác đếm cao hơn cả ba ở
+cấu hình thông dụng của chúng, trong khi hướng phát hiện suy giảm có hệ thống ở vùng nhân dày đặc
+(Mục~\ref{sec:paradigm}).
+\item Đánh giá hiệu quả chú thích, chi phí tính toán khi triển khai và độ tin cậy dự đoán: một phần tư ngân
+sách nhãn đã đạt phần lớn hiệu năng ở mức nhãn đầy đủ, và khoảng dự đoán conformal hiệu chuẩn theo loại mô đạt
+mức phủ mục tiêu ở mọi loại mô (Mục~\ref{sec:label}--\ref{sec:uq}).
 \end{itemize}
 
 %%============================================================%%
