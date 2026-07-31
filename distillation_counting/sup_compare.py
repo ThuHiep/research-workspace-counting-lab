@@ -241,10 +241,14 @@ def main():
     print(f"  {'supervision':20s} {'R² mean ↑':>16s} {'R² median':>11s} {'sập':>6s} {'MAE ↓':>14s}")
     for name, r2m, r2sd, mm, ms, r2med, nc, _ in rows:
         print(f"  {name:20s} {r2m:+.4f}±{r2sd:.3f} {r2med:+11.4f} {nc:4d}/{len(seeds)}   {mm:6.2f}±{ms:.2f}")
-    if any(r[6] for r in rows):
-        print("  ⚠ CÓ seed SẬP -> mean VÔ NGHĨA (1 seed sập kéo lệch cả bảng). Baseline sập là do TỐI ƯU HOÁ "
-              "(density-MSE bị background chi phối), KHÔNG phải giới hạn của mask-supervision: phải sửa cấu "
-              "hình (w_count_mask) rồi chạy lại, KHÔNG được báo con số này như năng lực của mask.")
+    bad = [r[0] for r in rows if r[6]]
+    if bad:
+        print(f"  ⚠ SẬP ở: {', '.join(bad)} -> mean VÔ NGHĨA, đọc median. Sập = thất bại TỐI ƯU HOÁ, KHÔNG "
+              "phải giới hạn của loại giám sát -> sửa cấu hình rồi chạy lại, đừng báo số này như năng lực.")
+        # nhánh count-only có w_d=0 nên KHÔNG có density-MSE -> chỉnh w_count_mask là vô ích ở đó
+        print("     " + ("count-only sập: w_count_mask KHÔNG liên quan (w_d=0). Hạ --lr / đổi khởi tạo."
+                         if any("count" in b for b in bad) else
+                         "mask sập: density-MSE bị nền chi phối -> tăng --w_count_mask, hoặc hạ --lr."))
 
     compare(per_img, gt_te, seeds, args, rows)
 
