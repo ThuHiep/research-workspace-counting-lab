@@ -282,6 +282,44 @@ trực tiếp, vì $R^2$ là tỉ số giữa sai số bình phương và phươ
 vào phân bố số đếm của từng tập. Các phép so sánh bắt cặp dưới đây dùng sai số tuyệt đối nên không chịu ảnh
 hưởng của điều đó.
 
+\begin{table}[!htbp]
+\centering
+\caption{Độ chính xác đếm dưới hai chế độ giám sát trên \emph{cùng} kiến trúc, $5$ hạt giống cho cả ba tập dữ
+liệu. $\Delta R^2 = R^2_{\text{count}} - R^2_{\text{mask}}$; $p$ là kiểm định Wilcoxon bắt cặp trên
+từng đơn vị đánh giá (sai số lấy trung bình qua các hạt giống). $\delta^\star$ là biên nhỏ nhất mà kiểm định
+tương đương TOST còn cho kết luận, tính bằng số nhân trên mỗi đơn vị đánh giá và theo phần trăm số nhân trung
+bình của tập tương ứng; $\delta^\star$ nhỏ tương ứng bằng chứng tương đương mạnh. Đơn vị đánh giá là mảnh
+$256\times256$ với PanNuke và MoNuSeg, và ảnh nguyên với NuInsSeg, nên các cột tính theo phần trăm mới là cột so
+sánh được giữa các tập.}\label{tab:parity}
+\begin{tabular}{@{}lccccrc@{}}
+\toprule
+Tập dữ liệu & count-only ($R^2$) & mask ($R^2$) & $\Delta R^2$ & $p$ & $\delta^\star$ & \% số nhân \\
+\midrule
+PanNuke & $0{,}918\pm0{,}011$ & $0{,}931\pm0{,}006$ & $-0{,}013$ & $1{,}1{\times}10^{-13}$ & $0{,}27$ & $1{,}1$ \\
+NuInsSeg$^{\dagger}$ & $0{,}895\pm0{,}045$ & $0{,}883\pm0{,}071$ & $+0{,}012$ & $3/5$ chia & $3{,}6$ & $6{,}6$ \\
+MoNuSeg$^{\ddagger}$ & $0{,}459\pm0{,}194$ & $0{,}362\pm0{,}154$ & $+0{,}097$ & $5{,}9{\times}10^{-5}$ & $0{,}89$ & $3{,}0$ \\
+\bottomrule
+\end{tabular}
+\footnotetext{$^{\dagger}$ Vì NuInsSeg dùng chia ngẫu nhiên khác nhau theo hạt giống, tập kiểm tra không cố
+định giữa các lần chạy và nhỏ (${\sim}133$ ảnh/chia), nên không tồn tại một kiểm định gộp; mỗi chia được kiểm
+định riêng. Chiều của chênh lệch \emph{đổi dấu} giữa các chia: sai số tuyệt đối của count-only thấp hơn ở $3/5$
+chia, và $3/5$ chia cho khác biệt có ý nghĩa theo từng ảnh, xuất hiện ở \emph{cả hai} chiều. Kiểm định tương
+đương cho $\delta^\star$ trung vị $3{,}6$ nhân, khoảng $6{,}6\%$ số nhân trung bình mỗi ảnh, rộng hơn nhiều so
+với PanNuke: với ${\sim}133$ ảnh mỗi chia, lực kiểm định thấp hơn hẳn so với $2722$ ảnh. Bằng chứng ở đây do đó
+ủng hộ phát biểu không có ưu thế nhất quán cho chế độ nào, chứ không đủ để chặn chênh lệch trong một biên hẹp.}
+\footnotetext{$^{\ddagger}$ MoNuSeg dùng phân chia chính thức nên tập kiểm tra cố định giữa các hạt giống, cho
+phép một kiểm định gộp như trên PanNuke; số liệu lấy trung bình $5$ hạt giống với thuật toán huấn luyện tất
+định. Chiều của chênh lệch ở đây \emph{ngược} với PanNuke: sai số tuyệt đối theo từng mảnh của count-only thấp
+hơn ($6{,}84$ so với $7{,}50$ nhân) và khác biệt có ý nghĩa thống kê, trong khi $R^2$ của \emph{cả hai} chế độ
+dao động mạnh giữa các hạt giống vì tập huấn luyện chỉ có $37$ ảnh. Vì $224$ mảnh kiểm tra được cắt từ $14$ ảnh
+nên các mảnh thuộc cùng một ảnh không độc lập, và kiểm định ở mức mảnh có xu hướng lạc quan. Phép gộp $16$ mảnh
+của mỗi ảnh thành một số đếm duy nhất cho ảnh đó đưa đơn vị phân tích về đúng đơn vị lấy mẫu, và tách hai kết
+luận theo hai hướng khác nhau: biên tương đương gần như không đổi ($\delta^\star$ nới từ $3{,}0\%$ lên
+$3{,}3\%$, trên số đếm trung bình $478$ nhân mỗi ảnh), còn khác biệt thì không còn đạt ý nghĩa thống kê
+($p = 0{,}12$; count-only sai ít hơn ở $10/14$ ảnh, trung bình $-8{,}2$ nhân). Giá trị $p$ ở cột trên do đó
+phải đọc kèm ràng buộc rằng nó dựa trên giả thiết độc lập giữa các mảnh.}
+\end{table}
+
 Chiều của chênh lệch không đồng nhất giữa các tập: nhánh mask nhỉnh hơn trên PanNuke, còn count-only nhỉnh hơn
 trên NuInsSeg và MoNuSeg. Câu hỏi phù hợp do đó không phải là chênh lệch có khác không hay không, mà là nó có
 nhỏ hơn một ngưỡng đáng kể về mặt thực tiễn hay không.
@@ -335,44 +373,6 @@ $\delta^\star = 0{,}27$ nhân.}
 Cần lưu ý phạm vi của phép so sánh này: nhánh mask dùng \emph{cùng} kiến trúc với count-only nhằm cô lập ảnh
 hưởng của \emph{loại giám sát}, nên nó không đo năng lực của một kiến trúc phân vùng được tối ưu riêng.
 Mục~\ref{sec:paradigm} xét câu hỏi đó tách biệt.
-
-\begin{table}[!htbp]
-\centering
-\caption{Độ chính xác đếm dưới hai chế độ giám sát trên \emph{cùng} kiến trúc, $5$ hạt giống cho cả ba tập dữ
-liệu. $\Delta R^2 = R^2_{\text{count}} - R^2_{\text{mask}}$; $p$ là kiểm định Wilcoxon bắt cặp trên
-từng đơn vị đánh giá (sai số lấy trung bình qua các hạt giống). $\delta^\star$ là biên nhỏ nhất mà kiểm định
-tương đương TOST còn cho kết luận, tính bằng số nhân trên mỗi đơn vị đánh giá và theo phần trăm số nhân trung
-bình của tập tương ứng; $\delta^\star$ nhỏ tương ứng bằng chứng tương đương mạnh. Đơn vị đánh giá là mảnh
-$256\times256$ với PanNuke và MoNuSeg, và ảnh nguyên với NuInsSeg, nên các cột tính theo phần trăm mới là cột so
-sánh được giữa các tập.}\label{tab:parity}
-\begin{tabular}{@{}lccccrc@{}}
-\toprule
-Tập dữ liệu & count-only ($R^2$) & mask ($R^2$) & $\Delta R^2$ & $p$ & $\delta^\star$ & \% số nhân \\
-\midrule
-PanNuke & $0{,}918\pm0{,}011$ & $0{,}931\pm0{,}006$ & $-0{,}013$ & $1{,}1{\times}10^{-13}$ & $0{,}27$ & $1{,}1$ \\
-NuInsSeg$^{\dagger}$ & $0{,}895\pm0{,}045$ & $0{,}883\pm0{,}071$ & $+0{,}012$ & $3/5$ chia & $3{,}6$ & $6{,}6$ \\
-MoNuSeg$^{\ddagger}$ & $0{,}459\pm0{,}194$ & $0{,}362\pm0{,}154$ & $+0{,}097$ & $5{,}9{\times}10^{-5}$ & $0{,}89$ & $3{,}0$ \\
-\bottomrule
-\end{tabular}
-\footnotetext{$^{\dagger}$ Vì NuInsSeg dùng chia ngẫu nhiên khác nhau theo hạt giống, tập kiểm tra không cố
-định giữa các lần chạy và nhỏ (${\sim}133$ ảnh/chia), nên không tồn tại một kiểm định gộp; mỗi chia được kiểm
-định riêng. Chiều của chênh lệch \emph{đổi dấu} giữa các chia: sai số tuyệt đối của count-only thấp hơn ở $3/5$
-chia, và $3/5$ chia cho khác biệt có ý nghĩa theo từng ảnh, xuất hiện ở \emph{cả hai} chiều. Kiểm định tương
-đương cho $\delta^\star$ trung vị $3{,}6$ nhân, khoảng $6{,}6\%$ số nhân trung bình mỗi ảnh, rộng hơn nhiều so
-với PanNuke: với ${\sim}133$ ảnh mỗi chia, lực kiểm định thấp hơn hẳn so với $2722$ ảnh. Bằng chứng ở đây do đó
-ủng hộ phát biểu không có ưu thế nhất quán cho chế độ nào, chứ không đủ để chặn chênh lệch trong một biên hẹp.}
-\footnotetext{$^{\ddagger}$ MoNuSeg dùng phân chia chính thức nên tập kiểm tra cố định giữa các hạt giống, cho
-phép một kiểm định gộp như trên PanNuke; số liệu lấy trung bình $5$ hạt giống với thuật toán huấn luyện tất
-định. Chiều của chênh lệch ở đây \emph{ngược} với PanNuke: sai số tuyệt đối theo từng mảnh của count-only thấp
-hơn ($6{,}84$ so với $7{,}50$ nhân) và khác biệt có ý nghĩa thống kê, trong khi $R^2$ của \emph{cả hai} chế độ
-dao động mạnh giữa các hạt giống vì tập huấn luyện chỉ có $37$ ảnh. Vì $224$ mảnh kiểm tra được cắt từ $14$ ảnh
-nên các mảnh thuộc cùng một ảnh không độc lập, và kiểm định ở mức mảnh có xu hướng lạc quan. Phép gộp $16$ mảnh
-của mỗi ảnh thành một số đếm duy nhất cho ảnh đó đưa đơn vị phân tích về đúng đơn vị lấy mẫu, và tách hai kết
-luận theo hai hướng khác nhau: biên tương đương gần như không đổi ($\delta^\star$ nới từ $3{,}0\%$ lên
-$3{,}3\%$, trên số đếm trung bình $478$ nhân mỗi ảnh), còn khác biệt thì không còn đạt ý nghĩa thống kê
-($p = 0{,}12$; count-only sai ít hơn ở $10/14$ ảnh, trung bình $-8{,}2$ nhân). Giá trị $p$ ở cột trên do đó
-phải đọc kèm ràng buộc rằng nó dựa trên giả thiết độc lập giữa các mảnh.}
-\end{table}
 
 \subsection{Mô hình chỉ học từ số đếm dựa vào bằng chứng nào?}\label{sec:fidelity}
 
