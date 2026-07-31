@@ -24,16 +24,16 @@
 \raggedbottom
 \begin{document}
 
-\title[Số đếm mức ảnh sánh ngang mặt nạ điểm ảnh cho đếm nhân]{Giám sát bằng số đếm mức ảnh sánh ngang
-giám sát mặt nạ điểm ảnh cho đếm nhân tế bào: một nghiên cứu có kiểm soát trên ba tập mô bệnh học}
+\title[Image-level supervision suffices for nuclei counting]{Image-level supervision is sufficient for accurate
+nuclei counting}
 
 \author[1]{\fnm{Thi Thu Hiep} \sur{Dinh}}\email{dinhthithuhiep1@gmail.com}
 \author*[1]{\fnm{Viet Hang} \sur{Duong}}\email{hangdv@uit.edu.vn}
 %% ORCID: Dinh 0009-0000-8042-3377, Duong 0000-0002-9728-4438.
 %% KHONG dung \orcid{} cua sn-jnl: no la \includegraphics{Orcidlogo.eps}, ma file Orcidlogo.eps
 %% khong co trong goi template -> bat len la hong build. Khai ORCID o he thong nop bai.
-\affil*[1]{\orgdiv{Khoa Khoa học Máy tính}, \orgname{Trường Đại học Công nghệ Thông tin (UIT), ĐHQG-HCM},
-\orgaddress{\city{TP. Hồ Chí Minh}, \country{Việt Nam}}}
+\affil*[1]{\orgdiv{Faculty of Computer Science}, \orgname{University of Information Technology (UIT), VNU-HCM},
+\orgaddress{\city{Ho Chi Minh City}, \country{Vietnam}}}
 
 \abstract{%
 Đếm nhân tế bào là một nhiệm vụ nền tảng trong bệnh học số, nhưng chú thích nhân ở mức điểm ảnh đòi hỏi nhiều
@@ -52,8 +52,8 @@ lượng mật độ và phát hiện trên cùng tác vụ đếm, và hiệu c
 không bỏ sót loại mô nào trong số $19$ loại. Vì nhãn đếm ở mức ảnh rẻ hơn ít nhất tám lần so với khoanh viền
 đầy đủ, giám sát không gian dày đặc không phải là điều kiện cần để đếm nhân chính xác.
 }
-\keywords{đếm nhân tế bào, hiệu quả chú thích, giám sát yếu, định lượng bất định, conformal prediction,
-mô bệnh học tính toán}
+\keywords{nuclei counting, annotation efficiency, weak supervision, uncertainty quantification,
+conformal prediction, computational pathology}
 \maketitle
 
 %%============================================================%%
@@ -241,7 +241,7 @@ khoảng bỏ sót; giá trị thấp hơn là tốt hơn.
 %%============================================================%%
 \section{Kết quả}\label{sec:results}
 
-\subsection{Giám sát count-only sánh ngang giám sát mặt nạ}\label{sec:parity}
+\subsection{Độ chính xác đếm dưới hai chế độ giám sát}\label{sec:parity}
 
 Trên cả ba tập dữ liệu, không chế độ giám sát nào chiếm ưu thế nhất quán (Bảng~\ref{tab:parity}), nhưng mức
 chặt của kết luận thì khác nhau rõ rệt giữa các tập và phụ thuộc vào lực kiểm định mà mỗi tập cho phép. Trên PanNuke, tập lớn nhất và có tập kiểm tra cố định, nhánh mask giữ một khoảng cách
@@ -611,40 +611,42 @@ lệ; và mở rộng đầu bất định để nắm bắt sai số do dịch 
 %%============================================================%%
 \backmatter
 
-\bmhead{Lời cảm ơn}
-Nghiên cứu này được tài trợ bởi Quỹ Hỗ trợ Nghiên cứu Khoa học, Trường Đại học Công nghệ Thông tin, ĐHQG-HCM
-(The VNUHCM-University of Information Technology's Scientific Research Supported Fund).
+\bmhead{Acknowledgements}
+This research was funded by the VNUHCM-University of Information Technology's Scientific Research Supported
+Fund.
 
-\bmhead{Tuyên bố}
+\bmhead{Declarations}
 
-\textbf{Thông tin tác giả.} Thi Thu Hiep Dinh, ORCID 0009-0000-8042-3377,
-dinhthithuhiep1@gmail.com. Viet Hang Duong (tác giả liên hệ), ORCID 0000-0002-9728-4438,
-hangdv@uit.edu.vn. Cả hai tác giả thuộc Khoa Khoa học Máy tính, Trường Đại học Công nghệ Thông tin (UIT),
-ĐHQG-HCM, TP. Hồ Chí Minh, Việt Nam.
+\textbf{Author information.} Thi Thu Hiep Dinh, ORCID 0009-0000-8042-3377, dinhthithuhiep1@gmail.com.
+Viet Hang Duong (corresponding author), ORCID 0000-0002-9728-4438, hangdv@uit.edu.vn. Both authors are with
+the Faculty of Computer Science, University of Information Technology (UIT), VNU-HCM, Ho Chi Minh City,
+Vietnam.
 
-\textbf{Tài trợ.} Nghiên cứu này được tài trợ bởi Quỹ Hỗ trợ Nghiên cứu Khoa học, Trường Đại học Công nghệ
-Thông tin, ĐHQG-HCM.
+\textbf{Funding.} This research was funded by the VNUHCM-University of Information Technology's Scientific
+Research Supported Fund.
 
-\textbf{Xung đột lợi ích.} Các tác giả tuyên bố không có xung đột lợi ích nào liên quan tới nội dung bài báo.
+\textbf{Competing interests.} The authors declare no competing interests relevant to the content of this
+article.
 
-\textbf{Tính nguyên bản.} Đây là công trình gốc, chưa được công bố và không nộp đồng thời ở nơi khác.
+\textbf{Originality.} This is original work that has not been published previously and is not under
+simultaneous consideration elsewhere.
 
-\textbf{Chấp thuận đạo đức.} Không áp dụng. Nghiên cứu chỉ sử dụng các tập dữ liệu ảnh mô bệnh học công khai,
-đã ẩn danh và đã được công bố trước đó; không thu thập dữ liệu mới từ người tham gia hay động vật.
+\textbf{Ethics approval.} Not applicable. The study uses only publicly available, previously published and
+de-identified histopathology image datasets; no new data were collected from human participants or animals.
 
-\textbf{Đồng ý tham gia và đồng ý công bố.} Không áp dụng, vì lý do nêu trên.
+\textbf{Consent to participate and consent to publish.} Not applicable, for the reason stated above.
 
-\textbf{Đóng góp của tác giả.} Thi Thu Hiep Dinh: xây dựng ý tưởng, thiết kế thí nghiệm, cài đặt phần mềm,
-phân tích số liệu, viết bản thảo đầu tiên. Viet Hang Duong: xây dựng ý tưởng, hướng dẫn phương pháp luận,
-thẩm định kết quả, chỉnh sửa và biên tập bản thảo, giám sát chung. Cả hai tác giả đã đọc và chấp thuận bản
-thảo cuối cùng.
+\textbf{Author contributions.} Thi Thu Hiep Dinh: conceptualisation, experimental design, software, formal
+analysis, writing of the original draft. Viet Hang Duong: conceptualisation, methodological guidance,
+validation of results, writing (review and editing), supervision. Both authors read and approved the final
+manuscript.
 
-\textbf{Tính sẵn có của dữ liệu.} Nghiên cứu chỉ dùng dữ liệu công khai:
-PanNuke~\cite{pannuke}, NuInsSeg~\cite{nuinsseg} và MoNuSeg~2018~\cite{monuseg}, truy cập được qua các công bố
-gốc tương ứng. Không có dữ liệu mới nào được tạo ra.
+\textbf{Data availability.} The study uses publicly available data only: PanNuke~\cite{pannuke},
+NuInsSeg~\cite{nuinsseg} and MoNuSeg~2018~\cite{monuseg}, accessible through their respective original
+publications. No new data were generated.
 
-\textbf{Tính sẵn có của mã nguồn.} Mã nguồn dùng để huấn luyện, đánh giá và tái lập mọi bảng và hình trong bài
-sẽ được công bố công khai khi bài báo được chấp nhận.
+\textbf{Code availability.} The code used to train, evaluate and reproduce every table and figure in this
+article will be made publicly available upon acceptance.
 
 \bibliography{references}
 \end{document}
