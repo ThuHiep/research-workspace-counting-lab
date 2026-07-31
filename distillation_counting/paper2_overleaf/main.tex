@@ -163,8 +163,9 @@ either. This paper is designed to answer these questions directly.
 The model, denoted DensitySigmaUNet, consists of an ImageNet-pretrained EfficientNet-lite0~\cite{efficientnet}
 encoder coupled with a U-Net style decoder~\cite{unet}. The network has two outputs.
 
-The \emph{density} head produces a non-negative map, and the predicted count is its sum over the image,
-$\mu = \sum_p \hat d_p$. The \emph{uncertainty} head predicts the standard deviation of the count,
+The last decoder stage operates at half resolution; a $3\times3$ convolution reduces it to $32$ channels and
+the result is bilinearly resampled to the input resolution. The \emph{density} head produces a non-negative map
+at that resolution, and the predicted count is its sum over the image, $\mu = \sum_p \hat d_p$. The \emph{uncertainty} head predicts the standard deviation of the count,
 parameterised around a Poisson variance baseline:
 \begin{equation}
 \sigma = \sqrt{\max(\mu,1)}\;\exp\!\big(\mathrm{clamp}(\log s,-2,2)\big).
