@@ -218,37 +218,29 @@ loại ung thư,
 $256\times256$, 19 loại mô; huấn luyện trên fold~1--2 với $5179$ mảnh, kiểm tra trên fold~3 với $2722$ mảnh),
 NuInsSeg~\cite{nuinsseg} ($665$ ảnh đa cơ quan, chia ngẫu nhiên $80/20$ theo từng hạt giống) và
 MoNuSeg~2018~\cite{monuseg} (đa cơ quan từ TCGA, $37$ ảnh huấn luyện và $14$ ảnh kiểm tra theo phân chia chính
-thức; ảnh $1000\times1000$ được cắt thành các mảnh $256$ ở độ phân giải gốc). Đơn vị đánh giá vì thế là mảnh
-$256\times256$ với PanNuke và MoNuSeg, và ảnh nguyên với NuInsSeg; để cho gọn, phần kết quả gọi chung đơn vị
-này là ``ảnh'' trừ khi cần phân biệt.
+thức; ảnh $1000\times1000$ được cắt thành các mảnh $256$ ở độ phân giải gốc). Đơn vị đánh giá là mảnh
+$256\times256$ đối với PanNuke và MoNuSeg, và ảnh nguyên đối với NuInsSeg. Trong phần còn lại của bài báo, các
+đơn vị này được gọi chung là ``ảnh'' nếu không cần phân biệt cụ thể.
 
 \paragraph{Chi tiết huấn luyện.} Bộ mã hóa khởi tạo từ trọng số ImageNet, bộ giải mã dùng $32$ kênh. Mọi mô hình
 huấn luyện $60$ epoch bằng Adam với tốc độ học $10^{-3}$, cỡ lô $16$, đầu vào $256\times256$, kèm cắt chuẩn
 gradient ở ngưỡng $5$ để chặn các lần phân kỳ hiếm của $\beta$-NLL. Trọng số bất định là $w_n = 0{,}01$ và
-$\beta = 0{,}5$. Không dùng tăng cường dữ liệu. Hai chế độ giám sát dùng \emph{đúng} cấu hình này và chỉ khác
-nhau ở cặp $(w_d, w_c)$, nên biến thực nghiệm duy nhất là loại nhãn.
+$\beta = 0{,}5$. Không dùng tăng cường dữ liệu. Hai chế độ giám sát sử dụng cùng cấu hình huấn luyện và chỉ khác
+nhau ở cặp trọng số $(w_d, w_c)$.
 
 \paragraph{Giao thức.} Mọi phương pháp so sánh được huấn luyện lại từ đầu trên cùng tập huấn luyện và đánh giá
 trên cùng tập kiểm tra. Mỗi cấu hình lặp lại với nhiều hạt giống ngẫu nhiên, báo cáo trung bình cùng độ lệch
 chuẩn.
 
 Nhánh mask được đánh giá ở cấu hình thuận lợi nhất trong số các giá trị được khảo sát, để phép so sánh không
-thiên vị count-only. Giám sát mật độ trên bản đồ mục tiêu thưa suy về nghiệm hằng số khi trọng số đếm $w_c$ quá nhỏ. Trên
-PanNuke, khảo sát $w_c \in \{0{,}01;\ 0{,}05;\ 0{,}1\}$ cho thấy ở $0{,}01$ nhánh mask suy biến ở $1/5$ hạt
-giống ($R^2$ trung bình $0{,}45 \pm 0{,}94$), còn ở $0{,}05$ và $0{,}1$ thì không. Giá trị $0{,}1$ cho cả trung
-bình cao hơn lẫn phương sai nhỏ hơn nên được dùng cho \emph{cả ba} tập dữ liệu, và cũng đủ để giữ nhánh mask hội
-tụ ổn định trên NuInsSeg và MoNuSeg.
-
-Suy biến này là một thất bại của \emph{quá trình tối ưu hoá}: hàm mất mát bình phương trên bản đồ mật độ bị các
-điểm ảnh nền chi phối, và mô hình xuất giá trị hằng số $0$ cho mọi ảnh. Trường hợp này để lại một dấu vết nhận
-biết được từ chính kết quả báo cáo, vì khi dự đoán là hằng số $0$ thì $R^2 = -\mu^2/\sigma^2$, với $\mu$ và
-$\sigma$ là trung bình và độ lệch chuẩn của số nhân trên tập kiểm tra. Một hạt giống suy biến đủ để kéo lệch
-giá trị trung bình, như con số $0{,}45 \pm 0{,}94$ ở trên cho thấy. Ở cấu hình $w_c = 0{,}1$ dùng cho mọi kết
-quả báo cáo, không hạt giống nào suy biến trên bất kỳ tập dữ liệu nào. Ở đầu kia của dải, cấu hình $w_c = 0$
-suy biến hoàn toàn và không huấn luyện được, nên ``giám sát mặt nạ thuần tuý'' không phải một mốc so sánh quan
-sát được trong kiến trúc này. Bản thân điều đó đã là một quan sát về tính khó tối ưu của giám sát mật độ trên
-bản đồ mục tiêu thưa, và nó ủng hộ cách đọc bảo thủ nêu ở Mục~\ref{sec:method}: hạ $w_c$ làm nhánh mask kém ổn
-định hơn chứ không tốt lên.
+thiên vị count-only. Giám sát mật độ trên bản đồ mục tiêu thưa suy về nghiệm hằng số khi trọng số đếm $w_c$ quá
+nhỏ, do hàm mất mát bình phương trên bản đồ mật độ bị các điểm ảnh nền chi phối. Trên PanNuke, khảo sát
+$w_c \in \{0{,}01;\ 0{,}05;\ 0{,}1\}$ cho thấy $w_c = 0{,}01$ đôi khi dẫn đến nghiệm suy biến ($1/5$ hạt giống,
+$R^2$ trung bình $0{,}45 \pm 0{,}94$), trong khi $0{,}05$ và $0{,}1$ đều hội tụ ổn định. Giá trị $0{,}1$ đạt kết
+quả trung bình cao nhất và được giữ cố định cho toàn bộ các tập dữ liệu; ở cấu hình này, không hạt giống nào
+suy biến trên bất kỳ tập dữ liệu nào. Ở đầu kia của dải, $w_c = 0$ suy biến hoàn toàn và không huấn luyện được,
+nên ``giám sát mặt nạ thuần tuý'' không phải một mốc so sánh quan sát được trong kiến trúc này; hạ $w_c$ làm
+nhánh mask kém ổn định hơn chứ không tốt lên, phù hợp với cách đọc bảo thủ nêu ở Mục~\ref{sec:method}.
 
 \paragraph{Chỉ số và kiểm định.} Độ chính xác đếm được đo bằng $R^2$ và sai số tuyệt đối trung bình (MAE). Để
 so sánh hai chế độ giám sát, kiểm định Wilcoxon signed-rank bắt cặp được dùng trên sai số tuyệt đối của
@@ -258,17 +250,18 @@ $p>0{,}05$ được hiểu là không đủ bằng chứng để bác bỏ giả
 xu hướng lạc quan; trong trường hợp đó phép kiểm định được chạy lại sau khi gộp các mảnh của mỗi ảnh thành một
 số đếm duy nhất, và cả hai kết quả đều được báo cáo.
 
-Vì vậy kết luận tương đương được thiết lập bằng một kiểm định riêng. Hai kiểm định một phía (TOST) chạy trên
-cùng các sai số bắt cặp đó bác bỏ giả thuyết không $|\Delta| \ge \delta$, với $\Delta$ là chênh lệch trung bình
-của sai số tuyệt đối theo từng ảnh, tính bằng đơn vị nhân. Tương đương được công nhận khi khoảng tin cậy
-bootstrap $90\%$ của $\Delta$ nằm gọn trong $(-\delta, +\delta)$. Mọi biên $\delta$ chọn trước đều có thể bị xem
-là chọn cho vừa dữ liệu, nên biên nhỏ nhất mà kết luận tương đương còn đứng vững, ký hiệu $\delta^\star$, được
-báo cáo kèm để người đọc tự áp ngưỡng của mình.
+Do đó, tính tương đương không được suy ra từ việc thiếu ý nghĩa thống kê mà được đánh giá riêng bằng kiểm định
+TOST. Hai kiểm định một phía chạy trên cùng các sai số bắt cặp đó bác bỏ giả thuyết không $|\Delta| \ge \delta$,
+với $\Delta$ là chênh lệch trung bình của sai số tuyệt đối theo từng ảnh, tính bằng đơn vị nhân. Tương đương
+được công nhận khi khoảng tin cậy bootstrap $90\%$ của $\Delta$ nằm gọn trong $(-\delta, +\delta)$. Bên cạnh
+các biên tương đương được xác định trước, bài báo còn báo cáo $\delta^\star$, là biên nhỏ nhất mà kết luận
+tương đương vẫn được duy trì; đại lượng này cho phép người đọc tự áp dụng ngưỡng tương đương phù hợp với ứng
+dụng của mình.
 
 Chất lượng khoảng dự đoán được đo bằng mức phủ biên, mức phủ của cơ quan có mức phủ thấp nhất, độ rộng khoảng
-và điểm Winkler~\cite{winkler}. Điểm Winkler cộng độ rộng khoảng với một khoản phạt tỉ lệ khoảng cách từ giá
-trị thực tới biên gần nhất mỗi khi giá trị thực rơi ra ngoài khoảng, nên nó phạt đồng thời khoảng quá rộng và
-khoảng bỏ sót; giá trị thấp hơn là tốt hơn.
+và điểm Winkler~\cite{winkler}. Điểm Winkler kết hợp độ rộng khoảng dự đoán với một khoản phạt tỉ lệ với khoảng
+cách từ giá trị thực tới biên gần nhất, áp dụng khi giá trị thực nằm ngoài khoảng. Do đó, chỉ số này đồng thời
+phản ánh tính gọn của khoảng dự đoán và khả năng bao phủ của nó; giá trị thấp hơn là tốt hơn.
 
 %%============================================================%%
 \section{Kết quả}\label{sec:results}
