@@ -31,21 +31,26 @@ nuclei counting}
 \affil*[1]{\orgdiv{Faculty of Computer Science}, \orgname{University of Information Technology (UIT), VNU-HCM},
 \orgaddress{\city{Ho Chi Minh City}, \country{Vietnam}}}
 
+%% KHI RUT GON ABSTRACT, BON CUM SAU PHAI GIU (moi cum chan mot cach hieu sai, da bi cat 4 lan):
+%%   "cung tap kiem tra"            -> can cu cong bang cua so sanh 4 paradigm
+%%   "deu can nhan dinh vi"         -> giu luan diem hieu qua nhan, khong thanh khoe benchmark
+%%   "khoanh vien day du"           -> 8x CHI dung voi mat na, khong dung voi nhan diem (14 phut)
+%%   "co doi chung gia"             -> bao hieu nhan qua, khong phai tuong quan
 \abstract{%
 Chú thích nhân ở mức điểm ảnh đòi hỏi nhiều giờ công chuyên gia cho mỗi ảnh và khó mở rộng sang các mô, cơ quan
-hoặc trung tâm mới. Tuy nhiên, phần lớn phương pháp đếm nhân hiện nay vẫn dựa trên phân vùng, ước lượng mật độ
-hoặc phát hiện, hàm ý rằng giám sát không gian dày đặc là điều kiện cần để đạt độ chính xác cao. Giả định này
-được kiểm định trực tiếp bằng một thí nghiệm có đối chứng, trong đó kiến trúc mạng, dữ liệu và giao thức đánh
-giá được giữ nguyên, còn biến duy nhất là loại giám sát. Chỉ với một nhãn đếm cho mỗi ảnh, một mạng gồm
+hoặc trung tâm mới. Tuy nhiên, phần lớn các phương pháp đếm nhân hiện nay vẫn dựa trên phân vùng, ước lượng mật
+độ hoặc phát hiện, hàm ý rằng giám sát không gian dày đặc là điều kiện cần để đạt độ chính xác cao. Bài báo này
+kiểm định trực tiếp giả định đó bằng một thí nghiệm có kiểm soát, trong đó kiến trúc mạng, dữ liệu và giao thức
+đánh giá được giữ cố định, còn biến duy nhất là loại giám sát. Với duy nhất một nhãn đếm cho mỗi ảnh, mô hình
 $3{,}62$ triệu tham số đạt $R^2 = 0{,}918$ trên PanNuke và vượt các phương pháp đại diện của phân vùng, ước
-lượng mật độ và phát hiện trên cùng tác vụ đếm và cùng tập kiểm tra, mặc dù các phương pháp này đều yêu cầu
-nhãn định vị. So sánh giữa giám sát đếm và giám sát mặt nạ trên PanNuke, NuInsSeg và MoNuSeg cho thấy chiều của chênh lệch đổi dấu giữa các tập, nên không
-chế độ nào chiếm ưu thế nhất quán; trên bộ dữ liệu lớn nhất, lợi thế của giám sát mặt nạ tuy có
-ý nghĩa thống kê nhưng bị kiểm định tương đương chặn trên ở $1{,}1\%$ số nhân trung bình mỗi ảnh, trong khi
-nhãn đếm rẻ hơn khoanh viền đầy đủ ít nhất tám lần. Các thí nghiệm can thiệp có đối chứng giả xác nhận mô hình
-phản ứng đặc hiệu với nội dung nhân nhưng hình thành dự đoán bằng cách tích hợp bằng chứng trên toàn ảnh thay
-vì định vị từng thực thể. Khoảng dự đoán conformal theo cơ quan đạt mức phủ mục tiêu trên toàn bộ $19$ loại mô.
-Các kết quả này cho thấy chú thích không gian dày đặc không phải là điều kiện cần cho đếm nhân chính xác.
+lượng mật độ và phát hiện trên cùng tác vụ đếm và cùng tập kiểm tra, mặc dù cả ba đều cần nhãn định vị. So sánh
+giữa giám sát đếm và giám sát mặt nạ trên PanNuke, NuInsSeg và MoNuSeg cho thấy chiều của chênh lệch đổi dấu
+giữa các tập, nên không chế độ nào chiếm ưu thế nhất quán. Trên PanNuke, lợi thế của giám sát mặt nạ có ý nghĩa
+thống kê nhưng bị kiểm định tương đương chặn trên ở $1{,}1\%$ số nhân trung bình mỗi ảnh, trong khi nhãn đếm rẻ
+hơn khoanh viền đầy đủ ít nhất tám lần. Các thí nghiệm can thiệp có đối chứng giả cho thấy mô hình phản ứng đặc
+hiệu với nội dung nhân nhưng hình thành dự đoán bằng cách tích hợp bằng chứng trên toàn ảnh thay vì định vị
+từng thực thể. Khoảng dự đoán conformal hiệu chuẩn theo cơ quan đạt mức phủ mục tiêu trên toàn bộ $19$ loại mô.
+Kết quả cho thấy chú thích không gian dày đặc không phải là điều kiện cần cho đếm nhân chính xác.
 }
 \keywords{nuclei counting, annotation efficiency, weak supervision, uncertainty quantification,
 conformal prediction, computational pathology}
