@@ -86,7 +86,7 @@ tuy có ý nghĩa thống kê nhưng bị một kiểm định tương đương 
 tức dưới một nhân trên mỗi mảnh ảnh (Mục~\ref{sec:parity}).
 \item Một thí nghiệm can thiệp với đối chứng giả khớp diện tích cho thấy dự đoán của mô hình phụ thuộc đặc hiệu
 vào nội dung nhân, đồng thời cho thấy đáp ứng là dưới tuyến tính và bản đồ mật độ hầu như không định vị được
-nhân. Hai quan sát này cùng khoanh vùng cơ chế đứng sau kết quả ở Mục~\ref{sec:parity}
+nhân. Hai quan sát này cùng thu hẹp tập cơ chế có thể giải thích kết quả ở Mục~\ref{sec:parity}
 (Mục~\ref{sec:fidelity}).
 \item Khi được huấn luyện lại và đánh giá trên cùng phân chia dữ liệu, bộ đếm count-only nhẹ đạt độ chính xác
 đếm cao hơn các đại diện của ba dòng phương pháp dùng nhãn đắt, ở cấu hình thông dụng của chúng và trên chính
@@ -468,13 +468,16 @@ nhân chỉ làm số đếm giảm khoảng $0{,}6$ thay vì $1{,}0$. Mức thi
 
 Diễn giải phù hợp nhất là mô hình \emph{tích hợp bằng chứng liên quan tới nhân trên toàn ảnh}, thay vì phát hiện
 rồi cộng từng thực thể. Một phép đo độc lập ủng hộ cách đọc này: bản đồ mật độ của mô hình count-only
-\emph{không} định vị được nhân. Khối lượng mật độ nằm trong vùng nhân thực chỉ gấp $1{,}25\pm0{,}36$ lần mức của
-một bản đồ phân bố đều ($1{,}0$ ứng với không định vị gì), và tương quan không gian với bản đồ mật độ thực chỉ
-$0{,}03$ (ba hạt giống). Hai quan sát cùng chỉ về một cơ chế, và giải thích vì sao giám sát mức ảnh đủ cho tác vụ
+\emph{hầu như không} định vị được nhân. Khối lượng mật độ nằm trong vùng nhân thực chỉ gấp $1{,}25\pm0{,}36$ lần
+mức của một bản đồ phân bố đều ($1{,}0$ ứng với không định vị gì), tức độ lệch khỏi mốc không định vị còn nhỏ
+hơn dao động giữa các hạt giống; và tương quan không gian với bản đồ mật độ thực chỉ $0{,}03$ (ba hạt giống),
+xấp xỉ mức ngẫu nhiên. Cần lưu ý mốc so sánh ở đây là một bản đồ không mang thông tin vị trí, chứ không phải
+khả năng định vị của một mô hình được giám sát dày đặc, vốn không được đo trong bài. Hai quan sát cùng nhất
+quán với một cách giải thích, và giải thích vì sao giám sát mức ảnh đủ cho tác vụ
 \emph{đếm} nhưng không sinh ra khả năng định vị: đại lượng được giám sát là một tổng, nên nghiệm mô hình tìm được
 cũng chỉ cần đúng ở mức tổng.
 
-Hai kiểm tra khoanh vùng mức thiếu hụt này. Cả hai chạy trên \emph{một} mô hình, nên các hệ số dưới đây cần đọc
+Hai kiểm tra loại trừ hai nguyên nhân khả dĩ của mức thiếu hụt này. Cả hai chạy trên \emph{một} mô hình, nên các hệ số dưới đây cần đọc
 theo mức chênh giữa các cấu hình chứ không so trực tiếp với giá trị $0{,}64$ vốn là trung bình của ba mô hình.
 Thứ nhất, mức thiếu hụt không đến từ việc mặt nạ chú thích phủ chưa hết viền
 nhân: nở $0$, $2$ và $4$ điểm ảnh (diện tích can thiệp $18\%$, $25\%$ và $31\%$ ảnh) cho
@@ -582,8 +585,8 @@ cluster & $0{,}906$ & $14{,}8$ & $\mathbf{20{,}0}$ & $0{,}859$ & $0/19$ \\
 
 \paragraph{Vì sao giám sát mức ảnh có thể đủ cho tác vụ đếm.} Trên tập dữ liệu lớn nhất, lợi ích của giám sát ở
 mức điểm ảnh so với giám sát count-only bị chặn trên bởi khoảng $1\%$ số nhân mỗi ảnh; trên hai tập còn lại,
-không chế độ nào tỏ ra vượt trội một cách nhất quán. Thí nghiệm gỡ nhân khoanh vùng cơ chế đứng sau điều đó,
-bằng cách loại trừ cả hai thái cực.
+không chế độ nào tỏ ra vượt trội một cách nhất quán. Thí nghiệm gỡ nhân thu hẹp tập cơ chế có thể giải thích
+điều đó, bằng cách loại trừ cả hai thái cực.
 
 Số đếm dự đoán \emph{không} phải sản phẩm của tương quan toàn cục thuần túy. Nó giảm đơn điệu khi nhân bị gỡ, và
 \emph{không} đổi khi một diện tích mô tương đương không chứa nhân bị gỡ. Nhưng mô hình cũng \emph{không} phát
