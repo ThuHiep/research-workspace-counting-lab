@@ -236,16 +236,11 @@ paper is designed to answer these questions directly.
   at (-1.15,-2.1) {\textbf{count-only:}~~$w_d{=}0$,~$w_c{=}1$\\[1pt]
                    \textbf{mask:}~~~~~~~~~$w_d{=}1$,~$w_c{=}0.1$};
 \end{tikzpicture}
-\caption{Controlled comparison of supervision regimes. Everything inside the dashed box, the architecture, the
-data and the evaluation protocol, is identical in both regimes; the two regimes differ only in the loss weights
-$(w_d, w_c)$ listed at the bottom left. Count-only supervision ($w_d = 0$) sees a single number per image and
-never a pixel-level target. The mask regime retains a small count weight ($w_c = 0.1$), without which density
-supervision on a sparse target map degenerates, so it receives a signal that count-only also receives; any
-measured difference is therefore a conservative estimate of the benefit of mask supervision
-(Section~\ref{sec:setup}). The uncertainty branch is trained with $\beta$-NLL and detached from $\mu$, and the
-final prediction intervals are calibrated post hoc by split conformal prediction. The input shown is a real
-PanNuke test patch, the same one as Fig.~\ref{fig:qualitative}a, which carries $22$ annotated nuclei; the mask
-icon above it is schematic rather than that patch's actual annotation.}
+\caption{Controlled comparison of supervision regimes. Everything inside the dashed box is identical in both
+regimes, which differ only in the loss weights $(w_d, w_c)$. The mask regime keeps $w_c = 0.1$ because density
+supervision on a sparse map degenerates at $w_c = 0$, so it also receives the count signal and any measured
+difference is a conservative estimate of the benefit of masks (Section~\ref{sec:setup}). The input is a real
+PanNuke test patch, the same one as Fig.~\ref{fig:qualitative}a; the mask icon is schematic.}
 \label{fig:overview}
 \end{figure}
 
@@ -483,20 +478,17 @@ majority tissue types well.
 \includegraphics[width=\textwidth]{fig_agreement.pdf}
 \caption{Agreement between predicted and ground-truth nuclei counts for the count-only model on PanNuke fold~3
 ($n=2722$ patches). \textbf{(a)} Each point is one patch; the dashed line is exact counting.
-\textbf{(b)} Bland--Altman plot: mean bias $+0.70$ nuclei on a mean count of $24.5$ (about $3\%$) and the
-$95\%$ limits of agreement. The error shows no systematic direction; the downward spread at high-count patches
-indicates a mild tendency to \emph{under-count} in the very high density regime.}
+\textbf{(b)} Bland--Altman plot with mean bias and $95\%$ limits of agreement. The downward spread at
+high-count patches indicates a mild tendency to \emph{under-count} in the very high density regime.}
 \label{fig:agreement}
 \end{figure}
 
 \begin{table}[!htbp]
 \centering
 \caption{Counting accuracy per tissue type on PanNuke fold~3, for \emph{one} of the three count-only models of
-Section~\ref{sec:fidelity} (Fig.~\ref{fig:agreement} plots the same model); every value in the table, including
-the overall row, belongs to that single model. The seed-aggregated figures of the main comparison are reported
-separately in Table~\ref{tab:parity}, from a different training run, so the two overall rows do not coincide.
-What is to be read here is the \emph{distribution} of accuracy across tissue types: $R^2$ is positive in all
-$19/19$ types.}\label{tab:perorgan}
+Section~\ref{sec:fidelity} (Fig.~\ref{fig:agreement} plots the same model), the overall row included.
+Table~\ref{tab:parity} reports seed-aggregated figures from a different training run, so the two overall rows
+do not coincide.}\label{tab:perorgan}
 \begin{tabular}{@{}lccc@{\hspace{2em}}lccc@{}}
 \toprule
 Tissue type & $n$ & $R^2$ & MAE & Tissue type & $n$ & $R^2$ & MAE \\
