@@ -657,20 +657,23 @@ xác đếm cao.
 
 \section{Kết luận}\label{sec:conclusion}
 
-Trên ba tập dữ liệu mô bệnh học độc lập, khi giữ nguyên kiến trúc, dữ liệu và giao thức đánh giá, không chế độ
-giám sát nào chiếm ưu thế nhất quán giữa các tập; trên tập kiểm tra lớn nhất, phần nhỉnh hơn của giám sát mặt
-nạ bị một kiểm định tương đương chặn trên ở khoảng $1\%$ số nhân mỗi ảnh, trong khi chi phí chú thích thấp hơn
-ít nhất tám lần. Các thí nghiệm
-can thiệp cho thấy mô hình học cách tích hợp bằng chứng liên quan tới nhân trên toàn ảnh, thay vì dựa vào thông
-tin định vị tường minh. Ngoài ra, bộ đếm count-only nhẹ đạt $R^2$ và MAE tốt hơn các phương pháp đại diện được khảo
-sát của ba dòng dùng nhãn định vị, trên tác vụ đếm, và có thể được trang bị khoảng dự đoán đã hiệu chuẩn cho triển khai. Đối với
-đếm nhân, chú thích dày đặc ở mức điểm ảnh do đó không phải là điều kiện cần.
+Bài báo đã kiểm định trực tiếp vai trò của giám sát không gian trong đếm nhân bằng một thí nghiệm có kiểm soát,
+trong đó kiến trúc, dữ liệu và giao thức đánh giá được giữ cố định, còn biến duy nhất là loại giám sát. Trên ba
+tập dữ liệu mô bệnh học độc lập, không chế độ nào chiếm ưu thế nhất quán; trên PanNuke, lợi thế của giám sát mặt
+nạ có ý nghĩa thống kê nhưng bị kiểm định tương đương chặn trên ở khoảng $1\%$ số nhân trung bình mỗi ảnh. Trong
+khi đó, nhãn đếm ở mức ảnh rẻ hơn khoanh viền đầy đủ ít nhất tám lần.
 
-Các hướng phát triển gồm kiểm chứng tính khái quát của phát hiện qua nhiều họ kiến trúc, trong đó có bộ mã hóa
-dạng transformer và các mạng phân vùng chuyên dụng; truy nguyên những đặc trưng ảnh cấu thành phép tích hợp mà
-bộ đếm học được, và vì sao hệ số đáp ứng của nó nhỏ hơn một; đo và khắc phục mức phụ thuộc vào độ phân giải mà
-cơ chế nêu trên dự đoán, chẳng hạn bằng học đa tỉ lệ; và mở rộng đầu bất định để nắm bắt sai số do dịch chuyển
-miền.
+Các thí nghiệm can thiệp cho thấy mô hình count-only phản ứng đặc hiệu với nội dung nhân nhưng hình thành dự
+đoán thông qua việc tích hợp bằng chứng trên toàn ảnh thay vì định vị từng thực thể riêng lẻ. Quan sát này giải
+thích vì sao giám sát mức ảnh có thể đạt độ chính xác đếm rất gần với giám sát dày đặc, đồng thời chỉ ra giới
+hạn của nó đối với các nhiệm vụ đòi hỏi thông tin không gian. Ngoài ra, trên chính tác vụ đếm, bộ đếm đạt độ
+chính xác cao hơn cả ba phương pháp đại diện được khảo sát vốn dùng nhãn định vị, và có thể được trang bị khoảng
+dự đoán đã hiệu chuẩn để hỗ trợ triển khai thực tế.
+
+Nhìn chung, đối với bài toán đếm nhân, chú thích không gian dày đặc không phải là điều kiện cần để đạt độ chính
+xác cao. Các hướng tiếp theo gồm kiểm chứng mức độ khái quát của kết luận này trên các họ kiến trúc khác và trên
+các miền dữ liệu khác biệt lớn về độ phân giải, cơ quan và quy trình nhuộm; và truy nguyên những đặc trưng ảnh
+cấu thành phép tích hợp mà bộ đếm học được, trong đó có câu hỏi vì sao hệ số đáp ứng của nó nhỏ hơn một.
 
 %%============================================================%%
 \backmatter
