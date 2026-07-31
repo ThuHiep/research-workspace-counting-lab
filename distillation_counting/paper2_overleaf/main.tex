@@ -299,17 +299,16 @@ một kiến trúc phân vùng được tối ưu riêng. Mục~\ref{sec:paradig
 \centering
 \caption{Độ chính xác đếm dưới hai chế độ giám sát trên \emph{cùng} kiến trúc, $5$ hạt giống cho cả ba tập dữ
 liệu. $\Delta R^2 = R^2_{\text{count}} - R^2_{\text{mask}}$; $p$ là kiểm định Wilcoxon bắt cặp trên
-từng ảnh (sai số lấy trung bình qua các hạt giống); $\delta^\star$ là biên nhỏ nhất mà kiểm định tương đương
-TOST còn cho kết luận, tính bằng đơn vị nhân trên mỗi ảnh.}\label{tab:parity}
-\begin{tabular}{@{}lccccl@{}}
+từng ảnh (sai số lấy trung bình qua các hạt giống). $\delta^\star$ là biên nhỏ nhất mà kiểm định tương đương
+TOST còn cho kết luận, tính bằng số nhân trên mỗi ảnh và theo phần trăm số nhân trung bình của tập tương ứng;
+$\delta^\star$ nhỏ tương ứng bằng chứng tương đương mạnh.}\label{tab:parity}
+\begin{tabular}{@{}lccccrc@{}}
 \toprule
-Tập dữ liệu & count-only ($R^2$) & mask ($R^2$) & $\Delta R^2$ & $p$ & Diễn giải \\
+Tập dữ liệu & count-only ($R^2$) & mask ($R^2$) & $\Delta R^2$ & $p$ & $\delta^\star$ & \% số nhân \\
 \midrule
-PanNuke & $0{,}918\pm0{,}011$ & $0{,}931\pm0{,}006$ & $-0{,}013$ & $1{,}1{\times}10^{-13}$ &
-tương đương ở $\delta^\star{=}0{,}27$ nhân ($1{,}1\%$) \\
-NuInsSeg$^{\dagger}$ & $0{,}895\pm0{,}045$ & $0{,}883\pm0{,}071$ & $+0{,}012$ & $3/5$ chia &
-không ưu thế nhất quán; $\delta^\star{=}3{,}6$ nhân ($6{,}6\%$) \\
-MoNuSeg$^{\ddagger}$ & $0{,}459\pm0{,}194$ & $0{,}362\pm0{,}154$ & $+0{,}097$ & --- & dao động lấn át, chưa kết luận \\
+PanNuke & $0{,}918\pm0{,}011$ & $0{,}931\pm0{,}006$ & $-0{,}013$ & $1{,}1{\times}10^{-13}$ & $0{,}27$ & $1{,}1$ \\
+NuInsSeg$^{\dagger}$ & $0{,}895\pm0{,}045$ & $0{,}883\pm0{,}071$ & $+0{,}012$ & $3/5$ chia & $3{,}6$ & $6{,}6$ \\
+MoNuSeg$^{\ddagger}$ & $0{,}459\pm0{,}194$ & $0{,}362\pm0{,}154$ & $+0{,}097$ & --- & --- & --- \\
 \bottomrule
 \end{tabular}
 \footnotetext{$^{\dagger}$ Vì NuInsSeg dùng chia ngẫu nhiên khác nhau theo hạt giống, tập kiểm tra không cố
