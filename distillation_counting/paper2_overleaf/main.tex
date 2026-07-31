@@ -427,23 +427,12 @@ Vài nhân sẫm màu còn lại ở (c) là các nhân không có trong chú th
 \end{figure}
 
 Số đếm dự đoán giảm \emph{đơn điệu} theo tỉ lệ nhân bị gỡ, trong khi đối chứng giả để số đếm gần như không đổi
-($1{,}00$--$1{,}02$) ở mọi mức (Bảng~\ref{tab:doseresp}, Hình~\ref{fig:doseresp};
-Hình~\ref{fig:qualitative} minh hoạ phép thao tác trên một mảnh ảnh). Trên các phép đo khớp diện tích
+($1{,}00$--$1{,}02$) ở mọi mức (Bảng~\ref{tab:doseresp}; Hình~\ref{fig:qualitative} minh hoạ phép thao tác
+trên một mảnh ảnh). Trên các phép đo khớp diện tích
 ($n=3415$), phần sụt giảm quy được cho nhân là $0{,}234$ đơn vị chuẩn hoá và chiếm toàn bộ mức sụt quan sát được
 (Wilcoxon bắt cặp giữa hai điều kiện, $p<10^{-300}$). Kết luận không đổi khi chỉ xét các liều nhỏ ($\le 30\%$),
 nơi ảnh còn gần phân phối huấn luyện nhất. Đáp ứng do đó \emph{đặc hiệu} với nhân, không phải với việc ảnh bị
 can thiệp.
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.62\textwidth]{fig_doseresp.pdf}
-\caption{Số đếm dự đoán (chuẩn hoá theo ảnh nguyên vẹn) theo tỉ lệ nhân còn lại; trung bình trên $286$ mảnh và
-$3$ mô hình huấn luyện độc lập, dải mờ là $\pm1$ độ lệch chuẩn của cách gỡ chính. Gỡ mô \emph{không chứa nhân} với cùng diện tích (đối chứng giả) để
-số đếm gần như không đổi, nên phần sụt giảm là do mất nhân chứ không do bản thân việc can thiệp vào ảnh. Đường
-\emph{telea} là kết quả khi lấp vùng nhân bằng inpainting thay vì ghép mô: vết nhân còn lại làm độ nhạy đo được
-thấp đi gần một nửa.}
-\label{fig:doseresp}
-\end{figure}
 
 \begin{table}[!htbp]
 \centering
@@ -487,12 +476,18 @@ quán với một cách giải thích, và giải thích vì sao giám sát mứ
 \emph{đếm} nhưng không sinh ra khả năng định vị: đại lượng được giám sát là một tổng, nên nghiệm mô hình tìm được
 cũng chỉ cần đúng ở mức tổng.
 
-Ba kiểm tra bổ sung cho thấy mức thiếu hụt này không phải sản phẩm của cách thiết kế phép gỡ. Nó không đến từ
-việc mặt nạ chú thích phủ chưa hết viền nhân, cũng không đến từ các nhân bị chú thích bỏ sót vốn không bị gỡ nên
-vẫn đóng góp vào số đếm; riêng mức bỏ sót của chú thích, ước lượng từ phần dự đoán vượt quá số nhân được chú
-thích, trung bình chỉ khoảng $3{,}5\%$ số nhân. Ngược lại, phép đo \emph{có} nhạy với cách điền vùng đã gỡ, và
-chiều của độ nhạy đó cho thấy hệ số $0{,}64$ là một giới hạn dưới của độ nhạy thực. Chi tiết ba kiểm tra được
-trình bày ở Phụ lục~\ref{app:ablation}.
+Ba kiểm tra bổ sung cho thấy mức thiếu hụt này không phải sản phẩm của cách thiết kế phép gỡ; cả ba chạy trên
+\emph{một} mô hình count-only nên chỉ đọc theo mức chênh giữa các cấu hình. Thứ nhất, nở mặt nạ $0$, $2$ và $4$
+điểm ảnh trước khi gỡ, ứng với diện tích can thiệp $18\%$, $25\%$ và $31\%$ ảnh, cho hệ số $0{,}59$, $0{,}60$ và
+$0{,}61$; toàn bộ khoảng biến thiên này nhỏ hơn độ lệch giữa các mô hình, nên mặt nạ phủ chưa hết viền nhân
+không giải thích được mức thiếu hụt. Thứ hai, các nhân bị chú thích bỏ sót không bị gỡ nên vẫn đóng góp vào số
+đếm: số đếm còn lại sau khi gỡ toàn bộ tăng đơn điệu từ $0{,}36$ ở các mảnh không có dấu hiệu bỏ sót lên
+$0{,}70$ ở nhóm bỏ sót nhiều nhất (tương quan $+0{,}31$, $n = 286$), nhưng phần dự đoán vượt quá số nhân được
+chú thích trung bình chỉ khoảng $3{,}5\%$ số nhân so với số đếm còn lại $37{,}4\%$, nên phần lớn khoảng cách
+tới $1{,}0$ không quy được cho chất lượng chú thích. Ngược lại, phép đo \emph{có} nhạy với cách điền vùng đã
+gỡ: thay phép ghép mô bằng inpainting Telea ở cùng mức nở làm hệ số rơi từ $0{,}59$ xuống $0{,}34$, vì
+inpainting lan màu từ biên vùng cần lấp mà biên đó chính là viền nhân, nên nó để lại vết nhân trong ảnh. Hệ số
+đo được vì vậy bị đặt trần bởi mức triệt để của phép gỡ, và $0{,}64$ là một giới hạn dưới của độ nhạy thực.
 
 
 \subsection{So sánh với các phương pháp dùng nhãn định vị}\label{sec:paradigm}
@@ -680,39 +675,6 @@ publications. No new data were generated.
 
 \textbf{Code availability.} The code used to train, evaluate and reproduce every table and figure in this
 article will be made publicly available upon acceptance.
-
-\begin{appendices}
-
-\section{Kiểm tra bổ sung cho thí nghiệm gỡ nhân}\label{app:ablation}
-
-Ba kiểm tra dưới đây bổ sung cho Mục~\ref{sec:fidelity}. Cả ba chạy trên \emph{một} mô hình count-only, nên các
-hệ số cần đọc theo mức chênh giữa các cấu hình, chứ không so trực tiếp với giá trị $0{,}64$ vốn là trung bình
-trên ba mô hình huấn luyện độc lập.
-
-\subsection{Mức nở mặt nạ}
-Mặt nạ nhân được nở trước khi gỡ để phủ hết phần viền mà chú thích thường bỏ sót. Nở
-$0$, $2$ và $4$ điểm ảnh, ứng với diện tích can thiệp $18\%$, $25\%$ và $31\%$ ảnh, cho hệ số đáp ứng
-$0{,}59$, $0{,}60$ và $0{,}61$. Toàn bộ khoảng biến thiên này nhỏ hơn độ lệch giữa các mô hình, nên mức thiếu
-hụt không quy được cho việc mặt nạ phủ chưa hết viền nhân. Mức nở lớn còn làm khớp diện tích của đối chứng giả
-xấu đi, nên $2$ điểm ảnh được dùng cho mọi số liệu báo cáo ở phần chính.
-
-\subsection{Nhân bị chú thích bỏ sót}
-Các nhân không có trong chú thích thì không bị gỡ, nên vẫn đóng góp vào số
-đếm sau can thiệp (Hình~\ref{fig:qualitative}c). Lấy phần dự đoán vượt quá số nhân được chú thích làm chỉ dấu
-cho mức bỏ sót, số đếm còn lại sau khi gỡ toàn bộ tăng đơn điệu từ $0{,}36$ ở các mảnh không có dấu hiệu bỏ sót
-lên $0{,}70$ ở nhóm bỏ sót nhiều nhất (tương quan $+0{,}31$, $n = 286$). Hiệu ứng vì vậy tồn tại, nhưng mức
-vượt trung bình chỉ khoảng $3{,}5\%$ số nhân, so với số đếm còn lại $37{,}4\%$ ở mức gỡ toàn bộ. Phần lớn
-khoảng cách tới $1{,}0$ do đó không quy được cho chất lượng chú thích.
-
-\subsection{Cách điền vùng đã gỡ}
-Phép đo nhạy với cách lấp vùng nhân, và bản thân độ nhạy đó là một kiểm chứng.
-Thay phép ghép mô bằng inpainting Telea ở cùng mức nở mặt nạ làm hệ số đáp ứng rơi từ $0{,}59$ xuống $0{,}34$,
-đồng thời $33\%$ mảnh cho số đếm ở mức gỡ toàn bộ \emph{cao hơn} ở mức gỡ $75\%$ (Hình~\ref{fig:doseresp}).
-Inpainting lan màu từ biên vùng cần lấp, mà biên đó chính là viền nhân, nên nó để lại vết nhân trong ảnh và mô
-hình vẫn đáp ứng với vết đó. Hệ số đo được vì vậy bị đặt trần bởi mức triệt để của phép gỡ, và giá trị
-$0{,}64$ báo cáo ở phần chính là một giới hạn dưới của độ nhạy thực.
-
-\end{appendices}
 
 \bibliography{references}
 \end{document}
