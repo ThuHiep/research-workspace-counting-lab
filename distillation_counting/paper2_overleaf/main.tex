@@ -211,10 +211,9 @@ After training, split conformal prediction~\cite{vovk,cqr} is applied on a calib
 prediction interval $[\mu - q\sigma,\ \mu + q\sigma]$ at target coverage $1-\alpha$, with $\alpha = 0.1$ in all
 reported results. Three calibration strategies are considered: a global threshold, an organ-conditional
 threshold (mondrian) and a difficulty-cluster threshold. They represent different trade-offs between interval
-width and per-group coverage guarantees. This is standard split conformal prediction; more specialised
-calibration schemes for cell counting, including uncertainty normalisation by Poisson--Binomial variance and
-online updating, belong to earlier work by the same authors~\cite{pbjci} and are not used here. This part
-assesses the practical deployability of the counter and is not a central contribution of the paper.
+width and per-group coverage guarantees. This is standard split conformal prediction; calibration schemes
+designed specifically for cell counting~\cite{pbjci} are not used here. This part assesses the practical
+deployability of the counter and is not a central contribution of the paper.
 
 %%============================================================%%
 \section{Experimental setup}\label{sec:setup}
