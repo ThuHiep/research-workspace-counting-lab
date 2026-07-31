@@ -1,16 +1,12 @@
-%% Paper 2 (Q1 findings/applied) — Springer Nature (sn-jnl). BAN TIENG VIET de doc/duyet.
+%% Paper 2 (Q1 findings/applied) - Springer Nature (sn-jnl). SUBMISSION VERSION (English).
+%% Ban tieng Viet nam trong git history: git show <commit truoc ban dich>:distillation_counting/paper2_overleaf/main.tex
 %%
-%% >>> Bien dich pdfLaTeX. Tieng Viet: babel + [T5]{fontenc}. Neu dau loi -> XeLaTeX:
-%%     \usepackage{fontspec}\usepackage{polyglossia}\setmainlanguage{vietnamese}
+%% >>> Bien dich bang pdfLaTeX.
 \documentclass[pdflatex,sn-mathphys-num]{sn-jnl}
 
 \usepackage{lmodern}
 \usepackage[utf8]{inputenc}
-\usepackage[T5]{fontenc}
-\usepackage[vietnamese]{babel}
-\addto\captionsvietnamese{%
-  \renewcommand{\abstractname}{Abstract}\renewcommand{\tablename}{Table}%
-  \renewcommand{\figurename}{Fig.}\renewcommand{\refname}{References}\renewcommand{\bibname}{References}}
+\usepackage[T1]{fontenc}
 
 \usepackage{graphicx}
 \graphicspath{{figures/}{./}}
@@ -32,610 +28,649 @@ nuclei counting}
 \orgaddress{\city{Ho Chi Minh City}, \country{Vietnam}}}
 
 %% KHI RUT GON ABSTRACT, BON CUM SAU PHAI GIU (moi cum chan mot cach hieu sai, da bi cat 4 lan):
-%%   "cung tap kiem tra"            -> can cu cong bang cua so sanh 4 paradigm
-%%   "deu can nhan dinh vi"         -> giu luan diem hieu qua nhan, khong thanh khoe benchmark
-%%   "khoanh vien day du"           -> 8x CHI dung voi mat na, khong dung voi nhan diem (14 phut)
-%%   "co doi chung gia"             -> bao hieu nhan qua, khong phai tuong quan
+%%   "the same test set"        -> can cu cong bang cua so sanh 4 paradigm
+%%   "require localisation"     -> giu luan diem hieu qua nhan, khong thanh khoe benchmark
+%%   "full delineation"         -> 8x CHI dung voi mat na, khong dung voi nhan diem (14 phut)
+%%   "sham-controlled"          -> bao hieu nhan qua, khong phai tuong quan
 \abstract{%
-Chú thích nhân ở mức điểm ảnh đòi hỏi nhiều giờ công chuyên gia cho mỗi ảnh và khó mở rộng sang các mô, cơ quan
-hoặc trung tâm mới. Tuy nhiên, phần lớn các phương pháp đếm nhân hiện nay vẫn dựa trên phân vùng, ước lượng mật
-độ hoặc phát hiện, hàm ý rằng giám sát không gian dày đặc là điều kiện cần để đạt độ chính xác cao. Bài báo này
-kiểm định trực tiếp giả định đó bằng một thí nghiệm có kiểm soát, trong đó kiến trúc mạng, dữ liệu và giao thức
-đánh giá được giữ cố định, còn biến duy nhất là loại giám sát. Với duy nhất một nhãn đếm cho mỗi ảnh, mô hình
-$3{,}62$ triệu tham số đạt $R^2 = 0{,}918$ trên PanNuke và vượt các phương pháp đại diện được khảo sát của phân
-vùng, ước lượng mật độ và phát hiện trên cùng tác vụ đếm và cùng tập kiểm tra, mặc dù cả ba đều cần nhãn định vị. So sánh
-giữa giám sát đếm và giám sát mặt nạ trên PanNuke, NuInsSeg và MoNuSeg cho thấy chiều của chênh lệch đổi dấu
-giữa các tập, nên không chế độ nào chiếm ưu thế nhất quán. Trên PanNuke, lợi thế của giám sát mặt nạ có ý nghĩa
-thống kê nhưng bị kiểm định tương đương chặn trên ở $1{,}1\%$ số nhân trung bình mỗi ảnh, trong khi nhãn đếm rẻ
-hơn khoanh viền đầy đủ ít nhất tám lần. Các thí nghiệm can thiệp có đối chứng giả cho thấy mô hình phản ứng đặc
-hiệu với nội dung nhân nhưng hình thành dự đoán bằng cách tích hợp bằng chứng trên toàn ảnh thay vì định vị
-từng thực thể. Khoảng dự đoán conformal hiệu chuẩn theo cơ quan đạt mức phủ mục tiêu trên toàn bộ $19$ loại mô.
-Kết quả cho thấy chú thích không gian dày đặc không phải là điều kiện cần cho đếm nhân chính xác.
+Pixel-level nuclei annotation costs hours of expert time per image and scales poorly to new tissues, organs or
+centres. Most nuclei counting methods nonetheless rely on segmentation, density estimation or detection,
+implying that dense spatial supervision is a prerequisite for high accuracy. This paper tests that assumption
+directly with a controlled experiment in which the network architecture, the data and the evaluation protocol
+are held fixed while supervision type is the only variable. Given a single image-level count as its only label,
+a $3.62$M-parameter model reaches $R^2 = 0.918$ on PanNuke and outperforms the surveyed representatives of
+segmentation, density estimation and detection on the same counting task and the same test set, even though all
+three require localisation labels. Comparing count supervision with mask supervision on PanNuke, NuInsSeg and
+MoNuSeg, the sign of the difference reverses across datasets, so neither regime is consistently superior. On
+PanNuke the advantage of mask supervision is statistically significant but bounded above by an equivalence test
+at $1.1\%$ of the mean nuclei per image, while count labels are at least eight times cheaper than full
+delineation. Sham-controlled intervention experiments show that the model responds specifically to nuclear
+content, yet forms its prediction by integrating evidence over the whole image rather than by localising
+individual instances. Organ-conditional conformal prediction intervals attain the target coverage across all
+$19$ tissue types. Dense spatial annotation is therefore not a prerequisite for accurate nuclei counting.
 }
 \keywords{nuclei counting, annotation efficiency, weak supervision, uncertainty quantification,
 conformal prediction, computational pathology}
 \maketitle
 
 %%============================================================%%
-\section{Giới thiệu}\label{sec:intro}
+\section{Introduction}\label{sec:intro}
 
-Số lượng và mật độ nhân tế bào là những đại lượng định lượng nền tảng trong bệnh học, phục vụ đánh giá mức độ
-tăng sinh, phân độ khối u và phân tích vi môi trường mô. Phần lớn các phương pháp học sâu hiện nay tiếp cận bài
-toán đếm nhân một cách gián tiếp, thông qua \emph{phân vùng} hoặc \emph{phát hiện} từng nhân rồi suy ra số đếm
-từ kết quả đó. Mặc dù đạt độ chính xác cao, các phương pháp này đòi hỏi chú thích ở mức điểm ảnh hoặc mức thực
-thể, vốn tốn nhiều giờ công chuyên gia cho mỗi ảnh và khó mở rộng sang các mô, cơ quan hoặc trung tâm mới.
+The number and density of cell nuclei are fundamental quantitative readouts in pathology, supporting the
+assessment of proliferation, tumour grading and analysis of the tissue microenvironment. Most current deep
+learning methods approach nuclei counting indirectly, by \emph{segmenting} or \emph{detecting} individual
+nuclei and then deriving the count from that output. Although accurate, these methods require pixel-level or
+instance-level annotation, which costs hours of expert time per image and scales poorly to new tissues, organs
+or centres.
 
-Ẩn sau chuẩn mực này là một giả định ít khi được kiểm chứng trực tiếp: rằng để đếm nhân chính xác, mô hình cần
-được cung cấp thông tin \emph{vị trí} của từng nhân trong quá trình huấn luyện. Trong khi giám sát chỉ bằng
-tổng số đối tượng ở mức ảnh (\emph{count-only}) đã được nghiên cứu rộng rãi trong đếm đám đông và một số bài
-toán đếm đối tượng khác, đếm nhân mô bệnh học vẫn chủ yếu dựa vào các dạng chú thích không gian như điểm hoặc
-mặt nạ. Do đó, mức giám sát tối thiểu thực sự cần cho bài toán đếm nhân vẫn là một câu hỏi mở.
+Underlying this norm is an assumption that is rarely tested directly: that accurate counting requires the model
+to be given the \emph{location} of each nucleus during training. While supervision by the image-level object
+total alone (\emph{count-only}) has been studied extensively in crowd counting and in several other object
+counting problems, nuclei counting in histopathology still relies mainly on spatial annotation such as points
+or masks. The minimum level of supervision that nuclei counting actually requires therefore remains an open
+question.
 
-Bài báo này trả lời câu hỏi đó bằng một \emph{thí nghiệm có kiểm soát}. Kiến trúc mô hình, dữ liệu và giao thức
-đánh giá được giữ cố định, còn biến thực nghiệm duy nhất là loại giám sát: mặt nạ ở mức điểm ảnh, hoặc một nhãn
-đếm duy nhất cho mỗi ảnh. Mọi khác biệt quan sát được do đó quy về \emph{chú thích}, không quy về sức mạnh mô
-hình.
+This paper answers that question with a \emph{controlled experiment}. The model architecture, the data and the
+evaluation protocol are held fixed, and the single experimental variable is the type of supervision:
+pixel-level masks, or one count label per image. Any observed difference is therefore attributable to
+\emph{annotation}, not to model capacity.
 
-Các đóng góp chính của bài báo như sau.
+The main contributions are as follows.
 \begin{itemize}
-\item Một nghiên cứu có kiểm soát về tác động của mức giám sát đối với độ chính xác đếm, trên ba tập dữ liệu
-độc lập và cùng một kiến trúc. Không chế độ nào chiếm ưu thế nhất quán \emph{giữa các tập}: chiều của chênh
-lệch đổi dấu, và trên tập kiểm tra lớn nhất, phần nhỉnh hơn của giám sát mặt nạ tuy có ý nghĩa thống kê nhưng
-bị một kiểm định tương đương chặn trên ở $1{,}1\%$ số nhân trung bình mỗi ảnh (Mục~\ref{sec:parity}).
-\item Một phân tích cơ chế bằng thí nghiệm can thiệp có đối chứng giả khớp diện tích: dự đoán phụ thuộc đặc
-hiệu vào nội dung nhân, nhưng đáp ứng là dưới tuyến tính và bản đồ mật độ hầu như không định vị được nhân. Hai
-quan sát này cùng thu hẹp tập cơ chế có thể giải thích kết quả trên (Mục~\ref{sec:fidelity}).
-\item So sánh với các đại diện của ba hướng tiếp cận dùng nhãn định vị (phân vùng, ước lượng mật độ và phát
-hiện) dưới cùng dữ liệu và cùng giao thức đánh giá: bộ đếm count-only nhẹ đạt độ chính xác đếm cao hơn cả ba ở
-cấu hình thông dụng của chúng, trong khi hướng phát hiện suy giảm có hệ thống ở vùng nhân dày đặc
-(Mục~\ref{sec:paradigm}).
-\item Đánh giá hiệu quả chú thích, chi phí tính toán khi triển khai và độ tin cậy dự đoán: một phần tư ngân
-sách nhãn đã đạt phần lớn hiệu năng ở mức nhãn đầy đủ, và khoảng dự đoán conformal hiệu chuẩn theo loại mô đạt
-mức phủ mục tiêu ở mọi loại mô (Mục~\ref{sec:deploy}).
+\item A controlled study of how the level of supervision affects counting accuracy, across three independent
+datasets and a single architecture. Neither regime is consistently superior \emph{across datasets}: the sign of
+the difference reverses, and on the largest test set the margin held by mask supervision, although
+statistically significant, is bounded above by an equivalence test at $1.1\%$ of the mean nuclei per image
+(Section~\ref{sec:parity}).
+\item A mechanistic analysis based on intervention experiments with area-matched sham controls: the prediction
+depends specifically on nuclear content, but the response is sublinear and the density map barely localises
+nuclei at all. Together these two observations narrow the set of mechanisms that can explain the result above
+(Section~\ref{sec:fidelity}).
+\item A comparison against representatives of three paradigms that use localisation labels (segmentation,
+density estimation and detection) under the same data and the same evaluation protocol: the lightweight
+count-only counter attains higher counting accuracy than all three in their common configurations, while the
+detection paradigm degrades systematically in densely packed regions (Section~\ref{sec:paradigm}).
+\item An assessment of annotation efficiency, deployment cost and predictive reliability: one quarter of the
+label budget already recovers most of the accuracy obtained with the full budget, and tissue-conditional
+conformal prediction intervals attain the target coverage in every tissue type (Section~\ref{sec:deploy}).
 \end{itemize}
 
 %%============================================================%%
-\section{Công trình liên quan}\label{sec:related}
+\section{Related work}\label{sec:related}
 
-\paragraph{Phân vùng và phát hiện nhân.} U-Net~\cite{unet} cùng các mở rộng như HoVer-Net~\cite{hovernet} và
-StarDist~\cite{stardist} đạt độ chính xác phân vùng cao trên các mốc chuẩn như PanNuke~\cite{pannuke}; ở các
-phương pháp này, số đếm là một đại lượng dẫn xuất từ đầu ra phân vùng và nhãn huấn luyện là mặt nạ ở mức điểm
-ảnh. Các hướng dựa trên tâm và giám sát điểm ước lượng vị trí nhân một cách rời rạc, qua đó giảm chi phí chú
-thích so với mặt nạ đầy đủ~\cite{qu2020}, nhưng vẫn yêu cầu định vị và nhạy cảm với bước hậu xử lý khi nhân
-chồng lấn; hệ quả của đặc tính này đối với độ chính xác đếm ở vùng dày đặc được đo trực tiếp ở
-Mục~\ref{sec:paradigm}.
+\paragraph{Nuclei segmentation and detection.} U-Net~\cite{unet} and extensions such as
+HoVer-Net~\cite{hovernet} and StarDist~\cite{stardist} achieve high segmentation accuracy on benchmarks such as
+PanNuke~\cite{pannuke}; in these methods the count is a quantity derived from the segmentation output and the
+training labels are pixel-level masks. Centroid-based and point-supervised approaches estimate nuclei positions
+discretely and thereby reduce annotation cost relative to full masks~\cite{qu2020}, but they still require
+localisation and remain sensitive to the post-processing step when nuclei overlap; the consequence of this
+property for counting accuracy in dense regions is measured directly in Section~\ref{sec:paradigm}.
 
-\paragraph{Nới lỏng nhãn trong phân tích nhân.} Một dòng nghiên cứu tích cực tìm cách hạ dần mức chú thích. Các
-mức được đề xuất trải từ một điểm cho mỗi nhân~\cite{pseudoedgenet}, xuống chỉ một phần các
-điểm~\cite{qu2020}, xuống một chỉ báo đếm cắt ngưỡng ở mức mảnh nhỏ~\cite{lirnet}, và xuống nhãn ở mức
-ảnh~\cite{cyclic}. Ở mức chỉ báo cắt ngưỡng, người chú thích chỉ xác định liệu mảnh chứa không, một hay nhiều
-hơn một nhân; các tác giả ước tính mức chú thích này chỉ tốn khoảng $17{,}5\%$ công so với đánh dấu điểm cho
-từng nhân~\cite{lirnet}.
+\paragraph{Relaxing labels in nuclei analysis.} An active line of work progressively weakens the annotation
+required. The proposed levels range from one point per nucleus~\cite{pseudoedgenet}, to only a subset of those
+points~\cite{qu2020}, to a thresholded count indicator over small patches~\cite{lirnet}, to image-level
+labels~\cite{cyclic}. At the thresholded-indicator level the annotator only decides whether a patch contains
+zero, one, or more than one nucleus; the authors estimate that this costs roughly $17.5\%$ of the effort of
+placing a point on every nucleus~\cite{lirnet}.
 
-Điểm chung của các công trình này là mục tiêu cuối cùng vẫn bao gồm định vị hoặc suy luận hình dạng của từng
-nhân, nên thông tin không gian vẫn đóng vai trò trung tâm trong huấn luyện; để bù phần thông tin mà nhãn yếu
-không cung cấp, chúng thường kết hợp thêm sinh nhãn giả, học theo chu kỳ hoặc tín hiệu giám sát bổ trợ. Trong
-bệnh học tính toán, giám sát ở mức ảnh cũng đã được khai thác rộng rãi ở cấp lát cắt cho các bài toán phân loại
-thông qua học đa thực thể~\cite{campanella}. Câu hỏi được đặt ra ở đây khác về bản
-chất: khi đại lượng cần dùng \emph{chính là số đếm}, giám sát không gian có còn cần thiết hay không.
+What these works have in common is that the final objective still includes localising or inferring the shape of
+individual nuclei, so spatial information remains central during training; to compensate for the information
+that weak labels do not provide, they typically add pseudo-label generation, cyclic learning or auxiliary
+supervisory signals. In computational pathology, image-level supervision has also been exploited extensively at
+the slide level for classification through multiple instance learning~\cite{campanella}. The question posed
+here is different in kind: when the quantity of interest \emph{is} the count itself, is spatial supervision
+still necessary?
 
-\paragraph{Đếm bằng hồi quy mật độ.} Lempitsky và Zisserman~\cite{lempitsky} đặt nền cho việc đếm bằng cách hồi
-quy một bản đồ mật độ mà tích phân trên một vùng cho ra số đối tượng trong vùng đó, thay cho việc phát hiện rồi
-đếm từng thực thể. Ý tưởng này được đưa sang ảnh hiển vi bằng mạng hồi quy toàn chập~\cite{fcrn} và bằng sơ đồ
-đếm dư thừa theo trường tiếp nhận~\cite{countception}, và trở thành chuẩn mực cho đếm tế bào. Dù rẻ hơn phân
-vùng thực thể, giám sát mật độ vẫn giả định biết vị trí đối tượng, vì bản đồ mục tiêu được dựng từ điểm hoặc mặt
-nạ.
+\paragraph{Counting by density regression.} Lempitsky and Zisserman~\cite{lempitsky} established counting by
+regressing a density map whose integral over a region gives the number of objects in that region, instead of
+detecting and counting individual instances. The idea was carried over to microscopy by fully convolutional
+regression networks~\cite{fcrn} and by receptive-field redundant counting schemes~\cite{countception}, and
+became standard for cell counting. Although cheaper than instance segmentation, density supervision still
+presupposes known object locations, because the target map is constructed from points or masks.
 
-\paragraph{Đếm chỉ với giám sát số đếm.} Trong đếm đám đông, giám sát chỉ bằng tổng số ở mức ảnh đã hình thành
-một nhánh riêng. Một con số cho mỗi ảnh là tín hiệu huấn luyện yếu, nên các công trình ở đây bổ sung thêm nguồn
-tín hiệu khác: nhiệm vụ phụ trợ~\cite{matt}, thông tin thứ tự ẩn giữa các ảnh~\cite{sorting}, hoặc mô hình hoá
-ngữ cảnh toàn cục bằng transformer~\cite{transcrowd}. Lei và cộng sự~\cite{matt} ghi nhận rằng hồi quy trực
-tiếp tích phân của bản đồ mật độ về tổng số cho kết quả không thỏa đáng nếu thiếu ràng buộc bổ trợ. Tuy nhiên,
-các kết quả này chủ yếu được thiết lập trên ảnh đám đông trong môi trường tự nhiên. Mức độ mà các kết luận đó
-còn đúng đối với ảnh mô bệnh học, nơi đối tượng phân bố dày, hình thái tương đối đồng nhất và bối cảnh ít biến
-thiên, vẫn chưa được khảo sát một cách hệ thống.
+\paragraph{Counting with count supervision only.} In crowd counting, supervision by the image-level total alone
+has become a line of its own. A single number per image is a weak training signal, so work in this area adds
+further sources of signal: auxiliary tasks~\cite{matt}, latent ranking information between
+images~\cite{sorting}, or global context modelling with transformers~\cite{transcrowd}. Lei et
+al.~\cite{matt} report that regressing the integral of the density map directly onto the total is unsatisfactory
+without auxiliary constraints. These results, however, were established mainly on crowd images in natural
+scenes. The extent to which those conclusions still hold for histopathology images, where objects are densely
+distributed, morphology is relatively homogeneous and context varies little, has not been examined
+systematically.
 
-Một quan sát phổ biến trong nhánh nghiên cứu này là mô hình huấn luyện chỉ bằng nhãn đếm không nhất thiết sinh
-ra bản đồ không gian có ý nghĩa. Để khôi phục thông tin định vị từ giám sát count-only,
-Count2Density~\cite{count2density} kết hợp thêm nhiều thành phần bổ trợ nhằm tái tạo cấu trúc mật độ, gồm tiên
-nghiệm nổi bật không giám sát, ngân hàng bản đồ lịch sử và ràng buộc chính quy hoá không gian.
+A common observation in this line of work is that a model trained only with count labels does not necessarily
+produce a meaningful spatial map. To recover localisation information from count-only supervision,
+Count2Density~\cite{count2density} adds several auxiliary components aimed at reconstructing density structure,
+including an unsupervised saliency prior, a historical map bank and a spatial regularisation constraint.
 
-Ngoài ảnh tự nhiên, giám sát count-only mới được chuyển sang một số bài toán đếm vi sinh vật trên ảnh hiển
-vi~\cite{microvit}, còn trong đếm nhân mô bệnh học thì vẫn hiếm gặp.
+Beyond natural images, count-only supervision has recently been transferred to a few microorganism counting
+problems in microscopy~\cite{microvit}, whereas in histopathology nuclei counting it remains rare.
 
-\paragraph{Khoảng trống.} Mặc dù đã có nhiều nỗ lực giảm chi phí chú thích trong phân tích nhân, phần lớn các
-nghiên cứu vẫn giả định rằng một mức độ giám sát không gian nào đó là cần thiết. Do đó, điều còn thiếu không
-phải là một kiến trúc mới mà là một \emph{đánh giá có kiểm soát} về giá trị thực sự của thông tin không gian
-đối với bài toán đếm. Cụ thể, với cùng kiến trúc, cùng dữ liệu và cùng giao thức đánh giá, việc thay thế mặt nạ
-ở mức điểm ảnh bằng một nhãn đếm duy nhất cho mỗi ảnh làm suy giảm độ chính xác đến mức nào vẫn chưa được lượng
-hoá trực tiếp; và nếu mức suy giảm đó nhỏ, thì mô hình chỉ học từ số đếm dựa vào bằng chứng nào trong ảnh cũng
-là câu hỏi chưa được kiểm tra. Bên cạnh đó, các mô hình định lượng nhân nhẹ gần đây, hoặc chưng cất từ một mô
-hình nền bệnh học~\cite{distillfm}, hoặc dùng kiến trúc đa đầu chuyên biệt~\cite{kongnet}, báo cáo độ chính xác
-tốt nhưng đều được huấn luyện bằng nhãn dày đặc và nhìn chung không đi kèm cơ chế định lượng bất định. Bài báo
-được thiết kế để trả lời trực tiếp các câu hỏi trên.
+\paragraph{Gap.} Despite considerable effort to reduce annotation cost in nuclei analysis, most studies still
+assume that some level of spatial supervision is necessary. What is missing is therefore not a new
+architecture but a \emph{controlled assessment} of how much spatial information is actually worth for counting.
+Specifically, under the same architecture, the same data and the same evaluation protocol, how much accuracy is
+lost when pixel-level masks are replaced by a single count label per image has not been quantified directly;
+and if that loss is small, the question of what evidence a count-only model relies on has not been tested
+either. In addition, recent lightweight models for nuclei quantification, whether distilled from a pathology
+foundation model~\cite{distillfm} or built on specialised multi-head architectures~\cite{kongnet}, report good
+accuracy but are all trained with dense labels and generally come without uncertainty quantification. This
+paper is designed to answer these questions directly.
 
 %%============================================================%%
-\section{Phương pháp}\label{sec:method}
+\section{Method}\label{sec:method}
 
-\subsection{Kiến trúc và đầu ra}
-Mô hình, ký hiệu DensitySigmaUNet, gồm một bộ mã hóa EfficientNet-lite0~\cite{efficientnet} tiền huấn
-luyện trên ImageNet ghép với một bộ giải mã kiểu U-Net~\cite{unet}. Mạng có hai đầu ra.
+\subsection{Architecture and outputs}
+The model, denoted DensitySigmaUNet, consists of an ImageNet-pretrained EfficientNet-lite0~\cite{efficientnet}
+encoder coupled with a U-Net style decoder~\cite{unet}. The network has two outputs.
 
-Đầu \emph{mật độ} sinh một bản đồ không âm, và số đếm dự đoán là tổng toàn ảnh $\mu = \sum_p \hat d_p$. Đầu
-\emph{bất định} dự đoán độ lệch chuẩn của số đếm, được tham số hóa quanh nền phương sai Poisson:
+The \emph{density} head produces a non-negative map, and the predicted count is its sum over the image,
+$\mu = \sum_p \hat d_p$. The \emph{uncertainty} head predicts the standard deviation of the count,
+parameterised around a Poisson variance baseline:
 \begin{equation}
 \sigma = \sqrt{\max(\mu,1)}\;\exp\!\big(\mathrm{clamp}(\log s,-2,2)\big).
 \end{equation}
-Nền Poisson được chọn vì số đếm là đại lượng rời rạc và thỏa mãn quan hệ $\sigma = \sqrt{\mu}$ trong trường hợp
-Poisson. Việc neo $\sigma$ quanh nền này giúp bất định tự co giãn theo độ lớn của số đếm thay vì phải học hoàn
-toàn từ dữ liệu. Thừa số mũ cho phép mô hình biểu diễn cả tán xạ dưới và trên mức Poisson, với khoảng chặn
-$[-2, 2]$ ứng với hệ số từ $0{,}14$ đến $7{,}4$ lần $\sqrt{\mu}$; phép chặn vì vậy chỉ đóng vai trò ổn định số
-học ở giai đoạn đầu huấn luyện chứ không ràng buộc mô hình. Lựa chọn neo này được đối chiếu trực tiếp với một
-$\sigma$ không neo ở Mục~\ref{sec:uq}. Gradient từ nhánh bất định không được lan truyền ngược về $\mu$, nhằm
-tránh việc ước lượng bất định ảnh hưởng đến quá trình học số đếm. Cấu hình sử dụng cho $3{,}62$ triệu tham số.
+The Poisson baseline is chosen because counts are discrete and satisfy $\sigma = \sqrt{\mu}$ in the Poisson
+case. Anchoring $\sigma$ around this baseline lets the uncertainty scale with the magnitude of the count
+instead of having to be learned entirely from data. The exponential factor allows the model to express both
+under- and over-dispersion relative to Poisson, with the clamping range $[-2, 2]$ corresponding to factors from
+$0.14$ to $7.4$ times $\sqrt{\mu}$; the clamp therefore only serves numerical stability early in training and
+does not constrain the model. This anchoring choice is compared directly against an unanchored $\sigma$ in
+Section~\ref{sec:uq}. Gradients from the uncertainty branch are not propagated back into $\mu$, so that
+uncertainty estimation cannot affect how the count is learned. The configuration used has $3.62$ million
+parameters.
 
-\subsection{Các chế độ giám sát}
-Biến giám sát được cô lập bằng cách giữ nguyên kiến trúc, dữ liệu và giao thức đánh giá, chỉ thay đổi trọng số hàm
-mất mát $\mathcal{L} = w_d\,\mathcal{L}_{\text{mật độ}} + w_c\,\mathcal{L}_{\text{đếm}}
+\subsection{Supervision regimes}
+The supervision variable is isolated by keeping the architecture, the data and the evaluation protocol fixed
+and changing only the loss weights in
+$\mathcal{L} = w_d\,\mathcal{L}_{\text{density}} + w_c\,\mathcal{L}_{\text{count}}
 + w_{n}\,\mathcal{L}_{\text{NLL}}$:
 \begin{itemize}
-\item \textbf{count-only} ($w_d{=}0,\ w_c{=}1$): mô hình chỉ dùng nhãn đếm ở mức ảnh làm tín hiệu huấn luyện,
-không dùng bản đồ mục tiêu ở mức điểm ảnh.
-\item \textbf{mask} ($w_d{=}1$): mô hình học khớp bản đồ mật độ dựng từ mặt nạ thực; một trọng số đếm nhỏ $w_c$
-được giữ để tránh nghiệm suy biến của hàm mất mát mật độ, với giá trị và cách chọn nêu ở Mục~\ref{sec:setup}.
+\item \textbf{count-only} ($w_d{=}0,\ w_c{=}1$): the model uses only the image-level count as its training
+signal, with no pixel-level target map.
+\item \textbf{mask} ($w_d{=}1$): the model fits a density map built from the ground-truth masks; a small count
+weight $w_c$ is retained to avoid the degenerate solution of the density loss, with its value and selection
+given in Section~\ref{sec:setup}.
 \end{itemize}
-$\mathcal{L}_{\text{mật độ}}$ là sai số bình phương trung bình theo từng điểm ảnh giữa bản đồ dự đoán và bản đồ
-mục tiêu; $\mathcal{L}_{\text{đếm}} = |\mu - N|$ lấy trung bình theo lô, với $N$ là số nhân thực của ảnh; còn
-$\mathcal{L}_{\text{NLL}}$ là hàm hợp lý âm dạng $\beta$-NLL~\cite{bnll}, huấn luyện $\sigma$ mà không ảnh hưởng
-$\mu$. Đầu bất định vì thế được huấn luyện trước bằng $\beta$-NLL, còn các khoảng dự đoán cuối cùng được hiệu
-chuẩn hậu nghiệm như trình bày dưới đây.
+$\mathcal{L}_{\text{density}}$ is the per-pixel mean squared error between the predicted and target maps;
+$\mathcal{L}_{\text{count}} = |\mu - N|$ averaged over the batch, where $N$ is the ground-truth number of nuclei
+in the image; and $\mathcal{L}_{\text{NLL}}$ is a $\beta$-NLL negative log-likelihood~\cite{bnll}, which trains
+$\sigma$ without affecting $\mu$. The uncertainty head is thus pre-trained with $\beta$-NLL, while the final
+prediction intervals are calibrated post hoc as described below.
 
-Hai đặc điểm của thiết kế cần được lưu ý. Thứ nhất, trong chế độ count-only, hàm mất mát chỉ ràng buộc
-\emph{tổng} của bản đồ mật độ. Do đó, nhiều bản đồ khác nhau có thể dẫn đến cùng một số đếm, và việc bản đồ học
-được có mang thông tin vị trí hay không là một câu hỏi thực nghiệm, được khảo sát ở Mục~\ref{sec:fidelity}.
+Two features of this design deserve attention. First, in the count-only regime the loss constrains only the
+\emph{sum} of the density map. Many different maps can therefore yield the same count, and whether the learned
+map carries any positional information is an empirical question, examined in Section~\ref{sec:fidelity}.
 
-Thứ hai, nhánh mask sử dụng thêm một thành phần mất mát đếm ($w_c > 0$) để tránh nghiệm suy biến của giám sát
-mật độ trên bản đồ thưa. Điều này tạo ra một lợi thế nhỏ cho nhánh mask, vì nó nhận thêm tín hiệu liên quan
-trực tiếp tới chỉ số đánh giá. Do đó, mọi chênh lệch quan sát được giữa hai chế độ có thể được xem là một ước
-lượng bảo thủ đối với lợi ích của giám sát mặt nạ.
+Second, the mask branch additionally uses a count loss term ($w_c > 0$) to avoid the degenerate solution of
+density supervision on sparse maps. This gives the mask branch a small advantage, since it receives extra
+signal directly related to the evaluation metric. Any difference observed between the two regimes can therefore
+be regarded as a conservative estimate of the benefit of mask supervision.
 
-\subsection{Hiệu chuẩn khoảng dự đoán}
-Sau huấn luyện, split-conformal prediction~\cite{vovk,cqr} được áp dụng trên một tập hiệu chuẩn để xây dựng
-khoảng dự đoán $[\mu - q\sigma,\ \mu + q\sigma]$ ở mức phủ mục tiêu $1-\alpha$, với $\alpha = 0{,}1$ trong mọi
-kết quả báo cáo. Ba chiến lược hiệu chuẩn được xem xét: ngưỡng toàn cục (global), ngưỡng theo cơ quan
-(mondrian) và ngưỡng theo nhóm độ khó (cluster). Chúng phản ánh các mức đánh đổi khác nhau giữa độ rộng khoảng
-dự đoán và bảo đảm mức phủ theo từng nhóm dữ liệu. Đây là dạng split-conformal tiêu chuẩn; các sơ đồ hiệu chuẩn
-chuyên biệt hơn cho đếm tế bào, gồm chuẩn hoá bất định theo phương sai Poisson--Binomial và cập nhật trực
-tuyến, thuộc một công trình trước của cùng nhóm tác giả~\cite{pbjci} và không được sử dụng ở đây. Phần này nhằm
-đánh giá khả năng triển khai thực tế của bộ đếm và không phải là đóng góp trung tâm của bài báo.
-
-%%============================================================%%
-\section{Thiết lập thực nghiệm}\label{sec:setup}
-
-\paragraph{Dữ liệu.} Việc đánh giá được thực hiện trên ba tập độc lập, khác nhau về nguồn: PanNuke~\cite{pannuke} (đa
-loại ung thư,
-$256\times256$, 19 loại mô; huấn luyện trên fold~1--2 với $5179$ mảnh, kiểm tra trên fold~3 với $2722$ mảnh),
-NuInsSeg~\cite{nuinsseg} ($665$ ảnh đa cơ quan, chia ngẫu nhiên $80/20$ theo từng hạt giống) và
-MoNuSeg~2018~\cite{monuseg} (đa cơ quan từ TCGA, $37$ ảnh huấn luyện và $14$ ảnh kiểm tra theo phân chia chính
-thức; ảnh $1000\times1000$ được cắt thành các mảnh $256$ ở độ phân giải gốc). Đơn vị đánh giá là mảnh
-$256\times256$ đối với PanNuke và MoNuSeg, và ảnh nguyên đối với NuInsSeg. Trong phần còn lại của bài báo, các
-đơn vị này được gọi chung là ``ảnh'' nếu không cần phân biệt cụ thể.
-
-\paragraph{Chi tiết huấn luyện.} Bộ mã hóa khởi tạo từ trọng số ImageNet, bộ giải mã dùng $32$ kênh. Mọi mô hình
-huấn luyện $60$ epoch bằng Adam với tốc độ học $10^{-3}$, cỡ lô $16$, đầu vào $256\times256$, kèm cắt chuẩn
-gradient ở ngưỡng $5$ để chặn các lần phân kỳ hiếm của $\beta$-NLL. Trọng số bất định là $w_n = 0{,}01$ và
-$\beta = 0{,}5$. Không dùng tăng cường dữ liệu. Hai chế độ giám sát sử dụng cùng cấu hình huấn luyện và chỉ khác
-nhau ở cặp trọng số $(w_d, w_c)$.
-
-\paragraph{Giao thức.} Mọi phương pháp so sánh được huấn luyện lại từ đầu trên cùng tập huấn luyện và đánh giá
-trên cùng tập kiểm tra. Mỗi cấu hình lặp lại với nhiều hạt giống ngẫu nhiên, báo cáo trung bình cùng độ lệch
-chuẩn.
-
-Nhánh mask được đánh giá ở cấu hình thuận lợi nhất trong số các giá trị được khảo sát, để phép so sánh không
-thiên vị count-only. Giám sát mật độ trên bản đồ mục tiêu thưa suy về nghiệm hằng số khi trọng số đếm $w_c$ quá
-nhỏ, do hàm mất mát bình phương trên bản đồ mật độ bị các điểm ảnh nền chi phối. Trên PanNuke, khảo sát
-$w_c \in \{0{,}01;\ 0{,}05;\ 0{,}1\}$ cho thấy $w_c = 0{,}01$ đôi khi dẫn đến nghiệm suy biến ($1/5$ hạt giống,
-$R^2$ trung bình $0{,}45 \pm 0{,}94$), trong khi $0{,}05$ và $0{,}1$ đều hội tụ ổn định. Giá trị $0{,}1$ đạt kết
-quả trung bình cao nhất và được giữ cố định cho toàn bộ các tập dữ liệu; ở cấu hình này, không hạt giống nào
-suy biến trên bất kỳ tập dữ liệu nào. Ở đầu kia của dải, $w_c = 0$ suy biến hoàn toàn và không huấn luyện được,
-nên ``giám sát mặt nạ thuần tuý'' không phải một mốc so sánh quan sát được trong kiến trúc này; hạ $w_c$ làm
-nhánh mask kém ổn định hơn chứ không tốt lên, phù hợp với cách đọc bảo thủ nêu ở Mục~\ref{sec:method}.
-
-\paragraph{Chỉ số và kiểm định.} Độ chính xác đếm được đo bằng $R^2$ và sai số tuyệt đối trung bình (MAE). Để
-so sánh hai chế độ giám sát, kiểm định Wilcoxon signed-rank bắt cặp được dùng trên sai số tuyệt đối của
-từng ảnh, trong đó sai số mỗi ảnh được lấy trung bình qua các hạt giống trên tập kiểm tra cố định.
-Khi các đơn vị đánh giá được cắt ra từ một số ít ảnh gốc, chúng không độc lập với nhau và kiểm định có
-xu hướng lạc quan; trong trường hợp đó phép kiểm định được chạy lại sau khi gộp các mảnh của mỗi ảnh thành một
-số đếm duy nhất, và cả hai kết quả đều được báo cáo.
-
-Do đó, tính tương đương không được suy ra từ việc thiếu ý nghĩa thống kê mà được đánh giá riêng bằng kiểm định
-TOST. Hai kiểm định một phía chạy trên cùng các sai số bắt cặp đó bác bỏ giả thuyết không $|\Delta| \ge \delta$,
-với $\Delta$ là chênh lệch trung bình của sai số tuyệt đối theo từng ảnh, tính bằng đơn vị nhân. Tương đương
-được công nhận khi khoảng tin cậy bootstrap $90\%$ của $\Delta$ nằm gọn trong $(-\delta, +\delta)$. Bên cạnh
-các biên tương đương được xác định trước, bài báo còn báo cáo $\delta^\star$, là biên nhỏ nhất mà kết luận
-tương đương vẫn được duy trì; đại lượng này cho phép người đọc tự áp dụng ngưỡng tương đương phù hợp với ứng
-dụng của mình.
-
-Chất lượng khoảng dự đoán được đo bằng mức phủ biên, mức phủ của cơ quan có mức phủ thấp nhất, độ rộng khoảng
-và điểm Winkler~\cite{winkler}, chỉ số kết hợp độ rộng khoảng với một khoản phạt khi giá trị thực nằm ngoài
-khoảng, nên phản ánh đồng thời tính gọn và khả năng bao phủ; giá trị thấp hơn là tốt hơn.
+\subsection{Prediction interval calibration}
+After training, split conformal prediction~\cite{vovk,cqr} is applied on a calibration set to construct the
+prediction interval $[\mu - q\sigma,\ \mu + q\sigma]$ at target coverage $1-\alpha$, with $\alpha = 0.1$ in all
+reported results. Three calibration strategies are considered: a global threshold, an organ-conditional
+threshold (mondrian) and a difficulty-cluster threshold. They represent different trade-offs between interval
+width and per-group coverage guarantees. This is standard split conformal prediction; more specialised
+calibration schemes for cell counting, including uncertainty normalisation by Poisson--Binomial variance and
+online updating, belong to earlier work by the same authors~\cite{pbjci} and are not used here. This part
+assesses the practical deployability of the counter and is not a central contribution of the paper.
 
 %%============================================================%%
-\section{Kết quả}\label{sec:results}
+\section{Experimental setup}\label{sec:setup}
 
-\subsection{Chú thích dày đặc có cải thiện độ chính xác đếm không?}\label{sec:parity}
+\paragraph{Data.} Evaluation is carried out on three independent datasets from different sources:
+PanNuke~\cite{pannuke} (pan-cancer, $256\times256$, 19 tissue types; trained on folds~1--2 with $5179$ patches,
+tested on fold~3 with $2722$ patches), NuInsSeg~\cite{nuinsseg} ($665$ multi-organ images, random $80/20$ split
+per seed) and MoNuSeg~2018~\cite{monuseg} (multi-organ, from TCGA, $37$ training and $14$ test images following
+the official split; the $1000\times1000$ images are cropped into $256$ patches at native resolution). The
+evaluation unit is the $256\times256$ patch for PanNuke and MoNuSeg, and the whole image for NuInsSeg.
+Throughout the paper these units are referred to collectively as ``images'' where the distinction does not
+matter.
 
-Không chế độ giám sát nào chiếm ưu thế nhất quán \emph{giữa ba tập dữ liệu} (Bảng~\ref{tab:parity}); trong
-từng tập, mức chặt của kết luận khác nhau rõ rệt và phụ thuộc vào lực kiểm định mà tập đó cho phép. Trên
-PanNuke, tập lớn nhất và có tập kiểm tra cố định, nhánh mask giữ một khoảng cách
-nhỏ nhưng nhất quán về dấu: $\Delta R^2 = -0{,}013$, với mask cao hơn ở cả $5/5$ hạt giống. Xét theo độ lớn,
-count-only đạt $98{,}6\%$ mức $R^2$ của nhánh mask. Trên
-NuInsSeg, count-only đạt $R^2$ trung bình nhỉnh hơn ($\Delta R^2 = +0{,}012$), nhưng bức tranh theo từng chia
-kém ổn định hơn hẳn: chiều của chênh lệch đổi dấu giữa các chia và $3/5$ chia cho khác biệt có ý nghĩa theo
-từng ảnh ở cả hai chiều. Trên MoNuSeg, count-only cũng cao hơn về $R^2$ ($\Delta R^2 = +0{,}10$), nhưng vì tập
-huấn luyện chỉ có $37$ ảnh nên độ lệch chuẩn giữa các hạt giống lớn gấp khoảng hai lần chênh lệch đó. Giá trị
-$R^2$ tuyệt đối trên MoNuSeg cũng thấp hơn hai tập kia ở \emph{cả hai} chế độ, nhưng $R^2$ phụ thuộc vào phương
-sai số đếm của từng tập nên không so sánh được trực tiếp giữa các tập; các kiểm định bắt cặp dưới đây dùng sai
-số tuyệt đối nên không chịu ảnh hưởng đó.
+\paragraph{Training details.} The encoder is initialised from ImageNet weights and the decoder uses $32$
+channels. All models are trained for $60$ epochs with Adam at learning rate $10^{-3}$, batch size $16$ and
+input size $256\times256$, with gradient norm clipping at $5$ to prevent the rare divergences of $\beta$-NLL.
+The uncertainty weights are $w_n = 0.01$ and $\beta = 0.5$. No data augmentation is used. The two supervision
+regimes share the same training configuration and differ only in the weight pair $(w_d, w_c)$.
+
+\paragraph{Protocol.} All compared methods are retrained from scratch on the same training set and evaluated on
+the same test set. Each configuration is repeated with several random seeds, reporting the mean and standard
+deviation.
+
+The mask branch is evaluated in the most favourable configuration among those surveyed, so that the comparison
+is not biased in favour of count-only. Density supervision on a sparse target map collapses to a constant
+solution when the count weight $w_c$ is too small, because the squared loss on the density map is dominated by
+background pixels. On PanNuke, a sweep over $w_c \in \{0.01,\ 0.05,\ 0.1\}$ showed that $w_c = 0.01$ sometimes
+leads to a degenerate solution ($1/5$ seeds, mean $R^2$ of $0.45 \pm 0.94$), whereas $0.05$ and $0.1$ both
+converge stably. The value $0.1$ gave the best mean result and was kept fixed across all datasets; in this
+configuration no seed degenerates on any dataset. At the other end of the range, $w_c = 0$ degenerates
+completely and cannot be trained, so ``pure mask supervision'' is not an observable baseline in this
+architecture; lowering $w_c$ makes the mask branch less stable rather than better, consistent with the
+conservative reading given in Section~\ref{sec:method}.
+
+\paragraph{Metrics and tests.} Counting accuracy is measured by $R^2$ and mean absolute error (MAE). To compare
+the two supervision regimes, a paired Wilcoxon signed-rank test is applied to the per-image absolute errors,
+where each image error is averaged over seeds on a fixed test set. When the evaluation units are cropped from a
+small number of source images they are not independent and the test tends to be anti-conservative; in that case
+the test is repeated after pooling the patches of each image into a single count, and both results are
+reported.
+
+Equivalence is accordingly not inferred from the absence of statistical significance but assessed separately
+with a TOST procedure. Two one-sided tests on the same paired errors reject the null hypothesis
+$|\Delta| \ge \delta$, where $\Delta$ is the mean difference of the per-image absolute errors, in units of
+nuclei. Equivalence is granted when the $90\%$ bootstrap confidence interval of $\Delta$ lies entirely within
+$(-\delta, +\delta)$. Alongside pre-specified equivalence margins, the paper also reports $\delta^\star$, the
+smallest margin at which the equivalence conclusion still holds; this quantity lets readers apply whatever
+equivalence threshold suits their own application.
+
+Prediction interval quality is measured by marginal coverage, the coverage of the worst-covered organ, interval
+width and the Winkler score~\cite{winkler}, a score that combines interval width with a penalty when the true
+value falls outside the interval and therefore reflects both tightness and coverage; lower is better.
+
+%%============================================================%%
+\section{Results}\label{sec:results}
+
+\subsection{Does dense annotation improve counting accuracy?}\label{sec:parity}
+
+Neither supervision regime is consistently superior \emph{across the three datasets}
+(Table~\ref{tab:parity}); within each dataset, how tight a conclusion can be drawn differs markedly and depends
+on the statistical power that dataset affords. On PanNuke, the largest dataset and the one with a fixed test
+set, the mask branch holds a small but sign-consistent margin: $\Delta R^2 = -0.013$, with mask higher in all
+$5/5$ seeds. In relative terms, count-only attains $98.6\%$ of the $R^2$ of the mask branch. On NuInsSeg,
+count-only attains a slightly higher mean $R^2$ ($\Delta R^2 = +0.012$), but the per-split picture is far less
+stable: the sign of the difference reverses across splits, and $3/5$ splits give a significant per-image
+difference in both directions. On MoNuSeg, count-only is also higher in $R^2$ ($\Delta R^2 = +0.10$), but
+because the training set contains only $37$ images the between-seed standard deviation is about twice that
+difference. The absolute $R^2$ values on MoNuSeg are also lower than on the other two datasets under
+\emph{both} regimes, but $R^2$ depends on the count variance of each dataset and is therefore not directly
+comparable across datasets; the paired tests below use absolute errors and are unaffected by this.
 
 \begin{table}[!htbp]
 \centering
-\caption{Độ chính xác đếm dưới hai chế độ giám sát trên \emph{cùng} kiến trúc, $5$ hạt giống cho cả ba tập dữ
-liệu. $\Delta R^2 = R^2_{\text{count}} - R^2_{\text{mask}}$; $p$ là kiểm định Wilcoxon bắt cặp trên
-từng đơn vị đánh giá (sai số lấy trung bình qua các hạt giống). $\delta^\star$ là biên nhỏ nhất mà kiểm định
-tương đương TOST còn cho kết luận, tính bằng số nhân trên mỗi đơn vị đánh giá và theo phần trăm số nhân trung
-bình của tập tương ứng; $\delta^\star$ nhỏ tương ứng bằng chứng tương đương mạnh. Đơn vị đánh giá là mảnh
-$256\times256$ với PanNuke và MoNuSeg, và ảnh nguyên với NuInsSeg, nên các cột tính theo phần trăm mới là cột so
-sánh được giữa các tập.}\label{tab:parity}
+\caption{Counting accuracy under the two supervision regimes on the \emph{same} architecture, $5$ seeds for all
+three datasets. $\Delta R^2 = R^2_{\text{count}} - R^2_{\text{mask}}$; $p$ is a paired Wilcoxon test over
+evaluation units (errors averaged across seeds). $\delta^\star$ is the smallest margin at which the TOST
+equivalence test still concludes, given in nuclei per evaluation unit and as a percentage of the mean count of
+the corresponding dataset; a small $\delta^\star$ corresponds to strong evidence of equivalence. The evaluation
+unit is the $256\times256$ patch for PanNuke and MoNuSeg and the whole image for NuInsSeg, so only the
+percentage columns are comparable across datasets.}\label{tab:parity}
 \begin{tabular}{@{}lccccrc@{}}
 \toprule
-Tập dữ liệu & count-only ($R^2$) & mask ($R^2$) & $\Delta R^2$ & $p$ & $\delta^\star$ & \% số nhân \\
+Dataset & count-only ($R^2$) & mask ($R^2$) & $\Delta R^2$ & $p$ & $\delta^\star$ & \% of nuclei \\
 \midrule
-PanNuke & $0{,}918\pm0{,}011$ & $0{,}931\pm0{,}006$ & $-0{,}013$ & $1{,}1{\times}10^{-13}$ & $0{,}27$ & $1{,}1$ \\
-NuInsSeg$^{\dagger}$ & $0{,}895\pm0{,}045$ & $0{,}883\pm0{,}071$ & $+0{,}012$ & $3/5$ chia & $3{,}6$ & $6{,}6$ \\
-MoNuSeg$^{\ddagger}$ & $0{,}459\pm0{,}194$ & $0{,}362\pm0{,}154$ & $+0{,}097$ & $5{,}9{\times}10^{-5}$ & $0{,}89$ & $3{,}0$ \\
+PanNuke & $0.918\pm0.011$ & $0.931\pm0.006$ & $-0.013$ & $1.1{\times}10^{-13}$ & $0.27$ & $1.1$ \\
+NuInsSeg$^{\dagger}$ & $0.895\pm0.045$ & $0.883\pm0.071$ & $+0.012$ & $3/5$ splits & $3.6$ & $6.6$ \\
+MoNuSeg$^{\ddagger}$ & $0.459\pm0.194$ & $0.362\pm0.154$ & $+0.097$ & $5.9{\times}10^{-5}$ & $0.89$ & $3.0$ \\
 \bottomrule
 \end{tabular}
-\footnotetext{$^{\dagger}$ NuInsSeg dùng chia ngẫu nhiên theo hạt giống nên không tồn tại một kiểm định gộp:
-cột $p$ ghi số chia cho khác biệt có ý nghĩa theo từng ảnh, và $\delta^\star$ là trung vị qua năm chia.}
-\footnotetext{$^{\ddagger}$ $224$ mảnh kiểm tra của MoNuSeg được cắt từ $14$ ảnh nên giá trị $p$ ở cột trên dựa
-trên giả thiết độc lập giữa các mảnh; phân tích ở mức ảnh được trình bày trong thân bài.}
+\footnotetext{$^{\dagger}$ NuInsSeg uses a random per-seed split, so no pooled test exists: the $p$ column
+reports the number of splits with a significant per-image difference, and $\delta^\star$ is the median over the
+five splits.}
+\footnotetext{$^{\ddagger}$ The $224$ MoNuSeg test patches are cropped from $14$ images, so the $p$ value in
+the column above rests on an assumption of independence between patches; the image-level analysis is given in
+the main text.}
 \end{table}
 
-Vì chiều của chênh lệch đổi dấu giữa các tập, câu hỏi phù hợp không phải là chênh lệch có khác không hay không,
-mà là nó có nhỏ hơn một ngưỡng đáng kể về mặt thực tiễn hay không. Trên PanNuke, hai kiểm định trả lời hai nửa
-của câu hỏi đó. Kiểm định Wilcoxon bắt cặp bác bỏ giả thuyết hai chế
-độ sai số như nhau ($p = 1{,}1 \times 10^{-13}$, $n = 2722$): khoảng cách là có thật. Độ lớn của nó là $0{,}21$
-nhân trên mỗi ảnh, trên số đếm trung bình $24{,}5$ nhân, tức $0{,}86\%$. Kiểm định TOST bác bỏ giả thuyết ngược
-ở biên bằng $2\%$ số nhân trung bình ($p < 10^{-16}$), và biên nhỏ nhất mà kết luận tương đương còn đứng vững là
-$\delta^\star = 0{,}27$ nhân, ứng với $1{,}1\%$ số đếm trung bình. Với $n = 2722$, phép so sánh đủ nhạy để
-phát hiện chênh lệch cỡ một phần năm nhân, nên có ý nghĩa thống kê ở đây không đồng nghĩa với đáng kể về mặt
-thực tiễn. Phát biểu đầy đủ gồm cả hai vế: hai chế độ khác nhau một lượng đo được, và lượng đó bị chặn trên bởi
-khoảng $1\%$ số nhân mỗi ảnh. Hình~\ref{fig:equivalence} đặt khoảng tin cậy của chênh lệch cạnh các biên
-tương đương để cả hai vế cùng đọc được trên một hình.
+Because the sign of the difference reverses across datasets, the appropriate question is not whether the
+difference is non-zero, but whether it is smaller than a practically meaningful threshold. On PanNuke, two
+tests answer the two halves of that question. The paired Wilcoxon test rejects the hypothesis that the two
+regimes have equal errors ($p = 1.1 \times 10^{-13}$, $n = 2722$): the gap is real. Its magnitude is $0.21$
+nuclei per image on a mean count of $24.5$ nuclei, that is $0.86\%$. The TOST procedure rejects the opposite
+hypothesis at a margin of $2\%$ of the mean count ($p < 10^{-16}$), and the smallest margin at which the
+equivalence conclusion still holds is $\delta^\star = 0.27$ nuclei, corresponding to $1.1\%$ of the mean count.
+With $n = 2722$ the comparison is sensitive enough to detect a difference of about one fifth of a nucleus, so
+statistical significance here does not imply practical relevance. The complete statement has both halves: the
+two regimes differ by a measurable amount, and that amount is bounded above by roughly $1\%$ of the nuclei per
+image. Figure~\ref{fig:equivalence} places the confidence interval of the difference next to the equivalence
+margins so that both halves can be read off one plot.
 
-Độ lớn này cần được đọc cạnh hai mốc tham chiếu. Thứ nhất, $0{,}27$ nhân là chưa tới \emph{một} nhân trên mỗi
-mảnh $256\times256$, nên trên một mảnh đơn lẻ, hai chế độ giám sát hầu như luôn trả về cùng một số nguyên. Thứ
-hai, bản thân chú thích cũng không hoàn hảo: trên tập con dùng cho thí nghiệm can thiệp, phần dự đoán vượt quá
-số nhân được chú thích trung bình khoảng $3{,}5\%$ số nhân (Mục~\ref{sec:fidelity}), một chỉ dấu cho các nhân bị
-chú thích bỏ sót. Chênh lệch giữa hai chế độ giám sát do đó nhỏ hơn khoảng ba lần so với mức không hoàn hảo ước
-lượng được của chính loại nhãn dùng để đo nó.
+This magnitude should be read against two reference points. First, $0.27$ nuclei is less than \emph{one}
+nucleus per $256\times256$ patch, so on any single patch the two supervision regimes almost always return the
+same integer. Second, the annotation itself is imperfect: on the subset used for the intervention experiments,
+the portion of the prediction exceeding the number of annotated nuclei averages about $3.5\%$ of the count
+(Section~\ref{sec:fidelity}), an indicator of nuclei missed by the annotation. The difference between the two
+supervision regimes is therefore about three times smaller than the estimated imperfection of the very label
+type used to measure it.
 
-Cùng một cặp kiểm định áp dụng được cho MoNuSeg, vì tập kiểm tra ở đó cũng cố định. Kết quả có cùng dạng nhưng
-\emph{ngược chiều}: tính theo từng mảnh, sai số của count-only thấp hơn ($6{,}84$ so với $7{,}50$ nhân,
-$p = 5{,}9 \times 10^{-5}$, $n = 224$), và chênh lệch bị chặn trên ở $\delta^\star = 0{,}89$ nhân, khoảng
-$3{,}0\%$ số nhân trung bình mỗi mảnh. Tuy nhiên $224$ mảnh này đến từ chỉ $14$ ảnh nên chúng không độc lập với
-nhau. Gộp $16$ mảnh của mỗi ảnh thành một số đếm cho cả ảnh đưa đơn vị phân tích về đúng đơn vị lấy mẫu, và khi
-đó hai kết luận đi theo hai hướng: biên tương đương gần như giữ nguyên ($\delta^\star = 3{,}3\%$), còn khác
-biệt không còn đạt ý nghĩa thống kê ($p = 0{,}12$, với count-only sai ít hơn ở $10/14$ ảnh). Trên MoNuSeg vì
-vậy chỉ phát biểu về \emph{biên} là vững; chiều nghiêng về count-only là nhất quán nhưng chưa được thiết lập.
-Trên NuInsSeg chỉ kiểm định được riêng từng chia, và biên chặt nhất đạt được là trung vị $6{,}6\%$.
+The same pair of tests applies to MoNuSeg, whose test set is also fixed. The result has the same form but the
+\emph{opposite sign}: per patch, the error of count-only is lower ($6.84$ versus $7.50$ nuclei,
+$p = 5.9 \times 10^{-5}$, $n = 224$), and the difference is bounded above at $\delta^\star = 0.89$ nuclei,
+about $3.0\%$ of the mean count per patch. These $224$ patches, however, come from only $14$ images and are
+therefore not independent. Pooling the $16$ patches of each image into a single count for the whole image
+brings the unit of analysis back to the unit of sampling, and the two conclusions then diverge: the equivalence
+margin is almost unchanged ($\delta^\star = 3.3\%$), whereas the difference no longer reaches statistical
+significance ($p = 0.12$, with count-only more accurate on $10/14$ images). On MoNuSeg, therefore, only the
+statement about the \emph{margin} is robust; the tilt towards count-only is consistent but not established.
+On NuInsSeg only per-split tests are possible, and the tightest margin attained is a median of $6.6\%$.
 
-Ba giá trị $\delta^\star$ xếp theo đúng lực kiểm định mà mỗi tập cho phép: $1{,}1\%$ với $2722$ mảnh kiểm tra
-cố định, $3{,}0\%$ với $224$ mảnh, và $6{,}6\%$ khi tập kiểm tra chỉ có ${\sim}133$ ảnh và còn đổi theo hạt
-giống. Điều đọc được từ ba tập gộp lại không phải là một chế độ tốt hơn chế độ kia, mà là độ lớn của chênh
-lệch luôn bị chặn trong vài phần trăm số nhân mỗi ảnh dù chiều của nó đổi dấu.
+The three $\delta^\star$ values line up exactly with the statistical power each dataset affords: $1.1\%$ with
+$2722$ fixed test patches, $3.0\%$ with $224$ patches, and $6.6\%$ when the test set holds only ${\sim}133$
+images and changes with the seed. What the three datasets say jointly is not that one regime is better than the
+other, but that the magnitude of the difference is always bounded within a few percent of the nuclei per image
+even though its sign reverses.
 
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.85\textwidth]{fig_equivalence.pdf}
-\caption{Chênh lệch sai số tuyệt đối theo từng ảnh giữa hai chế độ giám sát trên PanNuke fold~3 ($n=2722$),
-kèm khoảng tin cậy bootstrap $90\%$, đặt cạnh các biên tương đương $\delta$ tính theo tỉ lệ số nhân trung bình
-mỗi ảnh. Khoảng tin cậy không chứa $0$, nên chênh lệch là có thật; đồng thời nó nằm gọn trong biên $2\%$, nên
-chênh lệch bị chặn trên ở mức đó. Biên nhỏ nhất còn cho kết luận tương đương là
-$\delta^\star = 0{,}27$ nhân.}
+\caption{Per-image difference in absolute error between the two supervision regimes on PanNuke fold~3
+($n=2722$), with a $90\%$ bootstrap confidence interval, shown against equivalence margins $\delta$ expressed
+as a fraction of the mean nuclei per image. The confidence interval excludes $0$, so the difference is real;
+at the same time it lies entirely within the $2\%$ margin, so the difference is bounded above at that level.
+The smallest margin still yielding equivalence is $\delta^\star = 0.27$ nuclei.}
 \label{fig:equivalence}
 \end{figure}
 
-Cần lưu ý phạm vi của phép so sánh này: nhánh mask dùng \emph{cùng} kiến trúc với count-only nhằm cô lập ảnh
-hưởng của \emph{loại giám sát}, nên nó không đo năng lực của một kiến trúc phân vùng được tối ưu riêng.
-Mục~\ref{sec:paradigm} xét câu hỏi đó tách biệt.
+The scope of this comparison should be noted: the mask branch uses the \emph{same} architecture as count-only
+in order to isolate the effect of \emph{supervision type}, so it does not measure the capability of a
+purpose-built segmentation architecture. Section~\ref{sec:paradigm} addresses that question separately.
 
-\subsection{Mô hình chỉ học từ số đếm dựa vào bằng chứng nào?}\label{sec:fidelity}
+\subsection{What evidence does a count-only model rely on?}\label{sec:fidelity}
 
-Kết quả ở Mục~\ref{sec:parity} cho thấy bỏ giám sát không gian chỉ làm độ chính xác đếm thay đổi trong một biên
-hẹp trên tập lớn nhất, nhưng chưa nói mô hình dựa vào bằng chứng nào để đếm. Một mô hình chỉ nhìn thấy một con số cho mỗi ảnh trên nguyên tắc
-có thể khai thác tương quan toàn cục (loại mô, mật độ tế bào, đặc trưng nhuộm) thay vì chính các nhân. Hai phân
-tích dưới đây kiểm tra khả năng đó trên PanNuke fold~3 ($n=2722$ mảnh, số nhân trung bình $24{,}5$).
+The results in Section~\ref{sec:parity} show that removing spatial supervision changes counting accuracy only
+within a narrow margin on the largest dataset, but they do not say what evidence the model uses to count. A
+model that sees only one number per image could in principle exploit global correlates (tissue type, cellular
+density, staining characteristics) rather than the nuclei themselves. The two analyses below test that
+possibility on PanNuke fold~3 ($n=2722$ patches, mean count $24.5$).
 
-\paragraph{Độ chính xác giữ được trên toàn bộ 19 loại mô.} Các phân tích dưới đây dùng ba mô hình count-only
-huấn luyện độc lập theo cùng giao thức ở Mục~\ref{sec:setup}, ở một đợt huấn luyện riêng với các mô hình của
-Bảng~\ref{tab:parity}; mô hình dùng cho Bảng~\ref{tab:perorgan} và Hình~\ref{fig:agreement} đạt
-$R^2 = 0{,}934$ và MAE $3{,}40$ trên toàn bộ tập kiểm tra. Các dự đoán nằm sát đường
-đếm đúng tuyệt đối trên toàn dải số nhân (Hình~\ref{fig:agreement}a). Khi phân tách theo loại mô (Bảng~\ref{tab:perorgan}), $R^2$ dương ở
-\emph{cả} $19/19$ loại, dao động từ $0{,}704$ (Ovarian, $n=52$) đến $0{,}976$ (Cervix, $n=86$). Hai giá trị
-thấp nhất rơi vào các loại mô có ít mảnh kiểm tra, nơi ước lượng $R^2$ kém ổn định, nhưng quan hệ không đơn
-điệu: loại mô ít mảnh nhất (Pancreatic, $n=28$) vẫn đạt $0{,}901$, còn giá trị thấp thứ ba lại thuộc một loại
-mô nhiều mảnh (Adrenal gland, $n=155$, $R^2 = 0{,}818$). Phân tích Bland--Altman cho độ chệch $+0{,}70$ nhân, tức
-khoảng $3\%$ của số nhân trung bình, với giới hạn tương hợp $\pm10{,}2$ nhân (Hình~\ref{fig:agreement}b); nghĩa
-là sai số không mang thiên lệch hệ thống theo một hướng. Như vậy độ chính xác tổng thể không đến từ việc khớp tốt
-một vài loại mô chiếm đa số.
+\paragraph{Accuracy is retained across all 19 tissue types.} The analyses below use three independently trained
+count-only models following the protocol in Section~\ref{sec:setup}, from a training run separate from the
+models of Table~\ref{tab:parity}; the model used for Table~\ref{tab:perorgan} and Fig.~\ref{fig:agreement}
+attains $R^2 = 0.934$ and MAE $3.40$ over the whole test set. Predictions lie close to the line of exact
+counting across the full range of counts (Fig.~\ref{fig:agreement}a). Broken down by tissue type
+(Table~\ref{tab:perorgan}), $R^2$ is positive in \emph{all} $19/19$ types, ranging from $0.704$ (Ovarian,
+$n=52$) to $0.976$ (Cervix, $n=86$). The two lowest values fall on tissue types with few test patches, where
+the $R^2$ estimate is less stable, but the relationship is not monotone: the tissue type with the fewest
+patches (Pancreatic, $n=28$) still attains $0.901$, while the third-lowest value belongs to a well-represented
+type (Adrenal gland, $n=155$, $R^2 = 0.818$). Bland--Altman analysis gives a bias of $+0.70$ nuclei, about
+$3\%$ of the mean count, with limits of agreement of $\pm10.2$ nuclei (Fig.~\ref{fig:agreement}b), meaning that
+the error carries no systematic directional bias. Overall accuracy therefore does not come from fitting a few
+majority tissue types well.
 
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_agreement.pdf}
-\caption{Tương hợp giữa số nhân dự đoán và số nhân thực của mô hình count-only trên PanNuke fold~3
-($n=2722$ mảnh). \textbf{(a)} Mỗi điểm là một mảnh ảnh; đường nét đứt là đường đếm đúng tuyệt đối.
-\textbf{(b)} Biểu đồ Bland--Altman: độ chệch trung bình $+0{,}70$ nhân trên số nhân trung bình $24{,}5$
-(khoảng $3\%$) và các giới hạn tương hợp $95\%$. Sai số không lệch hệ thống về một hướng; phần phân tán ở phía
-dưới tại các mảnh nhiều nhân cho thấy khuynh hướng \emph{đếm thiếu} nhẹ ở chế độ mật độ rất cao.}
+\caption{Agreement between predicted and ground-truth nuclei counts for the count-only model on PanNuke fold~3
+($n=2722$ patches). \textbf{(a)} Each point is one patch; the dashed line is exact counting.
+\textbf{(b)} Bland--Altman plot: mean bias $+0.70$ nuclei on a mean count of $24.5$ (about $3\%$) and the
+$95\%$ limits of agreement. The error shows no systematic direction; the downward spread at high-count patches
+indicates a mild tendency to \emph{under-count} in the very high density regime.}
 \label{fig:agreement}
 \end{figure}
 
 \begin{table}[!htbp]
 \centering
-\caption{Độ chính xác đếm theo từng loại mô trên PanNuke fold~3, cho \emph{một} trong ba mô hình count-only của
-Mục~\ref{sec:fidelity} (Hình~\ref{fig:agreement} vẽ cùng mô hình này); mọi giá trị trong bảng, kể cả dòng toàn
-tập, là của riêng mô hình đó. Số liệu tổng hợp qua các hạt giống của phép so sánh chính được báo cáo riêng ở
-Bảng~\ref{tab:parity}, từ một đợt huấn luyện khác, nên hai dòng toàn tập không trùng nhau. Điều được đọc ở đây
-là \emph{sự phân bố} của độ chính xác giữa các loại mô: $R^2$ dương ở toàn bộ $19/19$ loại.}\label{tab:perorgan}
+\caption{Counting accuracy per tissue type on PanNuke fold~3, for \emph{one} of the three count-only models of
+Section~\ref{sec:fidelity} (Fig.~\ref{fig:agreement} plots the same model); every value in the table, including
+the overall row, belongs to that single model. The seed-aggregated figures of the main comparison are reported
+separately in Table~\ref{tab:parity}, from a different training run, so the two overall rows do not coincide.
+What is to be read here is the \emph{distribution} of accuracy across tissue types: $R^2$ is positive in all
+$19/19$ types.}\label{tab:perorgan}
 \begin{tabular}{@{}lccc@{\hspace{2em}}lccc@{}}
 \toprule
-Loại mô & $n$ & $R^2$ & MAE & Loại mô & $n$ & $R^2$ & MAE \\
+Tissue type & $n$ & $R^2$ & MAE & Tissue type & $n$ & $R^2$ & MAE \\
 \midrule
-Adrenal gland & $155$ & $0{,}818$ & $2{,}43$ & Lung       & $51$  & $0{,}957$ & $3{,}61$ \\
-Bile duct     & $158$ & $0{,}942$ & $2{,}71$ & Ovarian    & $52$  & $0{,}704$ & $4{,}31$ \\
-Bladder       & $64$  & $0{,}924$ & $2{,}34$ & Pancreatic & $28$  & $0{,}901$ & $3{,}29$ \\
-Breast        & $775$ & $0{,}932$ & $2{,}65$ & Prostate   & $68$  & $0{,}756$ & $4{,}43$ \\
-Cervix        & $86$  & $0{,}976$ & $2{,}20$ & Skin       & $41$  & $0{,}943$ & $5{,}72$ \\
-Colon         & $494$ & $0{,}923$ & $3{,}93$ & Stomach    & $48$  & $0{,}963$ & $3{,}95$ \\
-Esophagus     & $141$ & $0{,}897$ & $3{,}19$ & Testis     & $57$  & $0{,}949$ & $3{,}05$ \\
-Head \& neck  & $145$ & $0{,}954$ & $3{,}17$ & Thyroid    & $62$  & $0{,}873$ & $3{,}30$ \\
-Kidney        & $41$  & $0{,}958$ & $4{,}51$ & Uterus     & $163$ & $0{,}907$ & $6{,}70$ \\
-Liver         & $93$  & $0{,}884$ & $3{,}39$ & \textbf{Toàn tập} & $\mathbf{2722}$ & $\mathbf{0{,}934}$ & $\mathbf{3{,}40}$ \\
+Adrenal gland & $155$ & $0.818$ & $2.43$ & Lung       & $51$  & $0.957$ & $3.61$ \\
+Bile duct     & $158$ & $0.942$ & $2.71$ & Ovarian    & $52$  & $0.704$ & $4.31$ \\
+Bladder       & $64$  & $0.924$ & $2.34$ & Pancreatic & $28$  & $0.901$ & $3.29$ \\
+Breast        & $775$ & $0.932$ & $2.65$ & Prostate   & $68$  & $0.756$ & $4.43$ \\
+Cervix        & $86$  & $0.976$ & $2.20$ & Skin       & $41$  & $0.943$ & $5.72$ \\
+Colon         & $494$ & $0.923$ & $3.93$ & Stomach    & $48$  & $0.963$ & $3.95$ \\
+Esophagus     & $141$ & $0.897$ & $3.19$ & Testis     & $57$  & $0.949$ & $3.05$ \\
+Head \& neck  & $145$ & $0.954$ & $3.17$ & Thyroid    & $62$  & $0.873$ & $3.30$ \\
+Kidney        & $41$  & $0.958$ & $4.51$ & Uterus     & $163$ & $0.907$ & $6.70$ \\
+Liver         & $93$  & $0.884$ & $3.39$ & \textbf{Overall} & $\mathbf{2722}$ & $\mathbf{0.934}$ & $\mathbf{3.40}$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\paragraph{Gỡ nhân có đối chứng giả.} Để kiểm tra quan hệ nhân quả, một tỉ lệ $k$ các nhân được chú thích bị gỡ
-khỏi ảnh rồi đo lại số đếm dự đoán. Mỗi nhân được thay bằng một mảng mô \emph{cùng hình dạng} lấy từ một vị trí
-không chứa nhân của chính ảnh đó, và mặt nạ nhân được nở $2$ điểm ảnh trước khi gỡ để phủ hết viền nhân mà chú
-thích thường bỏ sót. Phép thao tác này giữ nguyên thống kê texture của mô nhưng loại bỏ nội dung nhân. Đối chứng
-giả (sham) áp dụng \emph{đúng} phép thao tác đó với cùng số vùng, cùng hình dạng và cùng diện tích, nhưng tại các
-vị trí không chứa nhân. Nó tách tác động của bản thân việc thay mô khỏi tác động của việc mất nhân. Chỉ những
-phép đo có diện tích gỡ khớp nhau tối thiểu $80\%$ giữa hai điều kiện được đưa vào kiểm định.
+\paragraph{Sham-controlled nucleus removal.} To test the causal relationship, a fraction $k$ of the annotated
+nuclei is removed from the image and the predicted count is measured again. Each nucleus is replaced by a
+\emph{shape-matched} tissue patch taken from a nucleus-free location within the same image, and the nucleus
+mask is dilated by $2$ pixels before removal so as to cover the nuclear rim that annotation commonly omits.
+This operation preserves the texture statistics of the tissue while removing nuclear content. The sham control
+applies \emph{exactly} the same operation with the same number of regions, the same shapes and the same area,
+but at nucleus-free locations. It separates the effect of the tissue replacement itself from the effect of
+losing nuclei. Only measurements whose removed areas match to at least $80\%$ between the two conditions enter
+the statistical tests.
 
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_qualitative.pdf}
-\caption{Phép gỡ nhân trên một mảnh PanNuke tiêu biểu (hệ số đáp ứng riêng $0{,}65$ so với trung bình toàn tập
-$0{,}64$). \textbf{(a)} Ảnh gốc, $22$ nhân được chú thích. \textbf{(b, c)} Sau khi gỡ $30\%$ rồi toàn bộ nhân,
-số đếm dự đoán giảm theo ($20{,}7 \rightarrow 16{,}3 \rightarrow 7{,}5$). \textbf{(d)} Đối chứng giả trên $22$
-vùng \emph{không chứa nhân}: ảnh bị can thiệp ở mức trông thấy rõ, nhưng số đếm hầu như không đổi ($19{,}6$).
-Vài nhân sẫm màu còn lại ở (c) là các nhân không có trong chú thích.}
+\caption{Nucleus removal on a representative PanNuke patch (its own response coefficient is $0.65$ against the
+dataset mean of $0.64$). \textbf{(a)} Original image, $22$ annotated nuclei. \textbf{(b, c)} After removing
+$30\%$ and then all annotated nuclei, the predicted count falls accordingly
+($20.7 \rightarrow 16.3 \rightarrow 7.5$). \textbf{(d)} Sham control on $22$ \emph{nucleus-free} regions: the
+image is visibly manipulated, yet the count is almost unchanged ($19.6$). The few dark nuclei remaining in (c)
+are nuclei absent from the annotation.}
 \label{fig:qualitative}
 \end{figure}
 
-Số đếm dự đoán giảm \emph{đơn điệu} theo tỉ lệ nhân bị gỡ, trong khi đối chứng giả để số đếm gần như không đổi
-($1{,}00$--$1{,}02$) ở mọi mức (Bảng~\ref{tab:doseresp}; Hình~\ref{fig:qualitative} minh hoạ phép thao tác
-trên một mảnh ảnh). Trên các phép đo khớp diện tích
-($n=3415$), phần sụt giảm quy được cho nhân là $0{,}234$ đơn vị chuẩn hoá và chiếm toàn bộ mức sụt quan sát được
-(Wilcoxon bắt cặp giữa hai điều kiện, $p<10^{-300}$). Kết luận không đổi khi chỉ xét các liều nhỏ ($\le 30\%$),
-nơi ảnh còn gần phân phối huấn luyện nhất. Đáp ứng do đó \emph{đặc hiệu} với nhân, không phải với việc ảnh bị
-can thiệp.
+The predicted count falls \emph{monotonically} with the fraction of nuclei removed, while the sham control
+leaves the count essentially unchanged ($1.00$--$1.02$) at every level (Table~\ref{tab:doseresp};
+Fig.~\ref{fig:qualitative} illustrates the operation on one patch). Over the area-matched measurements
+($n=3415$), the drop attributable to nuclei is $0.234$ normalised units and accounts for the entire observed
+drop (paired Wilcoxon between the two conditions, $p<10^{-300}$). The conclusion is unchanged when only the
+small doses ($\le 30\%$) are considered, where the images remain closest to the training distribution. The
+response is therefore \emph{specific} to nuclei rather than to image manipulation as such.
 
 \begin{table}[!htbp]
 \centering
-\caption{Đáp ứng của số đếm dự đoán khi gỡ nhân, so với đối chứng giả gỡ mô không chứa nhân cùng diện tích. Các
-giá trị được chuẩn hoá theo số đếm trên ảnh nguyên vẹn, lấy trung bình trên $286$ ảnh ($4862$ phép đo) rồi trên
-$3$ mô hình huấn luyện độc lập; độ lệch chuẩn ghi kèm là độ lệch giữa ba mô hình. ``Hệ số đáp ứng'' là mức sụt
-quan sát được chia cho mức sụt của một bộ đếm cộng dồn trung thực; giá trị $1{,}0$ ứng với đếm trung thực.}\label{tab:doseresp}
+\caption{Response of the predicted count to nucleus removal, against a sham control that removes an equal area
+of nucleus-free tissue. Values are normalised by the count on the intact image, averaged over $286$ images
+($4862$ measurements) and then over $3$ independently trained models; the reported standard deviation is the
+deviation across those three models. The ``response coefficient'' is the observed drop divided by the drop of a
+faithful tallying counter; a value of $1.0$ corresponds to faithful tallying.}\label{tab:doseresp}
 \begin{tabular}{@{}cccccc@{}}
 \toprule
-Tỉ lệ nhân bị gỡ & Gỡ nhân & Đối chứng giả & Sụt do nhân & Diện tích khớp & Hệ số đáp ứng \\
+Fraction removed & Nucleus removal & Sham & Nucleus-attributable drop & Area match & Response coefficient \\
 \midrule
-$10\%$  & $0{,}938\pm0{,}002$ & $1{,}003$ & $0{,}065$ & $0{,}94$ & $0{,}62$ \\
-$20\%$  & $0{,}872\pm0{,}004$ & $1{,}004$ & $0{,}131$ & $0{,}91$ & $0{,}64$ \\
-$30\%$  & $0{,}805\pm0{,}012$ & $1{,}007$ & $0{,}202$ & $0{,}89$ & $0{,}65$ \\
-$50\%$  & $0{,}678\pm0{,}014$ & $1{,}011$ & $0{,}333$ & $0{,}84$ & $0{,}64$ \\
-$75\%^{\ast}$  & $0{,}519\pm0{,}020$ & $1{,}012$ & $0{,}494$ & $0{,}78$ & $0{,}64$ \\
-$100\%^{\ast}$ & $0{,}374\pm0{,}051$ & $1{,}018$ & $0{,}644$ & $0{,}73$ & $0{,}63$ \\
+$10\%$  & $0.938\pm0.002$ & $1.003$ & $0.065$ & $0.94$ & $0.62$ \\
+$20\%$  & $0.872\pm0.004$ & $1.004$ & $0.131$ & $0.91$ & $0.64$ \\
+$30\%$  & $0.805\pm0.012$ & $1.007$ & $0.202$ & $0.89$ & $0.65$ \\
+$50\%$  & $0.678\pm0.014$ & $1.011$ & $0.333$ & $0.84$ & $0.64$ \\
+$75\%^{\ast}$  & $0.519\pm0.020$ & $1.012$ & $0.494$ & $0.78$ & $0.64$ \\
+$100\%^{\ast}$ & $0.374\pm0.051$ & $1.018$ & $0.644$ & $0.73$ & $0.63$ \\
 \bottomrule
 \end{tabular}
-\footnotetext{$^{\ast}$ Ở các liều cao, mô bệnh học dày nhân không còn đủ chỗ trống để đặt các vùng đối chứng
-giả không chồng lấn nên diện tích gỡ của hai điều kiện chỉ khớp $0{,}74$--$0{,}78$; các mức này được báo cáo để
-mô tả và bị loại khỏi kiểm định thống kê, vốn chỉ dùng các phép đo khớp diện tích tối thiểu $80\%$. Ngoài ra, gỡ
-toàn bộ nhân can thiệp vào ${\sim}25\%$ diện tích ảnh nên tạo lệch phân phối đáng kể; vì vậy các liều nhỏ được
-xem là căn cứ chính.}
+\footnotetext{$^{\ast}$ At high doses, nucleus-dense histopathology no longer leaves enough free space to place
+non-overlapping sham regions, so the removed areas of the two conditions match only to $0.74$--$0.78$; these
+levels are reported descriptively and excluded from the statistical tests, which use only measurements with at
+least $80\%$ area match. In addition, removing all nuclei intervenes on ${\sim}25\%$ of the image area and thus
+induces a substantial distribution shift; the small doses are therefore treated as the primary evidence.}
 \end{table}
 
-Tuy nhiên đáp ứng là \emph{dưới tuyến tính} một cách nhất quán: tỉ số giữa mức sụt quan sát được và mức sụt của
-một bộ đếm cộng dồn trung thực nằm trong khoảng $0{,}62$--$0{,}65$ ở \emph{mọi} liều từ $10\%$ đến $100\%$ (cột
-cuối Bảng~\ref{tab:doseresp}), và trung bình trên ba mô hình huấn luyện độc lập là $0{,}64 \pm 0{,}04$. Gỡ một
-nhân chỉ làm số đếm giảm khoảng $0{,}6$ thay vì $1{,}0$. Mức thiếu hụt này là một hệ số cố định, không phải hiệu
-ứng bão hoà ở liều cao.
+The response is, however, consistently \emph{sublinear}: the ratio between the observed drop and the drop of a
+faithful tallying counter lies between $0.62$ and $0.65$ at \emph{every} dose from $10\%$ to $100\%$ (last
+column of Table~\ref{tab:doseresp}), and averages $0.64 \pm 0.04$ over the three independently trained models.
+Removing one nucleus lowers the count by about $0.6$ rather than $1.0$. This shortfall is a fixed coefficient,
+not a saturation effect at high doses.
 
-Diễn giải phù hợp nhất là mô hình \emph{tích hợp bằng chứng liên quan tới nhân trên toàn ảnh}, thay vì phát hiện
-rồi cộng từng thực thể. Một phép đo độc lập ủng hộ cách đọc này: bản đồ mật độ của mô hình count-only
-\emph{hầu như không} định vị được nhân. Khối lượng mật độ nằm trong vùng nhân thực chỉ gấp $1{,}25\pm0{,}36$ lần
-mức của một bản đồ phân bố đều ($1{,}0$ ứng với không định vị gì), tức độ lệch khỏi mốc không định vị còn nhỏ
-hơn dao động giữa các hạt giống; và tương quan không gian với bản đồ mật độ thực chỉ $0{,}03$ (ba hạt giống),
-xấp xỉ mức ngẫu nhiên. Cần lưu ý mốc so sánh ở đây là một bản đồ không mang thông tin vị trí, chứ không phải
-khả năng định vị của một mô hình được giám sát dày đặc, vốn không được đo trong bài. Hai quan sát cùng nhất
-quán với một cách giải thích, và giải thích vì sao giám sát mức ảnh đủ cho tác vụ
-\emph{đếm} nhưng không sinh ra khả năng định vị: đại lượng được giám sát là một tổng, nên nghiệm mô hình tìm được
-cũng chỉ cần đúng ở mức tổng.
+The most consistent interpretation is that the model \emph{integrates nucleus-related evidence over the whole
+image} rather than detecting and tallying individual instances. An independent measurement supports this
+reading: the density map of the count-only model \emph{barely} localises nuclei. The density mass falling
+inside true nuclear regions is only $1.25\pm0.36$ times that of a uniform map ($1.0$ corresponding to no
+localisation at all), so the departure from the no-localisation baseline is smaller than the between-seed
+variation; and the spatial correlation with the ground-truth density map is only $0.03$ (three seeds), close to
+chance. The reference point here is a map carrying no positional information, not the localisation ability of a
+densely supervised model, which is not measured in this paper. The two observations are consistent with a
+single explanation, and it accounts for why image-level supervision suffices for \emph{counting} without giving
+rise to localisation ability: the supervised quantity is a sum, so the solution the model finds need only be
+correct at the level of the sum.
 
-Ba kiểm tra bổ sung cho thấy mức thiếu hụt này không phải sản phẩm của cách thiết kế phép gỡ; cả ba chạy trên
-\emph{một} mô hình count-only nên chỉ đọc theo mức chênh giữa các cấu hình. Thứ nhất, nở mặt nạ $0$, $2$ và $4$
-điểm ảnh trước khi gỡ, ứng với diện tích can thiệp $18\%$, $25\%$ và $31\%$ ảnh, cho hệ số $0{,}59$, $0{,}60$ và
-$0{,}61$; toàn bộ khoảng biến thiên này nhỏ hơn độ lệch giữa các mô hình, nên mặt nạ phủ chưa hết viền nhân
-không giải thích được mức thiếu hụt. Thứ hai, các nhân bị chú thích bỏ sót không bị gỡ nên vẫn đóng góp vào số
-đếm: số đếm còn lại sau khi gỡ toàn bộ tăng đơn điệu từ $0{,}36$ ở các mảnh không có dấu hiệu bỏ sót lên
-$0{,}70$ ở nhóm bỏ sót nhiều nhất (tương quan $+0{,}31$, $n = 286$), nhưng phần dự đoán vượt quá số nhân được
-chú thích trung bình chỉ khoảng $3{,}5\%$ số nhân so với số đếm còn lại $37{,}4\%$, nên phần lớn khoảng cách
-tới $1{,}0$ không quy được cho chất lượng chú thích. Ngược lại, phép đo \emph{có} nhạy với cách điền vùng đã
-gỡ: thay phép ghép mô bằng inpainting Telea ở cùng mức nở làm hệ số rơi từ $0{,}59$ xuống $0{,}34$, vì
-inpainting lan màu từ biên vùng cần lấp mà biên đó chính là viền nhân, nên nó để lại vết nhân trong ảnh. Hệ số
-đo được vì vậy bị đặt trần bởi mức triệt để của phép gỡ, và $0{,}64$ là một giới hạn dưới của độ nhạy thực.
+Three additional checks show that this shortfall is not an artefact of how removal was designed; all three run
+on \emph{one} count-only model, so they should be read as differences between configurations. First, dilating the mask by $0$, $2$ and $4$ pixels before removal, corresponding to
+intervened areas of $18\%$, $25\%$ and $31\%$ of the image, gives coefficients of $0.59$, $0.60$ and $0.61$;
+this entire range is smaller than the deviation between models, so incomplete coverage of the nuclear rim does
+not explain the shortfall. Second, nuclei missed by the annotation are not removed and therefore still
+contribute to the count: the residual count after removing all annotated nuclei rises monotonically from $0.36$
+on patches with no sign of missed nuclei to $0.70$ in the group with the most missed nuclei (correlation
+$+0.31$, $n = 286$), but the portion of the prediction exceeding the annotated count averages only about
+$3.5\%$ against a residual count of $37.4\%$, so most of the gap to $1.0$ cannot be attributed to annotation
+quality. Conversely, the measurement \emph{is} sensitive to how the removed region is filled: replacing patch
+transplantation with Telea inpainting at the same dilation drops the coefficient from $0.59$ to $0.34$, because
+inpainting propagates colour inward from the boundary of the region to be filled, and that boundary is the
+nuclear rim itself, so it leaves a nuclear trace in the image. The measured coefficient is therefore capped by
+how complete the removal is, and $0.64$ is a lower bound on the true sensitivity.
 
+\subsection{Comparison with methods that use localisation labels}\label{sec:paradigm}
 
-\subsection{So sánh với các phương pháp dùng nhãn định vị}\label{sec:paradigm}
+The lightweight count-only counter attains better $R^2$ and MAE than all three surveyed representatives of
+segmentation, density estimation and detection, despite using only count labels (Table~\ref{tab:paradigm}).
+Each paradigm is represented by \emph{one} method, so this result speaks to the specific methods surveyed and
+not to the limits of an entire approach. All four methods are retrained and evaluated on the same test set at
+the level of the counting task. The count of each compared method is obtained through that method's own
+official post-processing: the number of instances after splitting for StarDist, the number of local maxima on
+the centroid density map for DualU-Net, and the number of points surviving non-maximum suppression for DeNuC.
+Unlike the controlled comparison in Section~\ref{sec:parity}, architecture, parameter count and
+hyperparameters all differ between the methods here, so the result indicates how these paradigms behave in
+their common configurations on the counting task rather than isolating a single cause.
 
-Bộ đếm count-only nhẹ đạt $R^2$ và MAE tốt hơn cả ba phương pháp đại diện được khảo sát của phân vùng, ước
-lượng mật độ và phát hiện, dù chỉ dùng nhãn đếm (Bảng~\ref{tab:paradigm}). Mỗi hướng chỉ được đại diện bởi
-\emph{một} phương pháp, nên kết quả này nói về các phương pháp cụ thể được khảo sát chứ không phải về giới hạn
-của cả một hướng tiếp cận. Cả bốn phương pháp được huấn luyện lại và đánh giá trên cùng tập
-kiểm tra, ở cấp độ tác vụ đếm. Số đếm của mỗi phương pháp so sánh được lấy bằng chính bước hậu xử lý chính thức
-của phương pháp đó: số thực thể sau phân tách với StarDist, số cực trị địa phương trên bản đồ mật độ tâm với
-DualU-Net, và số điểm còn lại sau bước triệt tiêu không cực đại với DeNuC. Khác với phép so sánh có kiểm soát ở
-Mục~\ref{sec:parity}, ở đây kiến trúc, số tham số và siêu tham số đều khác nhau giữa các phương pháp, nên kết
-quả cho biết các paradigm này hoạt động ra sao ở cấu hình thông dụng của chúng trên tác vụ đếm, chứ không cô lập
-được một nguyên nhân duy nhất.
-
-Phương pháp phát hiện suy giảm đơn điệu theo mật độ nhân: độ chệch đếm tăng từ $-0{,}8$ ở các mảnh thưa lên
-$-30{,}4$ ở các mảnh có từ $45$ nhân trở lên. Diễn biến này khớp với cơ chế bước triệt tiêu không cực đại loại bỏ
-các dương tính thật khi nhân chồng lấn, và giải thích vì sao hồi quy đếm chiếm ưu thế ở chế độ mật độ cao.
+The detection method degrades monotonically with nuclear density: the count bias grows from $-0.8$ on sparse
+patches to $-30.4$ on patches with $45$ or more nuclei. This progression matches the mechanism by which
+non-maximum suppression discards true positives when nuclei overlap, and explains why count regression
+dominates in the high density regime.
 
 \begin{table}[!htbp]
 \centering
-\caption{So sánh bốn paradigm trên PanNuke (cùng tập kiểm tra, tác vụ đếm). Bộ đếm count-only báo cáo trung bình
-cùng độ lệch chuẩn trên $5$ hạt giống, đúng số liệu ở Bảng~\ref{tab:parity}; ba phương pháp so sánh là một lần
-huấn luyện mỗi phương pháp, nên chênh lệch giữa chúng cần được đọc kèm mức dao động giữa các hạt giống mà cột
-count-only cho thấy.}\label{tab:paradigm}
+\caption{Comparison of four paradigms on PanNuke (same test set, counting task). The count-only counter reports
+the mean and standard deviation over $5$ seeds, the same figures as in Table~\ref{tab:parity}; the three
+compared methods are a single training run each, so differences between them should be read against the level
+of between-seed variation shown by the count-only column.}\label{tab:paradigm}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
-Phương pháp & Tham số & Nhãn & Paradigm & $R^2\uparrow$ & MAE$\downarrow$ \\
+Method & Params & Labels & Paradigm & $R^2\uparrow$ & MAE$\downarrow$ \\
 \midrule
-DensitySigmaUNet (count-only) & $3{,}62$M & đếm & hồi quy & $\mathbf{0{,}918\pm0{,}011}$ & $\mathbf{3{,}60\pm0{,}10}$ \\
-StarDist~\cite{stardist} & $1{,}43$M & mặt nạ & phân vùng & $0{,}841$ & $4{,}64$ \\
-DualU-Net~\cite{dualunet} & ${\sim}35$M & mặt nạ & mật độ tâm & $0{,}804$ & $5{,}33$ \\
-DeNuC~\cite{denuc} & $4{,}37$M & hộp/điểm & phát hiện & $0{,}455$ & $9{,}64$ \\
+DensitySigmaUNet (count-only) & $3.62$M & counts & regression & $\mathbf{0.918\pm0.011}$ & $\mathbf{3.60\pm0.10}$ \\
+StarDist~\cite{stardist} & $1.43$M & masks & segmentation & $0.841$ & $4.64$ \\
+DualU-Net~\cite{dualunet} & ${\sim}35$M & masks & centroid density & $0.804$ & $5.33$ \\
+DeNuC~\cite{denuc} & $4.37$M & boxes or points & detection & $0.455$ & $9.64$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection{Hiệu quả chú thích và khả năng triển khai}\label{sec:deploy}
-\subsubsection{Hiệu quả chú thích}\label{sec:label}
-Một phần tư ngân sách chú thích đã đủ cho khoảng $93\%$ hiệu năng ở mức nhãn đầy đủ. Trên PanNuke, $R^2$ theo
-tỉ lệ ảnh có nhãn đếm là $0{,}453 \pm 0{,}208$ ở $5\%$, $0{,}742$ ở $10\%$, $0{,}849 \pm 0{,}029$ ở $25\%$,
-$0{,}859$ ở $50\%$ và $0{,}915 \pm 0{,}010$ ở toàn bộ nhãn (ba hạt giống, cùng giao thức đánh giá; giá trị ở mức
-toàn bộ lệch $0{,}003$ so với Bảng~\ref{tab:parity}, nằm trong dao động giữa các hạt giống). Đường cong bão hoà sớm: phần lớn mức tăng đạt được trong một phần tư
-ngân sách đầu tiên, còn từ $25\%$ lên $100\%$ chỉ thêm $0{,}066$. Điểm $5\%$ cho thấy giới hạn dưới của chế độ
-này, nơi phương sai giữa các hạt giống lấn át giá trị trung bình.
+\subsection{Annotation efficiency and deployability}\label{sec:deploy}
+\subsubsection{Annotation efficiency}\label{sec:label}
+One quarter of the annotation budget already suffices for about $93\%$ of the performance obtained with full
+labels. On PanNuke, $R^2$ as a function of the fraction of count-labelled images is $0.453 \pm 0.208$ at $5\%$,
+$0.742$ at $10\%$, $0.849 \pm 0.029$ at $25\%$, $0.859$ at $50\%$ and $0.915 \pm 0.010$ with all labels (three
+seeds, same evaluation protocol; the full-budget value differs by $0.003$ from Table~\ref{tab:parity}, within
+the between-seed variation). The curve saturates early: most of the gain is realised within the first quarter
+of the budget, while going from $25\%$ to $100\%$ adds only $0.066$. The $5\%$ point marks the lower limit of
+this regime, where the between-seed variance dominates the mean.
 
-\subsubsection{Chi phí tính toán và chi phí chú thích}\label{sec:cost}
-Bộ đếm có $3{,}62$M tham số và $0{,}98$ GMACs ở đầu vào $256\times256$, độ trễ $6{,}0$\,ms trên GPU và
-$46$\,ms trên CPU, đỉnh bộ nhớ $37{,}9$\,MB. Các chỉ số này cho phép suy luận thời gian thực trên cả GPU phổ
-thông lẫn CPU.
+\subsubsection{Computational and annotation cost}\label{sec:cost}
+The counter has $3.62$M parameters and $0.98$ GMACs at $256\times256$ input, a latency of $6.0$\,ms on GPU and
+$46$\,ms on CPU, and a peak memory of $37.9$\,MB. These figures permit real-time inference on both commodity
+GPUs and CPUs.
 
-Chênh lệch lớn hơn nằm ở phía chú thích. Qu và cộng sự~\cite{qu2020} cho một nhà bệnh học chú thích tám ảnh
-theo ba cách và đo thời gian: với ảnh trung bình khoảng $600$ nhân, khoanh viền đầy đủ tốn khoảng $115$ phút,
-hộp bao khoảng $67$ phút, còn đánh dấu điểm cho toàn bộ nhân chỉ khoảng $14$ phút. Chi phí của nhãn đếm ở mức
-ảnh chưa được đo trực tiếp trong y văn, nhưng nó bị chặn trên bởi chi phí đánh dấu điểm: đếm đòi hỏi duyệt qua
-các nhân đúng như khi đánh dấu, mà không cần đặt chính xác từng điểm và không cần khoanh viền. Theo số liệu đó,
-nhãn đếm rẻ hơn mặt nạ đầy đủ ít nhất $8$ lần, và một số đếm xấp xỉ còn rẻ hơn nữa. Tỉ số này nên được đọc như
-một bậc độ lớn chứ không phải một hằng số chuyển được: nó dựa trên tám ảnh của một người chú thích, và ảnh ở đó
-dày hơn nhiều so với các mảnh $256\times256$ dùng trong bài (trung bình $24{,}5$ nhân). Điều được bảo toàn giữa
-hai chế độ là chi phí \emph{cho mỗi nhân}: theo cùng số liệu trên, khoanh viền tốn khoảng $11{,}5$ giây mỗi
-nhân còn đánh dấu điểm khoảng $1{,}4$ giây, và đếm không thể đắt hơn đánh dấu. Đặt cạnh mức suy giảm độ chính xác đo được ở Mục~\ref{sec:parity}, bị chặn trên bởi khoảng $1\%$ số
-nhân mỗi ảnh, bất đối xứng đó là luận điểm hiệu quả trung tâm của bài báo.
+The larger difference lies on the annotation side. Qu et al.~\cite{qu2020} had a pathologist annotate eight
+images in three different ways and measured the time: for images containing about $600$ nuclei on average, full
+delineation took about $115$ minutes, bounding boxes about $67$ minutes, and placing a point on every nucleus
+only about $14$ minutes. The cost of image-level count labels has not been measured directly in the
+literature, but it is bounded above by the cost of point marking: counting requires scanning the nuclei exactly
+as point marking does, without having to place each point precisely and without any delineation. On those
+figures, count labels are at least $8$ times cheaper than full masks, and an approximate count is cheaper
+still. This ratio should be read as an order of magnitude rather than a transferable constant: it rests on
+eight images from a single annotator, and those images are far denser than the $256\times256$ patches used
+here (mean $24.5$ nuclei). What is preserved between the two regimes is the cost \emph{per nucleus}: on the
+same figures, delineation costs about $11.5$ seconds per nucleus and point marking about $1.4$ seconds, and
+counting cannot be more expensive than marking. Set against the loss of accuracy measured in
+Section~\ref{sec:parity}, bounded above by roughly $1\%$ of the nuclei per image, this asymmetry is the central
+efficiency argument of the paper.
 
-\subsubsection{Định lượng bất định cho triển khai tin cậy}\label{sec:uq}
-Khoảng dự đoán được hiệu chuẩn không chỉ ở cấp độ biên mà còn theo điều kiện cơ quan (Bảng~\ref{tab:uq}). Cả
-ba sơ đồ đều đạt mức phủ biên mục tiêu $0{,}90$, nhưng chỉ mondrian nâng được mức phủ của cơ quan thấp nhất lên
-tới chính mục tiêu đó ($0{,}906$), trong khi một ngưỡng chung để bốn trong $19$ loại mô rơi xuống dưới ngưỡng
-dung sai. Cái giá là khoảng dự đoán rộng thêm khoảng $15\%$.
+\subsubsection{Uncertainty quantification for reliable deployment}\label{sec:uq}
+The prediction intervals are calibrated not only marginally but also conditionally on organ
+(Table~\ref{tab:uq}). All three schemes reach the target marginal coverage of $0.90$, but only mondrian raises
+the coverage of the worst-covered organ to that same target ($0.906$), whereas a single shared threshold leaves
+four of the $19$ tissue types below the tolerance threshold. The price is an interval about $15\%$ wider.
 
-Việc neo $\sigma$ vào nền phương sai Poisson quan trọng khi dải số đếm rộng. Trên NuInsSeg, nơi số đếm mỗi ảnh
-trải từ vài nhân tới hơn $500$, dạng neo Poisson cho độ rộng khoảng $37{,}7$ so với $67{,}9$ của một $\sigma$
-không neo ($-44\%$), điểm Winkler $45{,}4$ so với $78{,}1$ ($-42\%$), và mức phủ của cơ quan thấp nhất $0{,}864$
-so với $0{,}655$, ở cùng mức phủ biên ${\sim}0{,}93$. Trên PanNuke, nơi số đếm tập trung trong dải hẹp, hai dạng
-không khác nhau đáng kể. Neo Poisson do đó là lựa chọn thiết kế cho dữ liệu dải rộng chứ không phải cải thiện
-đồng đều. Đầu $\sigma$ không làm giảm độ chính xác đếm, vì $\mu$ được tách khỏi nhánh bất định.
+Anchoring $\sigma$ to a Poisson variance baseline matters when the range of counts is wide. On NuInsSeg, where
+the per-image count spans from a few nuclei to more than $500$, the Poisson-anchored form gives an interval
+width of $37.7$ against $67.9$ for an unanchored $\sigma$ ($-44\%$), a Winkler score of $45.4$ against $78.1$
+($-42\%$), and a worst-organ coverage of $0.864$ against $0.655$, at the same marginal coverage of
+${\sim}0.93$. On PanNuke, where the counts are concentrated in a narrow range, the two forms do not differ
+appreciably. Poisson anchoring is therefore a design choice for wide-range data rather than a uniform
+improvement. The $\sigma$ head does not reduce counting accuracy, because $\mu$ is detached from the
+uncertainty branch.
 
 \begin{table}[!htbp]
 \centering
-\caption{Chất lượng khoảng dự đoán sau hiệu chuẩn conformal trên PanNuke fold~3 ($n=2722$), trung bình trên
-$20$ lần chia hiệu chuẩn ngẫu nhiên. Mức phủ mục tiêu là $0{,}90$; độ rộng và điểm Winkler tính bằng đơn vị
-nhân, càng thấp càng tốt. Một loại mô được tính là thiếu phủ khi mức phủ của nó thấp hơn mục tiêu quá
-$0{,}05$, tức dưới $0{,}85$; ngưỡng dung sai này giải thích vì sao sơ đồ cluster có mức phủ thấp nhất
-$0{,}859$ mà vẫn không loại mô nào bị tính là thiếu phủ.}\label{tab:uq}
+\caption{Prediction interval quality after conformal calibration on PanNuke fold~3 ($n=2722$), averaged over
+$20$ random calibration splits. The target coverage is $0.90$; width and Winkler score are in units of nuclei,
+lower being better. A tissue type counts as under-covered when its coverage falls more than $0.05$ below the
+target, that is below $0.85$; this tolerance explains why the cluster scheme has a worst-organ coverage of
+$0.859$ and yet no tissue type counted as under-covered.}\label{tab:uq}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
-Sơ đồ & Phủ biên & Độ rộng & Winkler & Phủ cơ quan thấp nhất & Số cơ quan thiếu phủ \\
+Scheme & Marginal coverage & Width & Winkler & Worst-organ coverage & Under-covered organs \\
 \midrule
-global & $0{,}904$ & $14{,}5$ & $20{,}3$ & $0{,}765$ & $4/19$ \\
-mondrian & $0{,}923$ & $16{,}6$ & $20{,}5$ & $\mathbf{0{,}906}$ & $\mathbf{0/19}$ \\
-cluster & $0{,}906$ & $14{,}8$ & $\mathbf{20{,}0}$ & $0{,}859$ & $0/19$ \\
+global & $0.904$ & $14.5$ & $20.3$ & $0.765$ & $4/19$ \\
+mondrian & $0.923$ & $16.6$ & $20.5$ & $\mathbf{0.906}$ & $\mathbf{0/19}$ \\
+cluster & $0.906$ & $14.8$ & $\mathbf{20.0}$ & $0.859$ & $0/19$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 %%============================================================%%
-\section{Thảo luận}\label{sec:discuss}
+\section{Discussion}\label{sec:discuss}
 
-\paragraph{Vì sao giám sát mức ảnh có thể đủ cho đếm nhân.} Các thí nghiệm can thiệp cung cấp một cách giải
-thích khả dĩ cho việc thông tin vị trí chi tiết không phải là thành phần quyết định đối với độ chính xác đếm.
-Số đếm dự đoán giảm một cách đặc hiệu khi nhân bị loại bỏ khỏi ảnh nhưng hầu như không thay đổi dưới các can
-thiệp đối chứng giả có cùng diện tích; đồng thời, đáp ứng duy trì ở mức dưới tuyến tính và bản đồ mật độ học
-được gần như không mang thông tin định vị. Hai quan sát này nhất quán với giả thuyết rằng mô hình học cách tích
-hợp bằng chứng liên quan tới nhân trên toàn ảnh thay vì phát hiện rồi cộng từng thực thể riêng lẻ. Trong trường
-hợp đó, một nhãn đếm ở mức ảnh có thể đã cung cấp phần lớn thông tin cần thiết cho tác vụ đếm.
+\paragraph{Why image-level supervision can suffice for nuclei counting.} The intervention experiments offer a
+plausible explanation for why detailed positional information is not the decisive component of counting
+accuracy. The predicted count falls specifically when nuclei are removed from the image but barely changes
+under area-matched sham interventions; at the same time, the response remains sublinear and the learned density
+map carries almost no positional information. These two observations are consistent with the hypothesis that
+the model learns to integrate nucleus-related evidence over the whole image rather than to detect and tally
+individual instances. In that case, an image-level count label may already provide most of the information
+needed for the counting task.
 
-\paragraph{Hàm ý thực tiễn.} Khi mục tiêu cuối cùng là số đếm thay vì vị trí hoặc hình dạng của từng nhân, chi
-phí chú thích có thể được giảm đáng kể mà chỉ đánh đổi một lượng rất nhỏ về độ chính xác, điều đặc biệt đáng kể
-khi mở rộng sang cơ quan, trung tâm hoặc miền dữ liệu mới.
+\paragraph{Practical implications.} When the final objective is the count rather than the position or shape of
+each nucleus, annotation cost can be reduced substantially for a very small trade-off in accuracy, which
+matters particularly when scaling to new organs, centres or data domains.
 
-\paragraph{Chuyển giao ngoài miền.} Cơ chế tích hợp bằng chứng toàn ảnh cũng gợi ý một giới hạn tiềm tàng của
-phương pháp. Vì mô hình học các tín hiệu liên quan tới nhân ở một thang không gian nhất định, độ chính xác có
-thể suy giảm khi độ phóng đại hoặc kích thước biểu kiến của nhân thay đổi đáng kể giữa miền huấn luyện và miền
-triển khai. Ngược lại, các khoảng dự đoán conformal không giả định một dạng phân phối cụ thể: sau khi hiệu chuẩn
-lại trên một tập hiệu chuẩn nhỏ của miền đích, mức phủ mong muốn vẫn được duy trì theo giả thiết khả hoán, ngay
-cả khi độ chính xác điểm thay đổi. Khi đó, việc khoảng dự đoán nở rộng ra chính là một tín hiệu cảnh báo rằng
-mẫu nằm ngoài vùng mà mô hình còn đáng tin.
+\paragraph{Out-of-domain transfer.} The whole-image evidence integration mechanism also suggests a potential
+limitation. Because the model learns nucleus-related signals at a particular spatial scale, accuracy may
+degrade when magnification or apparent nuclear size differs substantially between the training and deployment
+domains. Conformal prediction intervals, by contrast, assume no particular distributional form: after
+recalibration on a small calibration set from the target domain, the desired coverage is maintained under
+exchangeability even if point accuracy changes. Widening intervals then act as a warning signal that a sample
+lies outside the region where the model remains trustworthy.
 
-\paragraph{Hạn chế và phạm vi khái quát.} Nghiên cứu này được thiết kế như một thí nghiệm có kiểm soát nhằm cô
-lập vai trò của loại giám sát. Vì vậy, các kết luận được thiết lập trên cùng một họ kiến trúc gồm bộ mã hóa nhẹ
-kết hợp bộ giải mã kiểu U-Net. Việc các quan sát tương tự có tiếp tục xuất hiện trên các kiến trúc khác, chẳng
-hạn các mô hình transformer hoặc các hệ phân vùng nhân chuyên biệt, vẫn cần được kiểm chứng thực nghiệm. Cũng vì
-nhánh mask dùng chính kiến trúc của bộ đếm, phép so sánh chính đo vai trò của \emph{loại giám sát} chứ không
-thiết lập giới hạn trên của một quy trình phân vùng được tối ưu riêng; Mục~\ref{sec:paradigm} chỉ bổ khuyết một
-phần cho khía cạnh đó.
+\paragraph{Limitations and scope.} This study was designed as a controlled experiment isolating the role of
+supervision type. Its conclusions are therefore established on a single architecture family, a lightweight
+encoder combined with a U-Net style decoder. Whether similar observations continue to hold on other
+architectures, such as transformer models or purpose-built nuclei segmentation systems, remains to be verified
+empirically. Also, because the mask branch uses the counter's own architecture, the main comparison measures
+the role of \emph{supervision type} and does not establish an upper bound for a separately optimised
+segmentation pipeline; Section~\ref{sec:paradigm} only partly fills that gap.
 
-Ngoài ra, bài báo chỉ xem xét tác vụ đếm. Kết quả không hàm ý rằng giám sát mức ảnh đủ cho các nhiệm vụ đòi hỏi
-thông tin không gian, chẳng hạn phân vùng thực thể, định vị nhân hoặc phân tích hình thái học. Trái lại, các kết
-quả can thiệp cho thấy mô hình count-only khó hình thành biểu diễn định vị có ý nghĩa, ngay cả khi đạt độ chính
-xác đếm cao.
+In addition, this paper considers only the counting task. The results do not imply that image-level supervision
+suffices for tasks requiring spatial information, such as instance segmentation, nucleus localisation or
+morphological analysis. On the contrary, the intervention results indicate that a count-only model does not
+readily form a meaningful localised representation, even when it counts accurately.
 
-\section{Kết luận}\label{sec:conclusion}
+\section{Conclusion}\label{sec:conclusion}
 
-Bài báo đã kiểm định trực tiếp vai trò của giám sát không gian trong đếm nhân bằng một thí nghiệm có kiểm soát,
-trong đó kiến trúc, dữ liệu và giao thức đánh giá được giữ cố định, còn biến duy nhất là loại giám sát. Trên ba
-tập dữ liệu mô bệnh học độc lập, không chế độ nào chiếm ưu thế nhất quán; trên PanNuke, lợi thế của giám sát mặt
-nạ có ý nghĩa thống kê nhưng bị kiểm định tương đương chặn trên ở khoảng $1\%$ số nhân trung bình mỗi ảnh. Trong
-khi đó, nhãn đếm ở mức ảnh rẻ hơn khoanh viền đầy đủ ít nhất tám lần.
+This paper tested the role of spatial supervision in nuclei counting directly, through a controlled experiment
+in which architecture, data and evaluation protocol were held fixed and the only variable was the type of
+supervision. Across three independent histopathology datasets neither regime is consistently superior; on
+PanNuke, the advantage of mask supervision is statistically significant but bounded above by an equivalence
+test at roughly $1\%$ of the mean nuclei per image. Image-level count labels, meanwhile, are at least eight
+times cheaper than full delineation.
 
-Các thí nghiệm can thiệp cho thấy mô hình count-only phản ứng đặc hiệu với nội dung nhân nhưng hình thành dự
-đoán bằng cách tích hợp bằng chứng trên toàn ảnh thay vì định vị từng thực thể, điều vừa giải thích độ chính xác
-đếm đạt được vừa chỉ ra giới hạn của nó đối với các nhiệm vụ đòi hỏi thông tin không gian. Trên chính tác vụ
-đếm, bộ đếm đạt độ chính xác cao hơn cả ba phương pháp đại diện được khảo sát vốn dùng nhãn định vị, và có thể
-được trang bị khoảng dự đoán đã hiệu chuẩn để hỗ trợ triển khai thực tế.
+The intervention experiments show that the count-only model responds specifically to nuclear content but forms
+its prediction by integrating evidence over the whole image rather than by localising individual instances,
+which both explains the counting accuracy attained and marks its limits for tasks that require spatial
+information. On the counting task itself, the counter attains higher accuracy than all three surveyed
+representatives of methods that use localisation labels, and it can be equipped with calibrated prediction
+intervals to support practical deployment.
 
-Nhìn chung, đối với bài toán đếm nhân, chú thích không gian dày đặc không phải là điều kiện cần để đạt độ chính
-xác cao. Các hướng tiếp theo gồm kiểm chứng mức độ khái quát của kết luận này trên các họ kiến trúc khác và trên
-các miền dữ liệu khác biệt lớn về độ phân giải, cơ quan và quy trình nhuộm; và truy nguyên những đặc trưng ảnh
-cấu thành phép tích hợp mà bộ đếm học được, trong đó có câu hỏi vì sao hệ số đáp ứng của nó nhỏ hơn một.
+Overall, for nuclei counting, dense spatial annotation is not a prerequisite for high accuracy. Future
+directions include verifying how far this conclusion generalises to other architecture families and to data
+domains differing substantially in resolution, organ and staining protocol; and tracing which image features
+constitute the integration the counter learns, including the question of why its response coefficient is below
+one.
 
 %%============================================================%%
 \backmatter
