@@ -336,6 +336,29 @@ Bài chỉ báo cáo Wilcoxon + δ*, KHÔNG nhấn "CI không chứa 0" để tr
 ⇒ Câu chốt MoNuSeg trong bài: **chỉ phát biểu về BIÊN là vững; chiều nghiêng count-only nhất quán nhưng
 CHƯA thiết lập.** (Sửa lại chú thích ‡ đã viết sai "tính có ý nghĩa không đổi".)
 
+**★ Cross-backbone pvt_v2_b0 — nhánh COUNT-ONLY 3 seed (2026-07-31, `sup_compare.py`, lr 3e-4, w_count_mask 0.1,
+60 epoch, PanNuke fold3). npz `pvt_count_3seed.npz` (backup kaggle). ⏳ ĐANG CHỜ nhánh mask (máy B).**
+
+| seed | R² | MAE |
+|---|---|---|
+| 42 | **−1.4313** | 24.49 |
+| 43 | +0.8836 | 3.88 |
+| 44 | +0.8876 | 3.95 |
+
+- **seed42 SẬP**: −1.4313 = chữ ký `−μ²/σ²` fold3, MAE 24.49 = đúng số nhân TB ⇒ **xuất hằng số 0**.
+- mean +0.1133±1.092 **VÔ NGHĨA**; đọc **median +0.8836, sập 1/3**. Hai seed sống (0.8836/0.8876) rất khớp nhau
+  ⇒ vấn đề là **ổn định tối ưu hoá**, KHÔNG phải PVT đếm kém.
+- ⚠️ **Nhánh sập là COUNT-ONLY (w_d=0) ⇒ KHÔNG có density-MSE ⇒ chỉnh `w_count_mask` là VÔ ÍCH.** Cảnh báo cũ
+  của script đổ cho density-MSE là sai nhánh — **đã sửa** (in đúng nhánh sập + nguyên nhân tương ứng).
+  Giả thuyết: dead activation ở đầu density khi lr còn cao cho backbone transformer.
+- ⛔ **KHÔNG được báo cáo pvt ở lr này.** Chuẩn của chính bài (§3.3): *"nhánh mask được đánh giá ở cấu hình
+  thuận lợi nhất… để phép so sánh không thiên vị count-only"* ⇒ phải áp cho MỌI nhánh. efflite0 lr 1e-3 **đã
+  dò**; pvt lr 3e-4 chỉ chọn từ dò **3 epoch / 1 seed** = chưa dò thật. lr 1e-3 sập CẢ HAI nhánh, 3e-4 sập 1/3
+  count-only ⇒ hướng là còn cao → **dò 1e-4** trước khi kết luận bất cứ điều gì.
+- Nếu chạy tiếp: **cả hai nhánh CÙNG một lr đã dò** (biến duy nhất = loại giám sát).
+- Bài KHÔNG cần thí nghiệm này: §5 đã ghi kết luận gắn với một họ kiến trúc và để ngỏ câu hỏi mở (trung thực).
+  Dừng ở đó là chấp nhận được nếu pvt tiếp tục đòi chỉnh cấu hình từng vòng.
+
 ---
 
 ## 1. IDENTITY & RANH GIỚI
