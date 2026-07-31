@@ -72,18 +72,18 @@ mức ảnh (\emph{count-only}) đã được nghiên cứu rộng rãi. Trái l
 thích không gian dưới dạng điểm hoặc mặt nạ. Do đó, mức giám sát tối thiểu thực sự cần cho việc đếm vẫn là một
 câu hỏi mở.
 
-Bài báo trả lời câu hỏi này bằng một \emph{thí nghiệm có kiểm soát}. Kiến trúc (một bộ mã hóa nhẹ tiêu chuẩn
-ghép bộ giải mã U-Net), dữ liệu và giao thức đánh giá được giữ cố định. Biến thực nghiệm duy nhất là loại giám
-sát: mặt nạ ở mức điểm ảnh, hoặc một nhãn đếm duy nhất cho mỗi ảnh. Mọi khác biệt quan sát được do đó quy về
+Bài báo trả lời câu hỏi này bằng một \emph{thí nghiệm có kiểm soát}. Kiến trúc (bộ mã hóa nhẹ có sẵn
+EfficientNet-lite0~\cite{efficientnet} ghép bộ giải mã U-Net~\cite{unet}), dữ liệu và giao thức đánh giá được
+giữ cố định. Biến thực nghiệm duy nhất là loại giám sát: mặt nạ ở mức điểm ảnh, hoặc một nhãn đếm duy nhất cho mỗi ảnh. Mọi khác biệt quan sát được do đó quy về
 \emph{chú thích}, không quy về sức mạnh mô hình.
 
 Các đóng góp chính của bài báo như sau.
 \begin{itemize}
 \item Trên ba tập dữ liệu độc lập và cùng một kiến trúc, không chế độ giám sát nào chiếm ưu thế nhất quán
-\emph{giữa các tập}. Trên PanNuke, tập lớn nhất và có tập kiểm tra cố định, chênh lệch theo từng ảnh tuy có ý
-nghĩa thống kê nhưng được một kiểm định tương đương chặn trên ở $1{,}1\%$ số nhân trung bình mỗi ảnh; trên
-NuInsSeg, biên chặt nhất đạt được rộng gấp khoảng sáu lần, còn trên MoNuSeg phương sai giữa các hạt giống lấn
-át chênh lệch giữa hai chế độ (Mục~\ref{sec:parity}).
+\emph{giữa các tập}. Trên PanNuke~\cite{pannuke}, tập lớn nhất và có tập kiểm tra cố định, chênh lệch theo từng
+ảnh tuy có ý nghĩa thống kê nhưng được một kiểm định tương đương chặn trên ở $1{,}1\%$ số nhân trung bình mỗi
+ảnh; trên NuInsSeg~\cite{nuinsseg}, biên chặt nhất đạt được rộng gấp khoảng sáu lần, còn trên
+MoNuSeg~\cite{monuseg} phương sai giữa các hạt giống lấn át chênh lệch giữa hai chế độ (Mục~\ref{sec:parity}).
 \item Một thí nghiệm can thiệp với đối chứng giả khớp diện tích cho thấy dự đoán của mô hình phụ thuộc đặc hiệu
 vào nội dung nhân, nhưng đáp ứng dưới tuyến tính và bản đồ mật độ không định vị được nhân. Hai quan sát này cùng
 khoanh vùng cơ chế đứng sau kết quả ở Mục~\ref{sec:parity} (Mục~\ref{sec:fidelity}).
