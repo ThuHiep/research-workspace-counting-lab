@@ -294,6 +294,24 @@ Qu et al., TMI 2020 (arXiv 2007.05448, `\cite{qu2020}`): **một** nhà bệnh h
 - ⚠️ Yếu điểm reviewer sẽ bắt: n=8 ảnh, 1 người, 1 dataset; ảnh ~600 nhân vs mảnh PanNuke 24,5 nhân.
   → §4.5 đã ghi rõ cả ba caveat + neo lại bằng chi phí per-nhân (bậc độ lớn, không phải hằng số chuyển được).
 
+**★★ MoNuSeg PARITY 5 hạt giống + Wilcoxon + TOST (2026-07-31, `monuseg_indomain.py --parity --split official`,
+npz `monuseg_parity_5seed.npz`) — ĐIỀN 3 Ô TRỐNG BẢNG 1:**
+count-only **0,4585 ± 0,1944** / MAE 6,841 ± 1,506 vs mask **0,3615 ± 0,1541** / MAE 7,496 ± 1,249 → ΔR² **+0,097**.
+- per-mảnh (gộp 5 seed, **n=224 mảnh**): count-only 6,84 vs mask 7,50 | **Wilcoxon p = 5,936e-05 → count-only THẮNG**.
+- TOST: Δ|err| = **−0,654 nhân** (2,2% số nhân TB ≈ **29,9/mảnh**), CI90 [−0,889; −0,427], **δ* = 0,889 nhân = 3,0%**.
+- ⇒ Bảng 1 hàng MoNuSeg: p = 5,9e-05 | δ* = 0,89 | 3,0%.
+- **★ Dãy δ* giờ ĐƠN ĐIỆU theo lực kiểm định:** PanNuke 1,1% (n=2722) < MoNuSeg 3,0% (n=224) < NuInsSeg 6,6%
+  (~133 ảnh/chia, chia đổi theo seed). Cột δ* = thang lực kiểm định, không phải lỗ hổng.
+- **★ LẬT chú thích ‡ cũ** ("dao động lấn át, chưa kết luận, KHÔNG đủ tuyên bố tương đương") → nay CÓ kết luận:
+  chênh lệch thật, **ngược chiều PanNuke**, và bị chặn ở 3,0%. R² vẫn dao động mạnh (sd ~2×|Δ|) nhưng **bắt cặp
+  theo từng mảnh loại được phương sai hạt giống** vì so hai chế độ trên CÙNG một mảnh.
+- ⚠️ **Điểm yếu phải khai (đã ghi vào chú thích ‡):** 224 mảnh cắt từ **14 ảnh** (16 mảnh/ảnh) → mảnh cùng ảnh
+  KHÔNG độc lập → p và δ* là **lạc quan**. PanNuke không dính (2722 mảnh = đơn vị mẫu chuẩn của bộ dữ liệu).
+  Muốn chặt phải gộp mảnh→ảnh (n=14) nhưng npz không lưu ánh xạ mảnh→ảnh; cần sửa dump nếu reviewer đòi.
+- ⚠️ Run 3-seed KHÔNG tất định cũ cho "mask thắng p=6e-13" = **ngược dấu**, đã bỏ (xem commit 5eda906). Run này
+  5 seed + cuDNN tất định, và R² lẫn MAE **cùng chiều** nên nhất quán nội bộ.
+- ⛔ **BACKUP `monuseg_parity_5seed.npz` lên Kaggle dataset NGAY** = 10 lần train (~3 giờ).
+
 ---
 
 ## 1. IDENTITY & RANH GIỚI
