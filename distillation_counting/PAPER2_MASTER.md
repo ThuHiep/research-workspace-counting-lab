@@ -327,7 +327,14 @@ lọc; `te` và `eval_r2` giữ nguyên thứ tự ⇒ **mảnh k thuộc ảnh 
 
 ⇒ **Bỏ giả thiết độc lập chỉ nới δ* 3,0% → 3,3%; chiều + ý nghĩa + độ lớn tương đối KHÔNG đổi.** Chú thích ‡
 Bảng 1 giờ ghi số đo này thay vì chỉ cảnh báo "lạc quan". Cross-check phép gộp: 224×29,9/14 = 478,4 ✓.
-⚠️ Còn thiếu: Wilcoxon p ở mức ảnh + số ảnh nghiêng mỗi bên (k/14) — chưa dán về.
+**★★ ĐÃ CÓ (2026-07-31): Wilcoxon mức ảnh `p = 0,1189`, count-only thấp hơn ở `10/14` ảnh.**
+⇒ **HAI KẾT LUẬN TÁCH SỐ PHẬN:** *biên* VỮNG (δ* 3,0% → 3,3%), *tính có ý nghĩa* KHÔNG VỮNG
+(p 5,9e-05 ở mức mảnh → 0,12 ở mức ảnh). p mức mảnh bị thổi phồng bởi giả-lặp (pseudo-replication).
+⚠️ CI90 bootstrap [−15,74; −1,24] KHÔNG chứa 0 nhưng Wilcoxon p=0,12: không mâu thuẫn — CI tính trên
+TRUNG BÌNH (mean diff −8,18, se 4,62 → t≈1,77, ~p 0,10), Wilcoxon tính trên HẠNG. n=14 nên hai phép lệch nhau.
+Bài chỉ báo cáo Wilcoxon + δ*, KHÔNG nhấn "CI không chứa 0" để tránh đọc thành mâu thuẫn.
+⇒ Câu chốt MoNuSeg trong bài: **chỉ phát biểu về BIÊN là vững; chiều nghiêng count-only nhất quán nhưng
+CHƯA thiết lập.** (Sửa lại chú thích ‡ đã viết sai "tính có ý nghĩa không đổi".)
 
 ---
 

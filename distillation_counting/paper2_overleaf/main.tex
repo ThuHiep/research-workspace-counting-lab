@@ -310,18 +310,21 @@ chú thích bỏ sót. Chênh lệch giữa hai chế độ giám sát do đó n
 lượng được của chính loại nhãn dùng để đo nó.
 
 Cùng một cặp kiểm định áp dụng được cho MoNuSeg, vì tập kiểm tra ở đó cũng cố định. Kết quả có cùng dạng nhưng
-\emph{ngược chiều}: sai số theo từng mảnh của count-only thấp hơn ($6{,}84$ so với $7{,}50$ nhân,
-$p = 5{,}9 \times 10^{-5}$, $n = 224$), nên chênh lệch là có thật và lần này nghiêng về count-only; đồng thời
-nó bị chặn trên ở $\delta^\star = 0{,}89$ nhân, khoảng $3{,}0\%$ số nhân trung bình mỗi mảnh. Đáng chú ý là
-kiểm định bắt cặp vẫn cho kết luận rõ ràng dù $R^2$ theo hạt giống dao động mạnh: nó so hai chế độ trên
-\emph{cùng} một mảnh nên khử được phần lớn phương sai giữa các lần chạy. Trên NuInsSeg thì không tồn tại một
+\emph{ngược chiều}: tính theo từng mảnh, sai số của count-only thấp hơn ($6{,}84$ so với $7{,}50$ nhân,
+$p = 5{,}9 \times 10^{-5}$, $n = 224$), và chênh lệch bị chặn trên ở $\delta^\star = 0{,}89$ nhân, khoảng
+$3{,}0\%$ số nhân trung bình mỗi mảnh. Tuy nhiên $224$ mảnh này đến từ chỉ $14$ ảnh nên chúng không độc lập với
+nhau. Gộp $16$ mảnh của mỗi ảnh thành một số đếm cho cả ảnh đưa đơn vị phân tích về đúng đơn vị lấy mẫu, và khi
+đó hai kết luận đi theo hai hướng: biên tương đương gần như giữ nguyên ($\delta^\star = 3{,}3\%$), còn khác
+biệt không còn đạt ý nghĩa thống kê ($p = 0{,}12$, với count-only sai ít hơn ở $10/14$ ảnh). Trên MoNuSeg vì
+vậy chỉ phát biểu về \emph{biên} là vững; chiều nghiêng về count-only là nhất quán nhưng chưa được thiết lập.
+Trên NuInsSeg thì không tồn tại một
 kiểm định gộp, vì chia ngẫu nhiên làm tập kiểm tra đổi theo từng hạt giống; ở đó chỉ có thể kiểm định riêng
 từng chia, và biên chặt nhất đạt được là trung vị $6{,}6\%$.
 
 Ba giá trị $\delta^\star$ xếp theo đúng lực kiểm định mà mỗi tập cho phép: $1{,}1\%$ với $2722$ mảnh kiểm tra
 cố định, $3{,}0\%$ với $224$ mảnh, và $6{,}6\%$ khi tập kiểm tra chỉ có ${\sim}133$ ảnh và còn đổi theo hạt
 giống. Riêng với MoNuSeg, $224$ mảnh đến từ $14$ ảnh nên không độc lập với nhau; gộp về mức ảnh chỉ nới
-$\delta^\star$ từ $3{,}0\%$ lên $3{,}3\%$ mà không đổi kết luận. Điều đọc được từ ba tập gộp lại không phải là một chế độ tốt hơn chế độ kia, mà là chiều của chênh lệch
+$\delta^\star$ từ $3{,}0\%$ lên $3{,}3\%$, tức kết luận về \emph{biên} không phụ thuộc vào đơn vị phân tích. Điều đọc được từ ba tập gộp lại không phải là một chế độ tốt hơn chế độ kia, mà là chiều của chênh lệch
 \emph{đổi dấu} giữa các tập trong khi độ lớn của nó luôn bị chặn trong vài phần trăm số nhân mỗi ảnh.
 
 \begin{figure}[!htbp]
@@ -370,10 +373,11 @@ phép một kiểm định gộp như trên PanNuke; số liệu lấy trung bì
 hơn ($6{,}84$ so với $7{,}50$ nhân) và khác biệt có ý nghĩa thống kê, trong khi $R^2$ của \emph{cả hai} chế độ
 dao động mạnh giữa các hạt giống vì tập huấn luyện chỉ có $37$ ảnh. Vì $224$ mảnh kiểm tra được cắt từ $14$ ảnh
 nên các mảnh thuộc cùng một ảnh không độc lập, và kiểm định ở mức mảnh có xu hướng lạc quan. Phép gộp $16$ mảnh
-của mỗi ảnh thành một số đếm duy nhất cho ảnh đó đưa đơn vị phân tích về đúng đơn vị lấy mẫu: với $n = 14$ ảnh,
-chênh lệch trung bình là $-8{,}2$ nhân trên mỗi ảnh (khoảng tin cậy $90\%$ $[-15{,}7;\ -1{,}2]$, không chứa $0$)
-trên số đếm trung bình $478$ nhân, và $\delta^\star$ nới từ $3{,}0\%$ lên $3{,}3\%$. Chiều, tính có ý nghĩa và
-độ lớn tương đối của chênh lệch do đó không đổi khi bỏ giả thiết độc lập giữa các mảnh.}
+của mỗi ảnh thành một số đếm duy nhất cho ảnh đó đưa đơn vị phân tích về đúng đơn vị lấy mẫu, và tách hai kết
+luận theo hai hướng khác nhau: biên tương đương gần như không đổi ($\delta^\star$ nới từ $3{,}0\%$ lên
+$3{,}3\%$, trên số đếm trung bình $478$ nhân mỗi ảnh), còn khác biệt thì không còn đạt ý nghĩa thống kê
+($p = 0{,}12$; count-only sai ít hơn ở $10/14$ ảnh, trung bình $-8{,}2$ nhân). Giá trị $p$ ở cột trên do đó
+phải đọc kèm ràng buộc rằng nó dựa trên giả thiết độc lập giữa các mảnh.}
 \end{table}
 
 \subsection{Số đếm dự đoán phản hồi nhân quả với nội dung nhân}\label{sec:fidelity}
