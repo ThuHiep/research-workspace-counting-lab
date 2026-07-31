@@ -167,14 +167,13 @@ luyện trên ImageNet ghép với một bộ giải mã kiểu U-Net~\cite{unet
 \begin{equation}
 \sigma = \sqrt{\max(\mu,1)}\;\exp\!\big(\mathrm{clamp}(\log s,-2,2)\big).
 \end{equation}
-Nền Poisson được chọn vì đại lượng cần dự đoán là một phép đếm các thực thể rời rạc, mà với phân phối Poisson
-thì $\sigma = \sqrt{\mu}$; đó là một nền tham chiếu tự nhiên cho dữ liệu đếm, và neo vào đó giúp $\sigma$ tự co
-giãn theo số đếm thay vì phải học lại quan hệ này từ dữ liệu. Thừa số mũ cho phép mạng lệch khỏi nền đó
-theo cả hai chiều: khoảng chặn $[-2, 2]$ ứng với hệ số từ $0{,}14$ đến $7{,}4$ lần $\sqrt{\mu}$, đủ rộng để bao
-cả chế độ tán xạ dưới lẫn trên mức Poisson, nên phép chặn đóng vai trò một rào số học ngăn $\beta$-NLL phân kỳ
-ở các bước đầu chứ không phải một ràng buộc mô hình. Lựa chọn neo này được đối chiếu trực tiếp với một $\sigma$
-không neo ở Mục~\ref{sec:uq}. Gradient của $\mu$ được tách khỏi nhánh $\sigma$. Cấu hình sử dụng cho $3{,}62$
-triệu tham số.
+Nền Poisson được chọn vì số đếm là đại lượng rời rạc và thỏa mãn quan hệ $\sigma = \sqrt{\mu}$ trong trường hợp
+Poisson. Việc neo $\sigma$ quanh nền này giúp bất định tự co giãn theo độ lớn của số đếm thay vì phải học hoàn
+toàn từ dữ liệu. Thừa số mũ cho phép mô hình biểu diễn cả tán xạ dưới và trên mức Poisson, với khoảng chặn
+$[-2, 2]$ ứng với hệ số từ $0{,}14$ đến $7{,}4$ lần $\sqrt{\mu}$; phép chặn vì vậy chỉ đóng vai trò ổn định số
+học ở giai đoạn đầu huấn luyện chứ không ràng buộc mô hình. Lựa chọn neo này được đối chiếu trực tiếp với một
+$\sigma$ không neo ở Mục~\ref{sec:uq}. Gradient từ nhánh bất định không được lan truyền ngược về $\mu$, nhằm
+tránh việc ước lượng bất định ảnh hưởng đến quá trình học số đếm. Cấu hình sử dụng cho $3{,}62$ triệu tham số.
 
 \subsection{Các chế độ giám sát}
 Biến giám sát được cô lập bằng cách giữ nguyên kiến trúc, dữ liệu và giao thức đánh giá, chỉ thay đổi trọng số hàm
@@ -192,32 +191,24 @@ $\mathcal{L}_{\text{NLL}}$ là hàm hợp lý âm dạng $\beta$-NLL~\cite{bnll}
 $\mu$. Đầu bất định vì thế được huấn luyện trước bằng $\beta$-NLL, còn các khoảng dự đoán cuối cùng được hiệu
 chuẩn hậu nghiệm như trình bày dưới đây.
 
-Hai nhận xét về thiết kế này. Thứ nhất, trong chế độ count-only hàm mất mát chỉ ràng buộc \emph{tổng} của bản đồ
-mật độ, mà vô số bản đồ khác nhau cùng thoả một tổng cho trước. Bản đồ mà mạng thực sự học được do đó không do
-hàm mất mát quy định, và việc nó có mang thông tin vị trí hay không là một câu hỏi thực nghiệm; câu hỏi này được
-đo trực tiếp ở Mục~\ref{sec:fidelity}. Thứ hai, vì $w_c > 0$ ở nhánh mask, hai chế độ không hoàn toàn đối xứng:
-nhánh mask nhận cả giám sát mật độ lẫn một phần giám sát đếm, còn count-only chỉ nhận giám sát đếm. Bất đối xứng
-này nghiêng về phía \emph{có lợi} cho nhánh mask, vì nó được cấp thêm đúng tín hiệu khớp với chỉ số dùng để đánh
-giá. Nếu số hạng đếm bổ sung không làm giảm hiệu quả của giám sát mật độ, chênh lệch đo được ở
-Mục~\ref{sec:parity} là một chặn trên của chênh lệch mà giám sát mặt nạ thuần tuý tạo ra, nên lựa chọn này không
-làm nới lỏng kết luận của bài. Điều kiện đó phù hợp với quan sát thực nghiệm ở Mục~\ref{sec:setup}: hạ $w_c$ làm
-nhánh mask kém ổn định hơn chứ không tốt lên. Cũng cần nói rõ rằng cấu hình $w_c = 0$ suy biến về nghiệm hằng số
-nên không huấn luyện được, do đó ``giám sát mặt nạ thuần tuý'' không phải một mốc so sánh quan sát được trong
-kiến trúc này; bản thân điều này đã là một quan sát về tính khó tối ưu của giám sát mật độ trên bản đồ thưa.
+Hai đặc điểm của thiết kế cần được lưu ý. Thứ nhất, trong chế độ count-only, hàm mất mát chỉ ràng buộc
+\emph{tổng} của bản đồ mật độ. Do đó, nhiều bản đồ khác nhau có thể dẫn đến cùng một số đếm, và việc bản đồ học
+được có mang thông tin vị trí hay không là một câu hỏi thực nghiệm, được khảo sát ở Mục~\ref{sec:fidelity}.
+
+Thứ hai, nhánh mask sử dụng thêm một thành phần mất mát đếm ($w_c > 0$) để tránh nghiệm suy biến của giám sát
+mật độ trên bản đồ thưa. Điều này tạo ra một lợi thế nhỏ cho nhánh mask, vì nó nhận thêm tín hiệu liên quan
+trực tiếp tới chỉ số đánh giá. Do đó, mọi chênh lệch quan sát được giữa hai chế độ có thể được xem là một ước
+lượng bảo thủ đối với lợi ích của giám sát mặt nạ.
 
 \subsection{Hiệu chuẩn khoảng dự đoán}
-Sau huấn luyện, conformal prediction theo lối chia (split-conformal)~\cite{vovk,cqr} được áp dụng trên một
-tập hiệu chuẩn để thu khoảng $[\mu - q\sigma,\ \mu + q\sigma]$ đạt mức phủ mục tiêu $1-\alpha$, với
-$\alpha = 0{,}1$ trong mọi kết quả báo cáo. Ba sơ đồ được
-xem xét: một ngưỡng chung (global), một ngưỡng riêng cho mỗi cơ quan (mondrian) và một ngưỡng theo nhóm độ khó
-(cluster). Đây là dạng split-conformal tiêu chuẩn; các sơ đồ hiệu chuẩn chuyên biệt hơn cho đếm tế bào, gồm
-chuẩn hoá bất định theo phương sai Poisson--Binomial và cập nhật trực tuyến, được phát triển trong một công
-trình trước của cùng nhóm tác giả~\cite{pbjci} và không được sử dụng ở đây. Ba biến thể này khảo sát cùng một đánh đổi. Một ngưỡng chung dùng toàn bộ dữ liệu hiệu chuẩn và
-thường cho khoảng dự đoán hẹp nhất, nhưng chỉ bảo đảm mức phủ trên toàn bộ tập. Ngược lại, ngưỡng theo nhóm bảo
-đảm mức phủ trong \emph{từng} nhóm riêng biệt, đổi lại khoảng dự đoán rộng hơn và ít dữ liệu hiệu chuẩn hơn cho
-mỗi nhóm. Cần nói rõ vị trí của phần này trong bài: đây là một phân tích bổ trợ nhằm đưa bộ đếm tới trạng thái
-dùng được trên thực tế, không phải đóng góp trung tâm. Câu hỏi trung tâm vẫn là so sánh hai chế độ giám sát ở
-Mục~\ref{sec:parity}.
+Sau huấn luyện, split-conformal prediction~\cite{vovk,cqr} được áp dụng trên một tập hiệu chuẩn để xây dựng
+khoảng dự đoán $[\mu - q\sigma,\ \mu + q\sigma]$ ở mức phủ mục tiêu $1-\alpha$, với $\alpha = 0{,}1$ trong mọi
+kết quả báo cáo. Ba chiến lược hiệu chuẩn được xem xét: ngưỡng toàn cục (global), ngưỡng theo cơ quan
+(mondrian) và ngưỡng theo nhóm độ khó (cluster). Chúng phản ánh các mức đánh đổi khác nhau giữa độ rộng khoảng
+dự đoán và bảo đảm mức phủ theo từng nhóm dữ liệu. Đây là dạng split-conformal tiêu chuẩn; các sơ đồ hiệu chuẩn
+chuyên biệt hơn cho đếm tế bào, gồm chuẩn hoá bất định theo phương sai Poisson--Binomial và cập nhật trực
+tuyến, thuộc một công trình trước của cùng nhóm tác giả~\cite{pbjci} và không được sử dụng ở đây. Phần này nhằm
+đánh giá khả năng triển khai thực tế của bộ đếm và không phải là đóng góp trung tâm của bài báo.
 
 %%============================================================%%
 \section{Thiết lập thực nghiệm}\label{sec:setup}
@@ -253,7 +244,11 @@ Suy biến này là một thất bại của \emph{quá trình tối ưu hoá}: 
 biết được từ chính kết quả báo cáo, vì khi dự đoán là hằng số $0$ thì $R^2 = -\mu^2/\sigma^2$, với $\mu$ và
 $\sigma$ là trung bình và độ lệch chuẩn của số nhân trên tập kiểm tra. Một hạt giống suy biến đủ để kéo lệch
 giá trị trung bình, như con số $0{,}45 \pm 0{,}94$ ở trên cho thấy. Ở cấu hình $w_c = 0{,}1$ dùng cho mọi kết
-quả báo cáo, không hạt giống nào suy biến trên bất kỳ tập dữ liệu nào.
+quả báo cáo, không hạt giống nào suy biến trên bất kỳ tập dữ liệu nào. Ở đầu kia của dải, cấu hình $w_c = 0$
+suy biến hoàn toàn và không huấn luyện được, nên ``giám sát mặt nạ thuần tuý'' không phải một mốc so sánh quan
+sát được trong kiến trúc này. Bản thân điều đó đã là một quan sát về tính khó tối ưu của giám sát mật độ trên
+bản đồ mục tiêu thưa, và nó ủng hộ cách đọc bảo thủ nêu ở Mục~\ref{sec:method}: hạ $w_c$ làm nhánh mask kém ổn
+định hơn chứ không tốt lên.
 
 \paragraph{Chỉ số và kiểm định.} Độ chính xác đếm được đo bằng $R^2$ và sai số tuyệt đối trung bình (MAE). Để
 so sánh hai chế độ giám sát, kiểm định Wilcoxon signed-rank bắt cặp được dùng trên sai số tuyệt đối của
