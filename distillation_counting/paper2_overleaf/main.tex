@@ -42,8 +42,8 @@ hoặc trung tâm mới. Tuy nhiên, phần lớn các phương pháp đếm nh�
 độ hoặc phát hiện, hàm ý rằng giám sát không gian dày đặc là điều kiện cần để đạt độ chính xác cao. Bài báo này
 kiểm định trực tiếp giả định đó bằng một thí nghiệm có kiểm soát, trong đó kiến trúc mạng, dữ liệu và giao thức
 đánh giá được giữ cố định, còn biến duy nhất là loại giám sát. Với duy nhất một nhãn đếm cho mỗi ảnh, mô hình
-$3{,}62$ triệu tham số đạt $R^2 = 0{,}918$ trên PanNuke và vượt các phương pháp đại diện của phân vùng, ước
-lượng mật độ và phát hiện trên cùng tác vụ đếm và cùng tập kiểm tra, mặc dù cả ba đều cần nhãn định vị. So sánh
+$3{,}62$ triệu tham số đạt $R^2 = 0{,}918$ trên PanNuke và vượt các phương pháp đại diện được khảo sát của phân
+vùng, ước lượng mật độ và phát hiện trên cùng tác vụ đếm và cùng tập kiểm tra, mặc dù cả ba đều cần nhãn định vị. So sánh
 giữa giám sát đếm và giám sát mặt nạ trên PanNuke, NuInsSeg và MoNuSeg cho thấy chiều của chênh lệch đổi dấu
 giữa các tập, nên không chế độ nào chiếm ưu thế nhất quán. Trên PanNuke, lợi thế của giám sát mặt nạ có ý nghĩa
 thống kê nhưng bị kiểm định tương đương chặn trên ở $1{,}1\%$ số nhân trung bình mỗi ảnh, trong khi nhãn đếm rẻ
@@ -91,7 +91,7 @@ cấu hình thông dụng của chúng, trong khi hướng phát hiện suy gi�
 (Mục~\ref{sec:paradigm}).
 \item Đánh giá hiệu quả chú thích, chi phí tính toán khi triển khai và độ tin cậy dự đoán: một phần tư ngân
 sách nhãn đã đạt phần lớn hiệu năng ở mức nhãn đầy đủ, và khoảng dự đoán conformal hiệu chuẩn theo loại mô đạt
-mức phủ mục tiêu ở mọi loại mô (Mục~\ref{sec:label}--\ref{sec:uq}).
+mức phủ mục tiêu ở mọi loại mô (Mục~\ref{sec:deploy}).
 \end{itemize}
 
 %%============================================================%%
@@ -266,7 +266,7 @@ phản ánh tính gọn của khoảng dự đoán và khả năng bao phủ c�
 %%============================================================%%
 \section{Kết quả}\label{sec:results}
 
-\subsection{Độ chính xác đếm dưới hai chế độ giám sát}\label{sec:parity}
+\subsection{Chú thích dày đặc có cải thiện độ chính xác đếm không?}\label{sec:parity}
 
 Không chế độ giám sát nào chiếm ưu thế nhất quán \emph{giữa ba tập dữ liệu} (Bảng~\ref{tab:parity}); trong
 từng tập, mức chặt của kết luận khác nhau rõ rệt và phụ thuộc vào lực kiểm định mà tập đó cho phép. Trên
@@ -374,7 +374,7 @@ $3{,}3\%$, trên số đếm trung bình $478$ nhân mỗi ảnh), còn khác bi
 phải đọc kèm ràng buộc rằng nó dựa trên giả thiết độc lập giữa các mảnh.}
 \end{table}
 
-\subsection{Số đếm dự đoán phản hồi nhân quả với nội dung nhân}\label{sec:fidelity}
+\subsection{Mô hình chỉ học từ số đếm dựa vào bằng chứng nào?}\label{sec:fidelity}
 
 Kết quả ở Mục~\ref{sec:parity} cho thấy bỏ giám sát không gian chỉ làm độ chính xác đếm thay đổi trong một biên
 hẹp trên tập lớn nhất, nhưng chưa nói mô hình dựa vào bằng chứng nào để đếm. Một mô hình chỉ nhìn thấy một con số cho mỗi ảnh trên nguyên tắc
@@ -533,10 +533,12 @@ với số đếm còn lại $37{,}4\%$. Hệ số $0{,}64$ do đó là một gi
 cách tới $1{,}0$ không quy được cho chất lượng chú thích.
 
 
-\subsection{So sánh với ba paradigm dùng nhãn đắt}\label{sec:paradigm}
+\subsection{So sánh với các phương pháp dùng nhãn định vị}\label{sec:paradigm}
 
-Bộ đếm count-only nhẹ đạt $R^2$ và MAE tốt hơn cả ba đại diện của phân vùng, ước lượng mật độ và phát hiện, dù
-chỉ dùng nhãn đếm (Bảng~\ref{tab:paradigm}). Cả bốn phương pháp được huấn luyện lại và đánh giá trên cùng tập
+Bộ đếm count-only nhẹ đạt $R^2$ và MAE tốt hơn cả ba phương pháp đại diện được khảo sát của phân vùng, ước
+lượng mật độ và phát hiện, dù chỉ dùng nhãn đếm (Bảng~\ref{tab:paradigm}). Mỗi hướng chỉ được đại diện bởi
+\emph{một} phương pháp, nên kết quả này nói về các phương pháp cụ thể được khảo sát chứ không phải về giới hạn
+của cả một hướng tiếp cận. Cả bốn phương pháp được huấn luyện lại và đánh giá trên cùng tập
 kiểm tra, ở cấp độ tác vụ đếm. Số đếm của mỗi phương pháp so sánh được lấy bằng chính bước hậu xử lý chính thức
 của phương pháp đó: số thực thể sau phân tách với StarDist, số cực trị địa phương trên bản đồ mật độ tâm với
 DualU-Net, và số điểm còn lại sau bước triệt tiêu không cực đại với DeNuC. Khác với phép so sánh có kiểm soát ở
@@ -566,7 +568,8 @@ DeNuC~\cite{denuc} & $4{,}37$M & hộp/điểm & phát hiện & $0{,}455$ & $9{,
 \end{tabular}
 \end{table}
 
-\subsection{Hiệu quả chú thích}\label{sec:label}
+\subsection{Hiệu quả chú thích và khả năng triển khai}\label{sec:deploy}
+\subsubsection{Hiệu quả chú thích}\label{sec:label}
 Một phần tư ngân sách chú thích đã đủ cho khoảng $93\%$ hiệu năng ở mức nhãn đầy đủ. Trên PanNuke, $R^2$ theo
 tỉ lệ ảnh có nhãn đếm là $0{,}453 \pm 0{,}208$ ở $5\%$, $0{,}742$ ở $10\%$, $0{,}849 \pm 0{,}029$ ở $25\%$,
 $0{,}859$ ở $50\%$ và $0{,}915 \pm 0{,}010$ ở toàn bộ nhãn (ba hạt giống, cùng giao thức đánh giá; giá trị ở mức
@@ -574,7 +577,7 @@ toàn bộ lệch $0{,}003$ so với Bảng~\ref{tab:parity}, nằm trong dao đ
 ngân sách đầu tiên, còn từ $25\%$ lên $100\%$ chỉ thêm $0{,}066$. Điểm $5\%$ cho thấy giới hạn dưới của chế độ
 này, nơi phương sai giữa các hạt giống lấn át giá trị trung bình.
 
-\subsection{Chi phí tính toán và chi phí chú thích}\label{sec:cost}
+\subsubsection{Chi phí tính toán và chi phí chú thích}\label{sec:cost}
 Bộ đếm có $3{,}62$M tham số và $0{,}98$ GMACs ở đầu vào $256\times256$, độ trễ $6{,}0$\,ms trên GPU và
 $46$\,ms trên CPU, đỉnh bộ nhớ $37{,}9$\,MB. Các chỉ số này cho phép suy luận thời gian thực trên cả GPU phổ
 thông lẫn CPU.
@@ -591,7 +594,7 @@ hai chế độ là chi phí \emph{cho mỗi nhân}: theo cùng số liệu trê
 nhân còn đánh dấu điểm khoảng $1{,}4$ giây, và đếm không thể đắt hơn đánh dấu. Đặt cạnh mức suy giảm độ chính xác đo được ở Mục~\ref{sec:parity}, bị chặn trên bởi khoảng $1\%$ số
 nhân mỗi ảnh, bất đối xứng đó là luận điểm hiệu quả trung tâm của bài báo.
 
-\subsection{Định lượng bất định cho triển khai tin cậy}\label{sec:uq}
+\subsubsection{Định lượng bất định cho triển khai tin cậy}\label{sec:uq}
 Khoảng dự đoán được hiệu chuẩn không chỉ ở cấp độ biên mà còn theo điều kiện cơ quan (Bảng~\ref{tab:uq}). Cả
 ba sơ đồ đều đạt mức phủ biên mục tiêu $0{,}90$, nhưng chỉ mondrian nâng được mức phủ của cơ quan thấp nhất lên
 tới chính mục tiêu đó ($0{,}906$), trong khi một ngưỡng chung để bốn trong $19$ loại mô rơi xuống dưới ngưỡng
@@ -666,8 +669,8 @@ giám sát nào chiếm ưu thế nhất quán giữa các tập; trên tập ki
 nạ bị một kiểm định tương đương chặn trên ở khoảng $1\%$ số nhân mỗi ảnh, trong khi chi phí chú thích thấp hơn
 ít nhất tám lần. Các thí nghiệm
 can thiệp cho thấy mô hình học cách tích hợp bằng chứng liên quan tới nhân trên toàn ảnh, thay vì dựa vào thông
-tin định vị tường minh. Ngoài ra, bộ đếm count-only nhẹ đạt $R^2$ và MAE tốt hơn các đại diện của ba dòng phương
-pháp dùng nhãn đắt trên tác vụ đếm, và có thể được trang bị khoảng dự đoán đã hiệu chuẩn cho triển khai. Đối với
+tin định vị tường minh. Ngoài ra, bộ đếm count-only nhẹ đạt $R^2$ và MAE tốt hơn các phương pháp đại diện được khảo
+sát của ba dòng dùng nhãn định vị, trên tác vụ đếm, và có thể được trang bị khoảng dự đoán đã hiệu chuẩn cho triển khai. Đối với
 đếm nhân, chú thích dày đặc ở mức điểm ảnh do đó không phải là điều kiện cần.
 
 Các hướng phát triển gồm kiểm chứng tính khái quát của phát hiện qua nhiều họ kiến trúc, trong đó có bộ mã hóa
