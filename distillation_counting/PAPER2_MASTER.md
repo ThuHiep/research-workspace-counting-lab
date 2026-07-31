@@ -193,6 +193,7 @@ Scaling **bão hoà ở 3.6M** (lớn hơn tệ đi) = lập luận **efficiency
 |---|---|---|---|---|---|
 | DeNuC (retrain fold12, 2026) | 4.37M (ShuffleNet-x2) | detection (centroid) | 0.455 | 9.64 | ✅ (F1 68.0 P89/R55; LỚN hơn efflite0 mà kém xa; under-count sụp theo mật độ, bias 45+ −30.4) |
 | DualU-Net (retrain fold_1+2) | ~35M (resnext50) | mask | 0.804 | 5.33 | ✅ (over-count 26.2) |
+| ↳ **param VERIFIED 2026-08-01 — SỬA `~35M` → `41.0M`** | **41,006,775** (+ 0.07M buffer BN = 41.08M) | — | — | — | `resnext_pannuke_fold12_epoch_50.zip` key `model`; encoder 23.05M + decoder 9.01M + **decoder_count 9.01M** (hai decoder = tên DualU-Net). `~35M` cũ có lẽ quên nhánh decoder thứ hai. Bảng 4 đã sửa. |
 | StarDist (retrain fold_1+2) | 1.43M (U-Net) | mask | 0.841 | 4.64 | ✅ (under-count 20.8; nhỏ hơn efflite0 nhưng cần mask + kém acc) |
 | ↳ **param VERIFIED 2026-08-01** | **1,425,761** (= 1.43M, khớp bảng) | — | — | — | cộng mọi dataset trong `weights_best.h5` (kaggle `dattong12/stardist-ckpt-fold1-2-pannuke`); gồm cả non-trainable (BN moving stats) |
 | **PACT efflite0 (ours)** | **3.62M** | **count-only** | **0.920±0.005** | **3.61±0.07** | ✅ **thắng CẢ 3 paradigm** |
