@@ -239,6 +239,24 @@ Scaling **bão hoà ở 3.6M** (lớn hơn tệ đi) = lập luận **efficiency
   còn là .npz → script nạp phải dò theo nội dung `gt.npy` + `pred__*.npy`, đừng glob theo đuôi `.npz`).
 - Bảng 4 paradigm (0,920/3,61) = mô hình hạt giống **trung vị** (0,9197 ≈ 0,920) → đã ghi rõ trong caption.
 
+**★★ NuInsSeg parity 5 chia + TOST (2026-07-31, `parity_nuinsseg.py`, npz `nuinsseg_parity_5split.npz`) — SỐ CHỐT BẢNG 1:**
+count-only **0,8951 ± 0,0454** vs mask **0,8832 ± 0,0712** → ΔR² **+0,012**. (Số cũ 0,913/0,892 = **SUPERSEDED**,
+run khác, KHÔNG được ghép với δ* của run này.)
+
+| chia | Δ (nhân) | CI90 | δ* | kết luận ở δ=5% |
+|---|---|---|---|---|
+| 42 | **+1,987** | [+0,54; +3,61] | 3,61 | chưa |
+| 43 | −4,131 | [−6,11; −2,25] | 6,11 | chưa |
+| 44 | +0,095 | [−1,50; +1,72] | 1,72 | **TƯƠNG ĐƯƠNG** |
+| 45 | −4,184 | [−5,99; −2,41] | 5,99 | chưa |
+| 46 | −2,133 | [−3,45; −0,77] | 3,45 | chưa |
+
+**⚠️ LẬT chú thích † cũ của Bảng 1** ("0/5 chia có p<0,05"): thực tế **3/5 chia CÓ ý nghĩa, và ở CẢ HAI chiều**
+(seed42 mask hơn; 43/45/46 count hơn). δ* trung vị **3,614 nhân = 6,6%** số nhân TB (≈55,1/ảnh), tức **rộng gấp
+~6 lần** PanNuke (1,1%). Nguyên nhân: 133 ảnh/chia so với 2722, và chia ngẫu nhiên đổi theo seed.
+⇒ **Cách viết đúng cho NuInsSeg: "không có ưu thế nhất quán", KHÔNG được viết "tương đương".**
+Chỉ PanNuke đủ lực để bán biên hẹp. MoNuSeg cũng hạ xuống "dao động lấn át, chưa kết luận" (sd gấp đôi Δ).
+
 **★ MoNuSeg in-domain dataset THỨ 3 (efflite0 count-only, `monuseg_indomain.py`, 2026-07-28):** đa cơ quan TCGA, ĐỘC LẬP PanNuke/NuInsSeg (KHÔNG trùng như Lizard/CoNIC). XML→centroid→patch256 native (resize 1000→1024, không co nhân), **split CHÍNH THỨC 37 train/14 test folder** (random WSI split cho 0.54±0.29 nhiễu → official cho **0.663±0.099** ổn). MAE 5.42±0.86. R² thấp hơn PanNuke/NuInsSeg (nhỏ+test count-variance thấp) nhưng MAE tốt. ⚠️ Q1 KHÔNG bán R² tuyệt đối → cần count-only-vs-mask MoNuSeg (rasterize polygon→density) để bán PARITY 3-dataset. Input Kaggle `hipinhththu/monuseg` (TestData có 14 xml). Xem [[paper2-q1-pivot]].
 
 **★ Generalization đa dataset (efflite0 count-only, 2026-07-27):** in-domain PanNuke 0.920±0.005 / **NuInsSeg 0.854±0.048** (random split, `method_frontier --dataset nuinsseg`). → chạy tốt dataset 2, là ceiling cho transfer. **Transfer PanNuke→NuInsSeg efflite0 (2026-07-27, `eval_cross_dataset`+`eval_r2_grouped` 20-seed):** marg.cov 0.90 GIỮ (mondrian 0.922) NHƯNG MAE 30.35 (in-domain 13.8, ~2.2× tệ) + worst-org cov tụt 0.72 (in-domain 0.906). → **transfer MỘT PHẦN: coverage biên transfer, accuracy điểm KHÔNG** (khớp finding cũ MAE-không-transfer). Bán honest: khoảng tin cậy giữ phủ khi recalibrate ở target. pkl `work/xfer_pan2nuins_efflite0.pkl`. *(số transfer 1.9M cũ = SUPERSEDED.)*

@@ -246,10 +246,11 @@ Trên cả ba tập dữ liệu, giám sát count-only cho độ chính xác đ�
 (Bảng~\ref{tab:parity}). Trên PanNuke, tập lớn nhất và có tập kiểm tra cố định, nhánh mask giữ một khoảng cách
 nhỏ nhưng nhất quán về dấu: $\Delta R^2 = -0{,}013$, với mask cao hơn ở cả $5/5$ hạt giống. Xét theo độ lớn,
 count-only đạt $98{,}6\%$ mức $R^2$ của nhánh mask. Trên
-NuInsSeg, count-only đạt $R^2$ trung bình nhỉnh hơn, nhưng chênh lệch nằm trong độ lệch chuẩn và không chia nào
-cho khác biệt có ý nghĩa theo từng ảnh. Trên MoNuSeg, count-only cũng cao hơn ($\Delta R^2 = 0{,}10$) và cũng
-nằm gọn trong độ lệch chuẩn; tập này chỉ có $37$ ảnh huấn luyện nên $R^2$ của \emph{cả hai} chế độ dao động mạnh
-giữa các hạt giống.
+NuInsSeg, count-only đạt $R^2$ trung bình nhỉnh hơn ($\Delta R^2 = +0{,}012$), nhưng bức tranh theo từng chia
+kém ổn định hơn hẳn: chiều của chênh lệch đổi dấu giữa các chia và $3/5$ chia cho khác biệt có ý nghĩa theo
+từng ảnh ở cả hai chiều. Trên MoNuSeg, count-only cũng cao hơn ($\Delta R^2 = +0{,}10$) nhưng độ lệch chuẩn lớn
+gấp đôi chênh lệch; tập này chỉ có $37$ ảnh huấn luyện nên $R^2$ của \emph{cả hai} chế độ dao động mạnh giữa
+các hạt giống.
 
 Chiều của chênh lệch không đồng nhất giữa các tập: nhánh mask nhỉnh hơn trên PanNuke, còn count-only nhỉnh hơn
 trên NuInsSeg và MoNuSeg. Câu hỏi phù hợp do đó không phải là chênh lệch có khác không hay không, mà là nó có
@@ -267,8 +268,11 @@ khoảng $1\%$ số nhân mỗi ảnh.
 Hình~\ref{fig:equivalence} đặt khoảng tin cậy của chênh lệch cạnh các biên tương đương, để cả hai vế cùng đọc
 được trên một hình.
 
-Trên các tập nhỏ, phương sai giữa hạt giống chi phối và xếp hạng theo từng ảnh không ổn định giữa các tập con
-hạt giống, nên một chênh lệch trung bình dương không đủ để tuyên bố ưu thế.
+Trên hai tập nhỏ hơn, kết luận yếu hơn theo đúng mức mà dữ liệu cho phép. Ở đó tập kiểm tra chỉ có hàng trăm
+hoặc hàng chục ảnh và không cố định giữa các lần chạy, nên phương sai giữa các chia lấn át, chiều của chênh
+lệch không ổn định, và biên tương đương chặt nhất đạt được rộng gấp khoảng sáu lần so với PanNuke. Bằng chứng
+ở đó ủng hộ phát biểu không có ưu thế nhất quán cho chế độ nào, chứ không phải một biên hẹp; một chênh lệch
+trung bình dương không đủ để tuyên bố ưu thế.
 
 \begin{figure}[!htbp]
 \centering
@@ -299,15 +303,18 @@ Tập dữ liệu & count-only ($R^2$) & mask ($R^2$) & $\Delta R^2$ & $p$ & Di�
 \midrule
 PanNuke & $0{,}918\pm0{,}011$ & $0{,}931\pm0{,}006$ & $-0{,}013$ & $1{,}1{\times}10^{-13}$ &
 tương đương ở $\delta^\star{=}0{,}27$ nhân ($1{,}1\%$) \\
-NuInsSeg$^{\dagger}$ & $0{,}913\pm0{,}022$ & $0{,}892\pm0{,}017$ & $+0{,}021$ & --- & tương đương \\
-MoNuSeg$^{\ddagger}$ & $0{,}459\pm0{,}194$ & $0{,}362\pm0{,}154$ & $+0{,}097$ & --- & tương đương (trong dao động) \\
+NuInsSeg$^{\dagger}$ & $0{,}895\pm0{,}045$ & $0{,}883\pm0{,}071$ & $+0{,}012$ & $3/5$ chia &
+không ưu thế nhất quán; $\delta^\star{=}3{,}6$ nhân ($6{,}6\%$) \\
+MoNuSeg$^{\ddagger}$ & $0{,}459\pm0{,}194$ & $0{,}362\pm0{,}154$ & $+0{,}097$ & --- & dao động lấn át, chưa kết luận \\
 \bottomrule
 \end{tabular}
 \footnotetext{$^{\dagger}$ Vì NuInsSeg dùng chia ngẫu nhiên khác nhau theo hạt giống, tập kiểm tra không cố
-định giữa các lần chạy và nhỏ (${\sim}133$ ảnh/chia); do đó tính nhất quán theo từng chia được báo cáo
-($5$ hạt giống) thay vì một kiểm định gộp: sai số tuyệt đối của count-only thấp hơn ở $4/5$ chia nhưng
-\emph{không} đạt $p<0{,}05$ ở bất kỳ chia nào ($0/5$). Kết quả này nhất quán với tương đương: count-only
-tương đương mask, và không có khác biệt có ý nghĩa thống kê theo từng ảnh.}
+định giữa các lần chạy và nhỏ (${\sim}133$ ảnh/chia), nên không tồn tại một kiểm định gộp; mỗi chia được kiểm
+định riêng. Chiều của chênh lệch \emph{đổi dấu} giữa các chia: sai số tuyệt đối của count-only thấp hơn ở $3/5$
+chia, và $3/5$ chia cho khác biệt có ý nghĩa theo từng ảnh, xuất hiện ở \emph{cả hai} chiều. Kiểm định tương
+đương cho $\delta^\star$ trung vị $3{,}6$ nhân, khoảng $6{,}6\%$ số nhân trung bình mỗi ảnh, rộng hơn nhiều so
+với PanNuke: với ${\sim}133$ ảnh mỗi chia, lực kiểm định thấp hơn hẳn so với $2722$ ảnh. Bằng chứng ở đây do đó
+ủng hộ phát biểu không có ưu thế nhất quán cho chế độ nào, chứ không đủ để chặn chênh lệch trong một biên hẹp.}
 \footnotetext{$^{\ddagger}$ MoNuSeg rất nhỏ ($37$ ảnh huấn luyện) nên $R^2$ dao động mạnh giữa các hạt giống ở
 \emph{cả hai} chế độ; số liệu lấy trung bình $5$ hạt giống với thuật toán huấn luyện tất định. Vì $|\Delta R^2|$
 nhỏ hơn độ lệch chuẩn và xếp hạng theo từng ảnh không ổn định giữa các tập con hạt giống, kết quả được diễn giải
