@@ -438,13 +438,6 @@ giả (sham) áp dụng \emph{đúng} phép thao tác đó với cùng số vùn
 vị trí không chứa nhân. Nó tách tác động của bản thân việc thay mô khỏi tác động của việc mất nhân. Chỉ những
 phép đo có diện tích gỡ khớp nhau tối thiểu $80\%$ giữa hai điều kiện được đưa vào kiểm định.
 
-Phép đo nhạy với cách điền vùng đã gỡ, và điều này tự nó là một kiểm chứng. Trên một mô hình duy nhất, thay
-phép ghép mô bằng inpainting Telea ở cùng mức nở mặt nạ làm hệ số đáp ứng đo được rơi từ $0{,}59$ xuống
-$0{,}34$, và $33\%$ mảnh cho số đếm ở
-mức gỡ toàn bộ \emph{cao hơn} ở mức gỡ $75\%$ (Hình~\ref{fig:doseresp}). Inpainting lan màu từ biên vùng cần
-lấp, mà biên đó chính là viền nhân, nên nó để lại vết nhân trong ảnh và mô hình vẫn đáp ứng với vết đó. Độ nhạy
-đo được vì vậy là giới hạn dưới, đặt ra bởi mức triệt để của phép gỡ chứ không bởi mức nở mặt nạ.
-
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_qualitative.pdf}
@@ -519,18 +512,12 @@ quán với một cách giải thích, và giải thích vì sao giám sát mứ
 \emph{đếm} nhưng không sinh ra khả năng định vị: đại lượng được giám sát là một tổng, nên nghiệm mô hình tìm được
 cũng chỉ cần đúng ở mức tổng.
 
-Hai kiểm tra loại trừ hai nguyên nhân khả dĩ của mức thiếu hụt này. Cả hai chạy trên \emph{một} mô hình, nên các hệ số dưới đây cần đọc
-theo mức chênh giữa các cấu hình chứ không so trực tiếp với giá trị $0{,}64$ vốn là trung bình của ba mô hình.
-Thứ nhất, mức thiếu hụt không đến từ việc mặt nạ chú thích phủ chưa hết viền
-nhân: nở $0$, $2$ và $4$ điểm ảnh (diện tích can thiệp $18\%$, $25\%$ và $31\%$ ảnh) cho
-hệ số $0{,}59$, $0{,}60$ và $0{,}61$, toàn bộ khoảng biến thiên nhỏ hơn độ lệch giữa các mô hình; mức nở lớn còn
-làm khớp diện tích của đối chứng giả xấu đi nên $2$ điểm ảnh được dùng cho các số liệu báo cáo. Thứ hai, nó chỉ
-một phần nhỏ đến từ các nhân mà chú thích bỏ sót, vốn không bị gỡ và vẫn đóng góp vào số đếm
-(Hình~\ref{fig:qualitative}c): lấy phần dự đoán vượt quá số nhân được chú thích làm chỉ dấu cho mức bỏ sót, số
-đếm còn lại sau khi gỡ toàn bộ tăng đơn điệu từ $0{,}36$ ở các mảnh không có dấu hiệu bỏ sót lên $0{,}70$ ở
-nhóm bỏ sót nhiều nhất (tương quan $+0{,}31$, $n=286$), nhưng mức vượt trung bình chỉ là $3{,}5\%$ số nhân so
-với số đếm còn lại $37{,}4\%$. Hệ số $0{,}64$ do đó là một giới hạn dưới của độ nhạy thực, và phần lớn khoảng
-cách tới $1{,}0$ không quy được cho chất lượng chú thích.
+Ba kiểm tra bổ sung cho thấy mức thiếu hụt này không phải sản phẩm của cách thiết kế phép gỡ. Nó không đến từ
+việc mặt nạ chú thích phủ chưa hết viền nhân, cũng không đến từ các nhân bị chú thích bỏ sót vốn không bị gỡ nên
+vẫn đóng góp vào số đếm; riêng mức bỏ sót của chú thích, ước lượng từ phần dự đoán vượt quá số nhân được chú
+thích, trung bình chỉ khoảng $3{,}5\%$ số nhân. Ngược lại, phép đo \emph{có} nhạy với cách điền vùng đã gỡ, và
+chiều của độ nhạy đó cho thấy hệ số $0{,}64$ là một giới hạn dưới của độ nhạy thực. Chi tiết ba kiểm tra được
+trình bày ở Phụ lục~\ref{app:ablation}.
 
 
 \subsection{So sánh với các phương pháp dùng nhãn định vị}\label{sec:paradigm}
@@ -717,6 +704,39 @@ publications. No new data were generated.
 
 \textbf{Code availability.} The code used to train, evaluate and reproduce every table and figure in this
 article will be made publicly available upon acceptance.
+
+\begin{appendices}
+
+\section{Kiểm tra bổ sung cho thí nghiệm gỡ nhân}\label{app:ablation}
+
+Ba kiểm tra dưới đây bổ sung cho Mục~\ref{sec:fidelity}. Cả ba chạy trên \emph{một} mô hình count-only, nên các
+hệ số cần đọc theo mức chênh giữa các cấu hình, chứ không so trực tiếp với giá trị $0{,}64$ vốn là trung bình
+trên ba mô hình huấn luyện độc lập.
+
+\subsection{Mức nở mặt nạ}
+Mặt nạ nhân được nở trước khi gỡ để phủ hết phần viền mà chú thích thường bỏ sót. Nở
+$0$, $2$ và $4$ điểm ảnh, ứng với diện tích can thiệp $18\%$, $25\%$ và $31\%$ ảnh, cho hệ số đáp ứng
+$0{,}59$, $0{,}60$ và $0{,}61$. Toàn bộ khoảng biến thiên này nhỏ hơn độ lệch giữa các mô hình, nên mức thiếu
+hụt không quy được cho việc mặt nạ phủ chưa hết viền nhân. Mức nở lớn còn làm khớp diện tích của đối chứng giả
+xấu đi, nên $2$ điểm ảnh được dùng cho mọi số liệu báo cáo ở phần chính.
+
+\subsection{Nhân bị chú thích bỏ sót}
+Các nhân không có trong chú thích thì không bị gỡ, nên vẫn đóng góp vào số
+đếm sau can thiệp (Hình~\ref{fig:qualitative}c). Lấy phần dự đoán vượt quá số nhân được chú thích làm chỉ dấu
+cho mức bỏ sót, số đếm còn lại sau khi gỡ toàn bộ tăng đơn điệu từ $0{,}36$ ở các mảnh không có dấu hiệu bỏ sót
+lên $0{,}70$ ở nhóm bỏ sót nhiều nhất (tương quan $+0{,}31$, $n = 286$). Hiệu ứng vì vậy tồn tại, nhưng mức
+vượt trung bình chỉ khoảng $3{,}5\%$ số nhân, so với số đếm còn lại $37{,}4\%$ ở mức gỡ toàn bộ. Phần lớn
+khoảng cách tới $1{,}0$ do đó không quy được cho chất lượng chú thích.
+
+\subsection{Cách điền vùng đã gỡ}
+Phép đo nhạy với cách lấp vùng nhân, và bản thân độ nhạy đó là một kiểm chứng.
+Thay phép ghép mô bằng inpainting Telea ở cùng mức nở mặt nạ làm hệ số đáp ứng rơi từ $0{,}59$ xuống $0{,}34$,
+đồng thời $33\%$ mảnh cho số đếm ở mức gỡ toàn bộ \emph{cao hơn} ở mức gỡ $75\%$ (Hình~\ref{fig:doseresp}).
+Inpainting lan màu từ biên vùng cần lấp, mà biên đó chính là viền nhân, nên nó để lại vết nhân trong ảnh và mô
+hình vẫn đáp ứng với vết đó. Hệ số đo được vì vậy bị đặt trần bởi mức triệt để của phép gỡ, và giá trị
+$0{,}64$ báo cáo ở phần chính là một giới hạn dưới của độ nhạy thực.
+
+\end{appendices}
 
 \bibliography{references}
 \end{document}
