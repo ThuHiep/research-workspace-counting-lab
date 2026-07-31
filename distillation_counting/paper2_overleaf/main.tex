@@ -172,7 +172,7 @@ paper is designed to answer these questions directly.
   box/.style={draw=black!55,rounded corners=2pt,align=center,text width=1.8cm,
               inner sep=3pt,minimum height=7.5mm},
   trunk/.style={box,fill=black!7},
-  out/.style={box,fill=white},
+  hd/.style={box,fill=white},   %% KHONG dat ten 'out': trung key co san cua TikZ
   lm/.style={box,draw=maskc,fill=maskc!8},
   lc/.style={box,draw=cntc,fill=cntc!8},
   lu/.style={box,draw=uncc,fill=uncc!8},
@@ -185,9 +185,9 @@ paper is designed to answer these questions directly.
 \node[trunk] (img) at (0,0)     {Input\\$256{\times}256$};
 \node[trunk] (enc) at (2.3,0)   {EfficientNet\\-lite0 encoder};
 \node[trunk] (dec) at (4.6,0)   {U-Net\\decoder};
-\node[out]   (dm)  at (6.9,0.8) {density map\\$\hat d$};
-\node[out]   (mu)  at (9.2,0.8) {$\mu=\sum_p \hat d_p$};
-\node[out]   (sg)  at (6.9,-1.1){$\sigma$ head\\{\scriptsize$\mu$ detached}};
+\node[hd]     (dm)  at (6.9,0.8) {density map\\$\hat d$};
+\node[hd]     (mu)  at (9.2,0.8) {$\mu=\sum_p \hat d_p$};
+\node[hd]     (sg)  at (6.9,-1.1){$\sigma$ head\\{\scriptsize$\mu$ detached}};
 \draw[a] (img) -- (enc);   \draw[a] (enc) -- (dec);
 \draw[a] (dec.east) -- ++(0.3,0) |- (dm.west);
 \draw[a] (dec.east) -- ++(0.3,0) |- (sg.west);
