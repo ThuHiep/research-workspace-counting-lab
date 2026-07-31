@@ -12,6 +12,11 @@
 \graphicspath{{figures/}{./}}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,fit}
+\definecolor{maskc}{HTML}{EB6834}   % nhanh mask  (cung palette da kiem CVD voi make_figs.py)
+\definecolor{cntc}{HTML}{2A78D6}    % nhanh count-only
+\definecolor{uncc}{HTML}{1BAF7A}    % nhanh bat dinh / conformal
 
 \raggedbottom
 \begin{document}
@@ -160,9 +165,70 @@ paper is designed to answer these questions directly.
 %%============================================================%%
 \section{Method}\label{sec:method}
 
+\begin{figure}[!t]
+\centering
+\begin{tikzpicture}[font=\footnotesize, >={Stealth[length=1.7mm]},
+  %% text width co dinh -> be rong moi khoi biet truoc, khong khoi nao de len khoi nao
+  box/.style={draw=black!55,rounded corners=2pt,align=center,text width=1.8cm,
+              inner sep=3pt,minimum height=7.5mm},
+  trunk/.style={box,fill=black!7},
+  out/.style={box,fill=white},
+  lm/.style={box,draw=maskc,fill=maskc!8},
+  lc/.style={box,draw=cntc,fill=cntc!8},
+  lu/.style={box,draw=uncc,fill=uncc!8},
+  a/.style={->,draw=black!55,thick},
+  am/.style={->,draw=maskc,thick},
+  ac/.style={->,draw=cntc,thick},
+  au/.style={->,draw=uncc,thick}]
+
+%% ---- than chung: giong het nhau o CA HAI che do giam sat
+\node[trunk] (img) at (0,0)     {Input\\$256{\times}256$};
+\node[trunk] (enc) at (2.3,0)   {EfficientNet\\-lite0 encoder};
+\node[trunk] (dec) at (4.6,0)   {U-Net\\decoder};
+\node[out]   (dm)  at (6.9,0.8) {density map\\$\hat d$};
+\node[out]   (mu)  at (9.2,0.8) {$\mu=\sum_p \hat d_p$};
+\node[out]   (sg)  at (6.9,-1.1){$\sigma$ head\\{\scriptsize$\mu$ detached}};
+\draw[a] (img) -- (enc);   \draw[a] (enc) -- (dec);
+\draw[a] (dec.east) -- ++(0.3,0) |- (dm.west);
+\draw[a] (dec.east) -- ++(0.3,0) |- (sg.west);
+\draw[a] (dm) -- (mu);
+\node[draw=black!30,dashed,rounded corners=3pt,inner sep=6pt,fit=(img)(enc)(dec)(dm)(mu)(sg)] {};
+%% nhan de o khoang trong giua khung dut net va hang loss -> khong an ra ngoai le trai
+\node[font=\scriptsize,black!55,anchor=west] at (-1.0,1.95) {shared, identical in both regimes};
+
+%% ---- hai duong giam sat: KHAC NHAU DUNG MOT CHO la trong so ham mat mat
+\node[lm] (Ld) at (6.9,2.9) {$\mathcal{L}_{\text{density}}$\\{\scriptsize from masks}};
+\node[lc] (Lc) at (9.2,2.9) {$\mathcal{L}_{\text{count}}$\\{\scriptsize$=|\mu-N|$}};
+\draw[am] (Ld) -- node[right=1pt,font=\scriptsize,black]{$w_d$} (dm);
+\draw[ac] (Lc) -- node[right=1pt,font=\scriptsize,black]{$w_c$} (mu);
+
+%% ---- nhanh bat dinh + hieu chuan hau nghiem
+\node[lu] (nll)  at (9.2,-1.1) {$\mathcal{L}_{\text{NLL}}$\\{\scriptsize$\beta$-NLL}};
+\node[lu] (conf) at (6.9,-2.9) {split\\conformal};
+\node[lu] (pi)   at (9.2,-2.9) {$[\mu \pm q\sigma]$};
+\draw[au] (sg) -- node[above,font=\scriptsize,black]{$w_n$} (nll);
+\draw[au] (sg) -- (conf);   \draw[au] (conf) -- (pi);
+
+%% ---- bang che do: nhanh mask VAN giu w_c>0 (loi the nho, da neu o 3.2)
+\node[draw=black!55,rounded corners=2pt,fill=black!3,align=left,inner sep=5pt,anchor=north west]
+  at (-1.05,-2.2) {\textbf{count-only:}~~$w_d{=}0$,~$w_c{=}1$\\[1pt]
+                   \textbf{mask:}~~~~~~~~~$w_d{=}1$,~$w_c{=}0.1$};
+\end{tikzpicture}
+\caption{Controlled comparison of supervision regimes. Everything inside the dashed box, the architecture, the
+data and the evaluation protocol, is identical in both regimes; the two regimes differ only in the loss weights
+$(w_d, w_c)$ listed at the bottom left. Count-only supervision ($w_d = 0$) sees a single number per image and
+never a pixel-level target. The mask regime retains a small count weight ($w_c = 0.1$), without which density
+supervision on a sparse target map degenerates, so it receives a signal that count-only also receives; any
+measured difference is therefore a conservative estimate of the benefit of mask supervision
+(Section~\ref{sec:setup}). The uncertainty branch is trained with $\beta$-NLL and detached from $\mu$, and the
+final prediction intervals are calibrated post hoc by split conformal prediction.}
+\label{fig:overview}
+\end{figure}
+
 \subsection{Architecture and outputs}
 The model, denoted DensitySigmaUNet, consists of an ImageNet-pretrained EfficientNet-lite0~\cite{efficientnet}
-encoder coupled with a U-Net style decoder~\cite{unet}. The network has two outputs.
+encoder coupled with a U-Net style decoder~\cite{unet}. The network has two outputs
+(Fig.~\ref{fig:overview}).
 
 The \emph{density} head produces a non-negative map, and the predicted count is its sum over the image,
 $\mu = \sum_p \hat d_p$. The \emph{uncertainty} head predicts the standard deviation of the count,
