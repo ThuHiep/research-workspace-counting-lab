@@ -113,10 +113,9 @@ hơn một nhân; các tác giả ước tính mức chú thích này chỉ tố
 từng nhân~\cite{lirnet}.
 
 Điểm chung của các công trình này là mục tiêu cuối cùng vẫn bao gồm định vị hoặc suy luận hình dạng của từng
-nhân. Do đó, dù mức chú thích được giảm đáng kể so với mặt nạ đầy đủ, thông tin không gian vẫn đóng vai trò
-trung tâm trong quá trình huấn luyện. Để bù đắp phần thông tin mà nhãn yếu không cung cấp, các phương pháp
-thường kết hợp thêm những cơ chế như sinh nhãn giả, học theo chu kỳ hoặc tín hiệu giám sát bổ trợ. Trong bệnh
-học tính toán, giám sát ở mức ảnh cũng đã được khai thác rộng rãi ở cấp lát cắt cho các bài toán phân loại
+nhân, nên thông tin không gian vẫn đóng vai trò trung tâm trong huấn luyện; để bù phần thông tin mà nhãn yếu
+không cung cấp, chúng thường kết hợp thêm sinh nhãn giả, học theo chu kỳ hoặc tín hiệu giám sát bổ trợ. Trong
+bệnh học tính toán, giám sát ở mức ảnh cũng đã được khai thác rộng rãi ở cấp lát cắt cho các bài toán phân loại
 thông qua học đa thực thể~\cite{campanella}. Câu hỏi được đặt ra ở đây khác về bản
 chất: khi đại lượng cần dùng \emph{chính là số đếm}, giám sát không gian có còn cần thiết hay không.
 
@@ -244,9 +243,8 @@ nhánh mask kém ổn định hơn chứ không tốt lên, phù hợp với cá
 
 \paragraph{Chỉ số và kiểm định.} Độ chính xác đếm được đo bằng $R^2$ và sai số tuyệt đối trung bình (MAE). Để
 so sánh hai chế độ giám sát, kiểm định Wilcoxon signed-rank bắt cặp được dùng trên sai số tuyệt đối của
-từng ảnh, trong đó sai số mỗi ảnh được lấy trung bình qua các hạt giống trên tập kiểm tra cố định; giá trị
-$p>0{,}05$ được hiểu là không đủ bằng chứng để bác bỏ giả thuyết không, chứ không phải bằng chứng cho sự tương
-đương. Khi các đơn vị đánh giá được cắt ra từ một số ít ảnh gốc, chúng không độc lập với nhau và kiểm định có
+từng ảnh, trong đó sai số mỗi ảnh được lấy trung bình qua các hạt giống trên tập kiểm tra cố định.
+Khi các đơn vị đánh giá được cắt ra từ một số ít ảnh gốc, chúng không độc lập với nhau và kiểm định có
 xu hướng lạc quan; trong trường hợp đó phép kiểm định được chạy lại sau khi gộp các mảnh của mỗi ảnh thành một
 số đếm duy nhất, và cả hai kết quả đều được báo cáo.
 
@@ -259,9 +257,8 @@ tương đương vẫn được duy trì; đại lượng này cho phép ngườ
 dụng của mình.
 
 Chất lượng khoảng dự đoán được đo bằng mức phủ biên, mức phủ của cơ quan có mức phủ thấp nhất, độ rộng khoảng
-và điểm Winkler~\cite{winkler}. Điểm Winkler kết hợp độ rộng khoảng dự đoán với một khoản phạt tỉ lệ với khoảng
-cách từ giá trị thực tới biên gần nhất, áp dụng khi giá trị thực nằm ngoài khoảng. Do đó, chỉ số này đồng thời
-phản ánh tính gọn của khoảng dự đoán và khả năng bao phủ của nó; giá trị thấp hơn là tốt hơn.
+và điểm Winkler~\cite{winkler}, chỉ số kết hợp độ rộng khoảng với một khoản phạt khi giá trị thực nằm ngoài
+khoảng, nên phản ánh đồng thời tính gọn và khả năng bao phủ; giá trị thấp hơn là tốt hơn.
 
 %%============================================================%%
 \section{Kết quả}\label{sec:results}
@@ -277,10 +274,9 @@ NuInsSeg, count-only đạt $R^2$ trung bình nhỉnh hơn ($\Delta R^2 = +0{,}0
 kém ổn định hơn hẳn: chiều của chênh lệch đổi dấu giữa các chia và $3/5$ chia cho khác biệt có ý nghĩa theo
 từng ảnh ở cả hai chiều. Trên MoNuSeg, count-only cũng cao hơn về $R^2$ ($\Delta R^2 = +0{,}10$), nhưng vì tập
 huấn luyện chỉ có $37$ ảnh nên độ lệch chuẩn giữa các hạt giống lớn gấp khoảng hai lần chênh lệch đó. Giá trị
-$R^2$ tuyệt đối trên MoNuSeg cũng thấp hơn hai tập kia ở \emph{cả hai} chế độ; điều này không so sánh được
-trực tiếp, vì $R^2$ là tỉ số giữa sai số bình phương và phương sai số đếm của tập kiểm tra nên nó phụ thuộc
-vào phân bố số đếm của từng tập. Các phép so sánh bắt cặp dưới đây dùng sai số tuyệt đối nên không chịu ảnh
-hưởng của điều đó.
+$R^2$ tuyệt đối trên MoNuSeg cũng thấp hơn hai tập kia ở \emph{cả hai} chế độ, nhưng $R^2$ phụ thuộc vào phương
+sai số đếm của từng tập nên không so sánh được trực tiếp giữa các tập; các kiểm định bắt cặp dưới đây dùng sai
+số tuyệt đối nên không chịu ảnh hưởng đó.
 
 \begin{table}[!htbp]
 \centering
@@ -300,31 +296,15 @@ NuInsSeg$^{\dagger}$ & $0{,}895\pm0{,}045$ & $0{,}883\pm0{,}071$ & $+0{,}012$ & 
 MoNuSeg$^{\ddagger}$ & $0{,}459\pm0{,}194$ & $0{,}362\pm0{,}154$ & $+0{,}097$ & $5{,}9{\times}10^{-5}$ & $0{,}89$ & $3{,}0$ \\
 \bottomrule
 \end{tabular}
-\footnotetext{$^{\dagger}$ Vì NuInsSeg dùng chia ngẫu nhiên khác nhau theo hạt giống, tập kiểm tra không cố
-định giữa các lần chạy và nhỏ (${\sim}133$ ảnh/chia), nên không tồn tại một kiểm định gộp; mỗi chia được kiểm
-định riêng. Chiều của chênh lệch \emph{đổi dấu} giữa các chia: sai số tuyệt đối của count-only thấp hơn ở $3/5$
-chia, và $3/5$ chia cho khác biệt có ý nghĩa theo từng ảnh, xuất hiện ở \emph{cả hai} chiều. Kiểm định tương
-đương cho $\delta^\star$ trung vị $3{,}6$ nhân, khoảng $6{,}6\%$ số nhân trung bình mỗi ảnh, rộng hơn nhiều so
-với PanNuke: với ${\sim}133$ ảnh mỗi chia, lực kiểm định thấp hơn hẳn so với $2722$ ảnh. Bằng chứng ở đây do đó
-ủng hộ phát biểu không có ưu thế nhất quán cho chế độ nào, chứ không đủ để chặn chênh lệch trong một biên hẹp.}
-\footnotetext{$^{\ddagger}$ MoNuSeg dùng phân chia chính thức nên tập kiểm tra cố định giữa các hạt giống, cho
-phép một kiểm định gộp như trên PanNuke; số liệu lấy trung bình $5$ hạt giống với thuật toán huấn luyện tất
-định. Chiều của chênh lệch ở đây \emph{ngược} với PanNuke: sai số tuyệt đối theo từng mảnh của count-only thấp
-hơn ($6{,}84$ so với $7{,}50$ nhân) và khác biệt có ý nghĩa thống kê, trong khi $R^2$ của \emph{cả hai} chế độ
-dao động mạnh giữa các hạt giống vì tập huấn luyện chỉ có $37$ ảnh. Vì $224$ mảnh kiểm tra được cắt từ $14$ ảnh
-nên các mảnh thuộc cùng một ảnh không độc lập, và kiểm định ở mức mảnh có xu hướng lạc quan. Phép gộp $16$ mảnh
-của mỗi ảnh thành một số đếm duy nhất cho ảnh đó đưa đơn vị phân tích về đúng đơn vị lấy mẫu, và tách hai kết
-luận theo hai hướng khác nhau: biên tương đương gần như không đổi ($\delta^\star$ nới từ $3{,}0\%$ lên
-$3{,}3\%$, trên số đếm trung bình $478$ nhân mỗi ảnh), còn khác biệt thì không còn đạt ý nghĩa thống kê
-($p = 0{,}12$; count-only sai ít hơn ở $10/14$ ảnh, trung bình $-8{,}2$ nhân). Giá trị $p$ ở cột trên do đó
-phải đọc kèm ràng buộc rằng nó dựa trên giả thiết độc lập giữa các mảnh.}
+\footnotetext{$^{\dagger}$ NuInsSeg dùng chia ngẫu nhiên theo hạt giống nên không tồn tại một kiểm định gộp:
+cột $p$ ghi số chia cho khác biệt có ý nghĩa theo từng ảnh, và $\delta^\star$ là trung vị qua năm chia.}
+\footnotetext{$^{\ddagger}$ $224$ mảnh kiểm tra của MoNuSeg được cắt từ $14$ ảnh nên giá trị $p$ ở cột trên dựa
+trên giả thiết độc lập giữa các mảnh; phân tích ở mức ảnh được trình bày trong thân bài.}
 \end{table}
 
-Chiều của chênh lệch không đồng nhất giữa các tập: nhánh mask nhỉnh hơn trên PanNuke, còn count-only nhỉnh hơn
-trên NuInsSeg và MoNuSeg. Câu hỏi phù hợp do đó không phải là chênh lệch có khác không hay không, mà là nó có
-nhỏ hơn một ngưỡng đáng kể về mặt thực tiễn hay không.
-
-Trên PanNuke, hai kiểm định trả lời hai nửa của câu hỏi đó. Kiểm định Wilcoxon bắt cặp bác bỏ giả thuyết hai chế
+Vì chiều của chênh lệch đổi dấu giữa các tập, câu hỏi phù hợp không phải là chênh lệch có khác không hay không,
+mà là nó có nhỏ hơn một ngưỡng đáng kể về mặt thực tiễn hay không. Trên PanNuke, hai kiểm định trả lời hai nửa
+của câu hỏi đó. Kiểm định Wilcoxon bắt cặp bác bỏ giả thuyết hai chế
 độ sai số như nhau ($p = 1{,}1 \times 10^{-13}$, $n = 2722$): khoảng cách là có thật. Độ lớn của nó là $0{,}21$
 nhân trên mỗi ảnh, trên số đếm trung bình $24{,}5$ nhân, tức $0{,}86\%$. Kiểm định TOST bác bỏ giả thuyết ngược
 ở biên bằng $2\%$ số nhân trung bình ($p < 10^{-16}$), và biên nhỏ nhất mà kết luận tương đương còn đứng vững là
@@ -349,15 +329,12 @@ nhau. Gộp $16$ mảnh của mỗi ảnh thành một số đếm cho cả ản
 đó hai kết luận đi theo hai hướng: biên tương đương gần như giữ nguyên ($\delta^\star = 3{,}3\%$), còn khác
 biệt không còn đạt ý nghĩa thống kê ($p = 0{,}12$, với count-only sai ít hơn ở $10/14$ ảnh). Trên MoNuSeg vì
 vậy chỉ phát biểu về \emph{biên} là vững; chiều nghiêng về count-only là nhất quán nhưng chưa được thiết lập.
-Trên NuInsSeg thì không tồn tại một
-kiểm định gộp, vì chia ngẫu nhiên làm tập kiểm tra đổi theo từng hạt giống; ở đó chỉ có thể kiểm định riêng
-từng chia, và biên chặt nhất đạt được là trung vị $6{,}6\%$.
+Trên NuInsSeg chỉ kiểm định được riêng từng chia, và biên chặt nhất đạt được là trung vị $6{,}6\%$.
 
 Ba giá trị $\delta^\star$ xếp theo đúng lực kiểm định mà mỗi tập cho phép: $1{,}1\%$ với $2722$ mảnh kiểm tra
 cố định, $3{,}0\%$ với $224$ mảnh, và $6{,}6\%$ khi tập kiểm tra chỉ có ${\sim}133$ ảnh và còn đổi theo hạt
-giống; riêng giá trị của MoNuSeg gần như không đổi khi kiểm lại ở mức ảnh như vừa nêu. Điều đọc được từ ba tập
-gộp lại không phải là một chế độ tốt hơn chế độ kia, mà là chiều của chênh lệch
-\emph{đổi dấu} giữa các tập trong khi độ lớn của nó luôn bị chặn trong vài phần trăm số nhân mỗi ảnh.
+giống. Điều đọc được từ ba tập gộp lại không phải là một chế độ tốt hơn chế độ kia, mà là độ lớn của chênh
+lệch luôn bị chặn trong vài phần trăm số nhân mỗi ảnh dù chiều của nó đổi dấu.
 
 \begin{figure}[!htbp]
 \centering
@@ -441,12 +418,10 @@ phép đo có diện tích gỡ khớp nhau tối thiểu $80\%$ giữa hai đi�
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_qualitative.pdf}
-\caption{Phép gỡ nhân trên một mảnh PanNuke. \textbf{(a)} Ảnh gốc, $22$ nhân được chú thích. \textbf{(b, c)} Sau
-khi gỡ $30\%$ rồi toàn bộ nhân được chú thích: mỗi nhân được thay bằng một mảng mô cùng hình dạng lấy từ vùng không
-chứa nhân của chính ảnh đó, nên kết cấu mô được giữ nhưng nội dung nhân bị loại; số đếm dự đoán giảm theo
-($20{,}7 \rightarrow 16{,}3 \rightarrow 7{,}5$). \textbf{(d)} Đối chứng giả áp dụng đúng phép thao tác đó lên $22$
-vùng \emph{không chứa nhân}, giữ nguyên toàn bộ nhân: ảnh bị can thiệp ở mức trông thấy rõ, nhưng số đếm hầu như
-không đổi ($19{,}6$). Mảnh ảnh tiêu biểu, với hệ số đáp ứng riêng $0{,}65$ so với trung bình toàn tập $0{,}64$.
+\caption{Phép gỡ nhân trên một mảnh PanNuke tiêu biểu (hệ số đáp ứng riêng $0{,}65$ so với trung bình toàn tập
+$0{,}64$). \textbf{(a)} Ảnh gốc, $22$ nhân được chú thích. \textbf{(b, c)} Sau khi gỡ $30\%$ rồi toàn bộ nhân,
+số đếm dự đoán giảm theo ($20{,}7 \rightarrow 16{,}3 \rightarrow 7{,}5$). \textbf{(d)} Đối chứng giả trên $22$
+vùng \emph{không chứa nhân}: ảnh bị can thiệp ở mức trông thấy rõ, nhưng số đếm hầu như không đổi ($19{,}6$).
 Vài nhân sẫm màu còn lại ở (c) là các nhân không có trong chú thích.}
 \label{fig:qualitative}
 \end{figure}
@@ -615,23 +590,17 @@ cluster & $0{,}906$ & $14{,}8$ & $\mathbf{20{,}0}$ & $0{,}859$ & $0/19$ \\
 %%============================================================%%
 \section{Thảo luận}\label{sec:discuss}
 
-\paragraph{Vì sao giám sát mức ảnh có thể đủ cho đếm nhân.} Kết quả trên ba tập dữ liệu cho thấy giám sát không
-gian dày đặc không mang lại lợi thế nhất quán cho tác vụ đếm. Trên PanNuke, bộ dữ liệu lớn nhất trong nghiên cứu
-này, lợi thế của giám sát mặt nạ có ý nghĩa thống kê nhưng bị chặn trên ở khoảng $1\%$ số nhân trung bình mỗi
-ảnh; trên NuInsSeg và MoNuSeg, chiều của chênh lệch đổi dấu. Các kết quả này gợi ý rằng thông tin vị trí chi
-tiết không phải lúc nào cũng là thành phần quyết định đối với độ chính xác đếm.
+\paragraph{Vì sao giám sát mức ảnh có thể đủ cho đếm nhân.} Các thí nghiệm can thiệp cung cấp một cách giải
+thích khả dĩ cho việc thông tin vị trí chi tiết không phải là thành phần quyết định đối với độ chính xác đếm.
+Số đếm dự đoán giảm một cách đặc hiệu khi nhân bị loại bỏ khỏi ảnh nhưng hầu như không thay đổi dưới các can
+thiệp đối chứng giả có cùng diện tích; đồng thời, đáp ứng duy trì ở mức dưới tuyến tính và bản đồ mật độ học
+được gần như không mang thông tin định vị. Hai quan sát này nhất quán với giả thuyết rằng mô hình học cách tích
+hợp bằng chứng liên quan tới nhân trên toàn ảnh thay vì phát hiện rồi cộng từng thực thể riêng lẻ. Trong trường
+hợp đó, một nhãn đếm ở mức ảnh có thể đã cung cấp phần lớn thông tin cần thiết cho tác vụ đếm.
 
-Các thí nghiệm can thiệp cung cấp một cách giải thích khả dĩ cho hiện tượng đó. Số đếm dự đoán giảm một cách đặc
-hiệu khi nhân bị loại bỏ khỏi ảnh nhưng hầu như không thay đổi dưới các can thiệp đối chứng giả có cùng diện
-tích. Đồng thời, đáp ứng duy trì ở mức dưới tuyến tính và bản đồ mật độ học được gần như không mang thông tin
-định vị. Hai quan sát này nhất quán với giả thuyết rằng mô hình học cách tích hợp bằng chứng liên quan tới nhân
-trên toàn ảnh thay vì phát hiện rồi cộng từng thực thể riêng lẻ. Trong trường hợp đó, một nhãn đếm ở mức ảnh có
-thể đã cung cấp phần lớn thông tin cần thiết cho tác vụ đếm.
-
-\paragraph{Hàm ý thực tiễn.} Nếu mục tiêu cuối cùng là số đếm thay vì vị trí hoặc hình dạng của từng nhân, kết
-quả của nghiên cứu này cho thấy chi phí chú thích có thể được giảm đáng kể mà chỉ phải đánh đổi một lượng rất
-nhỏ về độ chính xác. Điều này đặc biệt quan trọng khi mở rộng sang cơ quan, trung tâm hoặc miền dữ liệu mới,
-nơi chi phí tạo mặt nạ thường là rào cản lớn nhất đối với việc xây dựng dữ liệu huấn luyện.
+\paragraph{Hàm ý thực tiễn.} Khi mục tiêu cuối cùng là số đếm thay vì vị trí hoặc hình dạng của từng nhân, chi
+phí chú thích có thể được giảm đáng kể mà chỉ đánh đổi một lượng rất nhỏ về độ chính xác, điều đặc biệt đáng kể
+khi mở rộng sang cơ quan, trung tâm hoặc miền dữ liệu mới.
 
 \paragraph{Chuyển giao ngoài miền.} Cơ chế tích hợp bằng chứng toàn ảnh cũng gợi ý một giới hạn tiềm tàng của
 phương pháp. Vì mô hình học các tín hiệu liên quan tới nhân ở một thang không gian nhất định, độ chính xác có
@@ -663,11 +632,10 @@ nạ có ý nghĩa thống kê nhưng bị kiểm định tương đương chặ
 khi đó, nhãn đếm ở mức ảnh rẻ hơn khoanh viền đầy đủ ít nhất tám lần.
 
 Các thí nghiệm can thiệp cho thấy mô hình count-only phản ứng đặc hiệu với nội dung nhân nhưng hình thành dự
-đoán thông qua việc tích hợp bằng chứng trên toàn ảnh thay vì định vị từng thực thể riêng lẻ. Quan sát này giải
-thích vì sao giám sát mức ảnh có thể đạt độ chính xác đếm rất gần với giám sát dày đặc, đồng thời chỉ ra giới
-hạn của nó đối với các nhiệm vụ đòi hỏi thông tin không gian. Ngoài ra, trên chính tác vụ đếm, bộ đếm đạt độ
-chính xác cao hơn cả ba phương pháp đại diện được khảo sát vốn dùng nhãn định vị, và có thể được trang bị khoảng
-dự đoán đã hiệu chuẩn để hỗ trợ triển khai thực tế.
+đoán bằng cách tích hợp bằng chứng trên toàn ảnh thay vì định vị từng thực thể, điều vừa giải thích độ chính xác
+đếm đạt được vừa chỉ ra giới hạn của nó đối với các nhiệm vụ đòi hỏi thông tin không gian. Trên chính tác vụ
+đếm, bộ đếm đạt độ chính xác cao hơn cả ba phương pháp đại diện được khảo sát vốn dùng nhãn định vị, và có thể
+được trang bị khoảng dự đoán đã hiệu chuẩn để hỗ trợ triển khai thực tế.
 
 Nhìn chung, đối với bài toán đếm nhân, chú thích không gian dày đặc không phải là điều kiện cần để đạt độ chính
 xác cao. Các hướng tiếp theo gồm kiểm chứng mức độ khái quát của kết luận này trên các họ kiến trúc khác và trên
