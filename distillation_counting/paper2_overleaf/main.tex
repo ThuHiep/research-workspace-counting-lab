@@ -106,7 +106,9 @@ conformal prediction intervals attain the target coverage in every tissue type (
 \paragraph{Nuclei segmentation and detection.} U-Net~\cite{unet} and extensions such as
 HoVer-Net~\cite{hovernet} and StarDist~\cite{stardist} achieve high segmentation accuracy on benchmarks such as
 PanNuke~\cite{pannuke}; in these methods the count is a quantity derived from the segmentation output and the
-training labels are pixel-level masks. Centroid-based and point-supervised approaches estimate nuclei positions
+training labels are pixel-level masks. The same holds for recent lightweight models for nuclei quantification,
+whether distilled from a pathology foundation model~\cite{distillfm} or built on specialised multi-head
+architectures~\cite{kongnet}. Centroid-based and point-supervised approaches estimate nuclei positions
 discretely and thereby reduce annotation cost relative to full masks~\cite{qu2020}, but they still require
 localisation and remain sensitive to the post-processing step when nuclei overlap; the consequence of this
 property for counting accuracy in dense regions is measured directly in Section~\ref{sec:paradigm}.
@@ -157,10 +159,7 @@ architecture but a \emph{controlled assessment} of how much spatial information 
 Specifically, under the same architecture, the same data and the same evaluation protocol, how much accuracy is
 lost when pixel-level masks are replaced by a single count label per image has not been quantified directly;
 and if that loss is small, the question of what evidence a count-only model relies on has not been tested
-either. In addition, recent lightweight models for nuclei quantification, whether distilled from a pathology
-foundation model~\cite{distillfm} or built on specialised multi-head architectures~\cite{kongnet}, report good
-accuracy but are all trained with dense labels and generally come without uncertainty quantification. This
-paper is designed to answer these questions directly.
+either. This paper is designed to answer these questions directly.
 
 %%============================================================%%
 \section{Method}\label{sec:method}
