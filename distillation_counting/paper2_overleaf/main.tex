@@ -81,10 +81,10 @@ sát: mặt nạ ở mức điểm ảnh, hoặc một nhãn đếm duy nhất c
 
 Các đóng góp chính của bài báo như sau.
 \begin{itemize}
-\item Trên ba tập dữ liệu độc lập và cùng một kiến trúc, không chế độ giám sát nào chiếm ưu thế nhất quán.
-Trên tập kiểm tra cố định và đủ lớn, kiểm định tương đương bắt cặp theo từng ảnh chặn chênh lệch ở mức
-$1{,}1\%$ số nhân trung bình mỗi ảnh; trên hai tập nhỏ hơn, phương sai giữa các chia lấn át và biên chặt nhất
-đạt được rộng hơn khoảng sáu lần (Mục~\ref{sec:parity}).
+\item Trên ba tập dữ liệu độc lập và cùng một kiến trúc, không chế độ giám sát nào chiếm ưu thế nhất quán
+\emph{giữa các tập}. Trên tập kiểm tra cố định và đủ lớn, kiểm định tương đương bắt cặp theo từng ảnh chặn
+chênh lệch ở mức $1{,}1\%$ số nhân trung bình mỗi ảnh; trên các tập nhỏ hơn, phương sai giữa các lần chạy lấn
+át và biên chặt nhất đạt được rộng hơn nhiều (Mục~\ref{sec:parity}).
 \item Một thí nghiệm can thiệp có đối chứng giả cho thấy dự đoán của mô hình phụ thuộc đặc hiệu vào nội dung
 nhân, nhưng đáp ứng dưới tuyến tính và bản đồ mật độ không định vị được nhân. Hai quan sát này cùng khoanh vùng
 cơ chế đứng sau kết quả ở Mục~\ref{sec:parity} (Mục~\ref{sec:fidelity}).
@@ -128,9 +128,11 @@ nạ.
 \paragraph{Đếm chỉ với giám sát số đếm.} Trong đếm đám đông, giám sát chỉ bằng tổng số ở mức ảnh đã hình thành
 một nhánh riêng. Một con số cho mỗi ảnh là tín hiệu huấn luyện yếu, nên các công trình ở đây bổ sung thêm nguồn
 tín hiệu khác: nhiệm vụ phụ trợ~\cite{matt}, thông tin thứ tự ẩn giữa các ảnh~\cite{sorting}, hoặc mô hình hoá
-ngữ cảnh toàn cục bằng transformer~\cite{transcrowd}. Lei và cộng sự~\cite{matt} ghi nhận rằng hồi quy trực tiếp
-tích phân của bản đồ mật độ về tổng số cho kết quả không thỏa đáng nếu thiếu ràng buộc bổ trợ, một hiện tượng
-cũng xuất hiện ở nhánh mask trong bài báo này (Mục~\ref{sec:setup}).
+ngữ cảnh toàn cục bằng transformer~\cite{transcrowd}. Lei và cộng sự~\cite{matt} ghi nhận rằng hồi quy trực
+tiếp tích phân của bản đồ mật độ về tổng số cho kết quả không thỏa đáng nếu thiếu ràng buộc bổ trợ. Trên các
+tập nhân mô bệnh học được xét ở đây, chính phép hồi quy đó lại đủ cho \emph{độ chính xác đếm}
+(Mục~\ref{sec:parity}); cái nó không mang lại là khả năng định vị (Mục~\ref{sec:fidelity}), đúng với mối lo về
+chất lượng bản đồ mật độ mà nhánh đếm đám đông nêu ra.
 
 Nhánh này cũng cung cấp một quan sát quan trọng đối với bài báo: mô hình huấn luyện bằng nhãn đếm \emph{không}
 tự nhiên sinh ra bản đồ không gian có ý nghĩa. Để khôi phục mật độ định vị từ nhãn đếm,
@@ -209,19 +211,19 @@ nhau ở cặp $(w_d, w_c)$, nên biến thực nghiệm duy nhất là loại n
 trên cùng tập kiểm tra. Mỗi cấu hình lặp lại với nhiều hạt giống ngẫu nhiên, báo cáo trung bình cùng độ lệch
 chuẩn.
 
-Nhánh mask được đánh giá ở cấu hình cho hội tụ ổn định nhất trong số các giá trị được khảo sát. Giám sát mật độ
-trên bản đồ mục tiêu thưa suy về
-nghiệm hằng số khi trọng số đếm $w_c$ quá nhỏ, nên $w_c$ được chọn theo mức hội tụ ổn định nhất cho từng tập dữ
-liệu. Trên PanNuke, khảo sát $w_c \in \{0{,}01;\ 0{,}05;\ 0{,}1\}$ cho thấy ở $0{,}01$ nhánh mask suy biến ở
-$1/5$ hạt giống ($R^2$ trung bình $0{,}45 \pm 0{,}94$), còn ở $0{,}05$ và $0{,}1$ thì không. Giá trị $0{,}1$ cho
-cả trung bình cao hơn lẫn phương sai nhỏ hơn nên được dùng cho mọi kết quả báo cáo, và cũng là mức nhỏ nhất giữ
-nhánh mask hội tụ ổn định trên NuInsSeg và MoNuSeg.
+Nhánh mask được cho cấu hình thuận lợi nhất trong số các giá trị được khảo sát, để phép so sánh không có lợi cho
+count-only. Giám sát mật độ trên bản đồ mục tiêu thưa suy về nghiệm hằng số khi trọng số đếm $w_c$ quá nhỏ. Trên
+PanNuke, khảo sát $w_c \in \{0{,}01;\ 0{,}05;\ 0{,}1\}$ cho thấy ở $0{,}01$ nhánh mask suy biến ở $1/5$ hạt
+giống ($R^2$ trung bình $0{,}45 \pm 0{,}94$), còn ở $0{,}05$ và $0{,}1$ thì không. Giá trị $0{,}1$ cho cả trung
+bình cao hơn lẫn phương sai nhỏ hơn nên được dùng cho \emph{cả ba} tập dữ liệu, và cũng là mức nhỏ nhất giữ nhánh
+mask hội tụ ổn định trên NuInsSeg và MoNuSeg.
 
 Suy biến này là một thất bại của \emph{quá trình tối ưu hoá}: hàm mất mát bình phương trên bản đồ mật độ bị các
 điểm ảnh nền chi phối, và mô hình xuất giá trị hằng số $0$ cho mọi ảnh. Trường hợp này để lại một dấu vết nhận
 biết được từ chính kết quả báo cáo, vì khi dự đoán là hằng số $0$ thì $R^2 = -\mu^2/\sigma^2$, với $\mu$ và
-$\sigma$ là trung bình và độ lệch chuẩn của số nhân trên tập kiểm tra. Một hạt giống suy biến đủ để làm lệch
-trung bình, nên trung vị và số hạt giống suy biến được báo cáo kèm.
+$\sigma$ là trung bình và độ lệch chuẩn của số nhân trên tập kiểm tra. Một hạt giống suy biến đủ để kéo lệch
+giá trị trung bình, như con số $0{,}45 \pm 0{,}94$ ở trên cho thấy. Ở cấu hình $w_c = 0{,}1$ dùng cho mọi kết
+quả báo cáo, không hạt giống nào suy biến trên bất kỳ tập dữ liệu nào.
 
 \paragraph{Chỉ số và kiểm định.} Độ chính xác đếm được đo bằng $R^2$ và sai số tuyệt đối trung bình (MAE). Để
 so sánh hai chế độ giám sát, kiểm định Wilcoxon signed-rank bắt cặp được dùng trên sai số tuyệt đối của
@@ -246,8 +248,9 @@ khoảng bỏ sót; giá trị thấp hơn là tốt hơn.
 
 \subsection{Độ chính xác đếm dưới hai chế độ giám sát}\label{sec:parity}
 
-Trên cả ba tập dữ liệu, không chế độ giám sát nào chiếm ưu thế nhất quán (Bảng~\ref{tab:parity}), nhưng mức
-chặt của kết luận thì khác nhau rõ rệt giữa các tập và phụ thuộc vào lực kiểm định mà mỗi tập cho phép. Trên PanNuke, tập lớn nhất và có tập kiểm tra cố định, nhánh mask giữ một khoảng cách
+Không chế độ giám sát nào chiếm ưu thế nhất quán \emph{giữa ba tập dữ liệu} (Bảng~\ref{tab:parity}); trong
+từng tập, mức chặt của kết luận khác nhau rõ rệt và phụ thuộc vào lực kiểm định mà tập đó cho phép. Trên
+PanNuke, tập lớn nhất và có tập kiểm tra cố định, nhánh mask giữ một khoảng cách
 nhỏ nhưng nhất quán về dấu: $\Delta R^2 = -0{,}013$, với mask cao hơn ở cả $5/5$ hạt giống. Xét theo độ lớn,
 count-only đạt $98{,}6\%$ mức $R^2$ của nhánh mask. Trên
 NuInsSeg, count-only đạt $R^2$ trung bình nhỉnh hơn ($\Delta R^2 = +0{,}012$), nhưng bức tranh theo từng chia
@@ -264,19 +267,18 @@ Trên PanNuke, hai kiểm định trả lời hai nửa của câu hỏi đó. K
 độ sai số như nhau ($p = 1{,}1 \times 10^{-13}$, $n = 2722$): khoảng cách là có thật. Độ lớn của nó là $0{,}21$
 nhân trên mỗi ảnh, trên số đếm trung bình $24{,}5$ nhân, tức $0{,}86\%$. Kiểm định TOST bác bỏ giả thuyết ngược
 ở biên bằng $2\%$ số nhân trung bình ($p < 10^{-16}$), và biên nhỏ nhất mà kết luận tương đương còn đứng vững là
-$\delta^\star = 0{,}27$ nhân, tương đương $1{,}1\%$ số đếm trung bình. Với $n = 2722$, phép so sánh đủ nhạy để
+$\delta^\star = 0{,}27$ nhân, ứng với $1{,}1\%$ số đếm trung bình. Với $n = 2722$, phép so sánh đủ nhạy để
 phát hiện chênh lệch cỡ một phần năm nhân, nên có ý nghĩa thống kê ở đây không đồng nghĩa với đáng kể về mặt
 thực tiễn. Phát biểu đầy đủ gồm cả hai vế: hai chế độ khác nhau một lượng đo được, và lượng đó bị chặn trên bởi
-khoảng $1\%$ số nhân mỗi ảnh.
+khoảng $1\%$ số nhân mỗi ảnh. Hình~\ref{fig:equivalence} đặt khoảng tin cậy của chênh lệch cạnh các biên
+tương đương để cả hai vế cùng đọc được trên một hình.
 
-Hình~\ref{fig:equivalence} đặt khoảng tin cậy của chênh lệch cạnh các biên tương đương, để cả hai vế cùng đọc
-được trên một hình.
-
-Trên hai tập nhỏ hơn, kết luận yếu hơn theo đúng mức mà dữ liệu cho phép. Ở đó tập kiểm tra chỉ có hàng trăm
-hoặc hàng chục ảnh và không cố định giữa các lần chạy, nên phương sai giữa các chia lấn át, chiều của chênh
-lệch không ổn định, và biên tương đương chặt nhất đạt được rộng gấp khoảng sáu lần so với PanNuke. Bằng chứng
-ở đó ủng hộ phát biểu không có ưu thế nhất quán cho chế độ nào, chứ không phải một biên hẹp; một chênh lệch
-trung bình dương không đủ để tuyên bố ưu thế.
+Trên hai tập nhỏ hơn, kết luận yếu hơn theo đúng mức mà dữ liệu cho phép, vì hai lý do khác nhau. NuInsSeg dùng
+chia ngẫu nhiên theo hạt giống nên tập kiểm tra đổi giữa các lần chạy và chỉ có ${\sim}133$ ảnh; biên tương đương
+chặt nhất đạt được ở đó rộng gấp khoảng sáu lần so với PanNuke. MoNuSeg tuy có tập kiểm tra cố định theo phân
+chia chính thức nhưng chỉ gồm $14$ ảnh, và với $37$ ảnh huấn luyện thì $R^2$ của cả hai chế độ dao động mạnh
+giữa các hạt giống. Bằng chứng ở cả hai tập ủng hộ phát biểu không có ưu thế nhất quán cho chế độ nào, chứ
+không phải một biên hẹp; một chênh lệch trung bình dương không đủ để tuyên bố ưu thế.
 
 \begin{figure}[!htbp]
 \centering
@@ -289,12 +291,9 @@ $\delta^\star = 0{,}27$ nhân.}
 \label{fig:equivalence}
 \end{figure}
 
-Đối với tác vụ đếm và trên cùng một kiến trúc, hạ chú thích từ mặt nạ ở mức điểm ảnh xuống một con số đếm cho
-mỗi ảnh đi kèm một mức suy giảm nhỏ và đo được trên PanNuke, bị chặn trên bởi khoảng $1\%$ số nhân mỗi ảnh.
-Trên hai tập còn lại, chênh lệch trung bình nghiêng về phía count-only nhưng dao động giữa các lần chạy lớn
-hơn chênh lệch, nên ở đó không quan sát được suy giảm nào có tính nhất quán. Cần lưu ý phạm vi của phép so sánh này: nhánh mask dùng
-\emph{cùng} kiến trúc với count-only nhằm cô lập ảnh hưởng của \emph{loại giám sát}, nên nó không đo năng lực của
-một kiến trúc phân vùng được tối ưu riêng. Mục~\ref{sec:paradigm} xét câu hỏi đó tách biệt.
+Cần lưu ý phạm vi của phép so sánh này: nhánh mask dùng \emph{cùng} kiến trúc với count-only nhằm cô lập ảnh
+hưởng của \emph{loại giám sát}, nên nó không đo năng lực của một kiến trúc phân vùng được tối ưu riêng.
+Mục~\ref{sec:paradigm} xét câu hỏi đó tách biệt.
 
 \begin{table}[!htbp]
 \centering
@@ -329,8 +328,7 @@ tương đương, vốn đòi hỏi một biên $\delta$ hẹp.}
 \subsection{Số đếm dự đoán phản hồi nhân quả với nội dung nhân}\label{sec:fidelity}
 
 Kết quả ở Mục~\ref{sec:parity} cho thấy bỏ giám sát không gian chỉ làm độ chính xác đếm thay đổi trong một biên
-hẹp, nhưng
-chưa nói mô hình dựa vào bằng chứng nào để đếm. Một mô hình chỉ nhìn thấy một con số cho mỗi ảnh trên nguyên tắc
+hẹp trên tập lớn nhất, nhưng chưa nói mô hình dựa vào bằng chứng nào để đếm. Một mô hình chỉ nhìn thấy một con số cho mỗi ảnh trên nguyên tắc
 có thể khai thác tương quan toàn cục (loại mô, mật độ tế bào, đặc trưng nhuộm) thay vì chính các nhân. Hai phân
 tích dưới đây kiểm tra khả năng đó trên PanNuke fold~3 ($n=2722$ mảnh, số nhân trung bình $24{,}5$).
 
@@ -389,8 +387,9 @@ giả (sham) áp dụng \emph{đúng} phép thao tác đó với cùng số vùn
 vị trí không chứa nhân. Nó tách tác động của bản thân việc thay mô khỏi tác động của việc mất nhân. Chỉ những
 phép đo có diện tích gỡ khớp nhau tối thiểu $80\%$ giữa hai điều kiện được đưa vào kiểm định.
 
-Phép đo nhạy với cách điền vùng đã gỡ, và điều này tự nó là một kiểm chứng. Thay phép ghép mô bằng inpainting
-Telea ở cùng mức nở mặt nạ làm hệ số đáp ứng đo được rơi từ $0{,}59$ xuống $0{,}34$, và $33\%$ mảnh cho số đếm ở
+Phép đo nhạy với cách điền vùng đã gỡ, và điều này tự nó là một kiểm chứng. Trên một mô hình duy nhất, thay
+phép ghép mô bằng inpainting Telea ở cùng mức nở mặt nạ làm hệ số đáp ứng đo được rơi từ $0{,}59$ xuống
+$0{,}34$, và $33\%$ mảnh cho số đếm ở
 mức gỡ toàn bộ \emph{cao hơn} ở mức gỡ $75\%$ (Hình~\ref{fig:doseresp}). Inpainting lan màu từ biên vùng cần
 lấp, mà biên đó chính là viền nhân, nên nó để lại vết nhân trong ảnh và mô hình vẫn đáp ứng với vết đó. Độ nhạy
 đo được vì vậy là giới hạn dưới, đặt ra bởi mức triệt để của phép gỡ chứ không bởi mức nở mặt nạ.
@@ -409,7 +408,7 @@ Vài nhân sẫm màu còn lại ở (c) là các nhân không có trong chú th
 \end{figure}
 
 Số đếm dự đoán giảm \emph{đơn điệu} theo tỉ lệ nhân bị gỡ, trong khi đối chứng giả để số đếm gần như không đổi
-($1{,}00$--$1{,}03$) ở mọi mức (Bảng~\ref{tab:doseresp}, Hình~\ref{fig:doseresp};
+($1{,}00$--$1{,}02$) ở mọi mức (Bảng~\ref{tab:doseresp}, Hình~\ref{fig:doseresp};
 Hình~\ref{fig:qualitative} minh hoạ phép thao tác trên một mảnh ảnh). Trên các phép đo khớp diện tích
 ($n=3415$), phần sụt giảm quy được cho nhân là $0{,}234$ đơn vị chuẩn hoá và chiếm toàn bộ mức sụt quan sát được
 (Wilcoxon bắt cặp giữa hai điều kiện, $p<10^{-300}$). Kết luận không đổi khi chỉ xét các liều nhỏ ($\le 30\%$),
@@ -466,8 +465,10 @@ $0{,}03$ (ba hạt giống). Hai quan sát cùng chỉ về một cơ chế, và
 \emph{đếm} nhưng không sinh ra khả năng định vị: đại lượng được giám sát là một tổng, nên nghiệm mô hình tìm được
 cũng chỉ cần đúng ở mức tổng.
 
-Hai kiểm tra khoanh vùng mức thiếu hụt này. Thứ nhất, nó không đến từ việc mặt nạ chú thích phủ chưa hết viền
-nhân: trên cùng một mô hình, nở $0$, $2$ và $4$ điểm ảnh (diện tích can thiệp $18\%$, $25\%$ và $31\%$ ảnh) cho
+Hai kiểm tra khoanh vùng mức thiếu hụt này. Cả hai chạy trên \emph{một} mô hình, nên các hệ số dưới đây cần đọc
+theo mức chênh giữa các cấu hình chứ không so trực tiếp với giá trị $0{,}64$ vốn là trung bình của ba mô hình.
+Thứ nhất, mức thiếu hụt không đến từ việc mặt nạ chú thích phủ chưa hết viền
+nhân: nở $0$, $2$ và $4$ điểm ảnh (diện tích can thiệp $18\%$, $25\%$ và $31\%$ ảnh) cho
 hệ số $0{,}59$, $0{,}60$ và $0{,}61$, toàn bộ khoảng biến thiên nhỏ hơn độ lệch giữa các mô hình; mức nở lớn còn
 làm khớp diện tích của đối chứng giả xấu đi nên $2$ điểm ảnh được dùng cho các số liệu báo cáo. Thứ hai, nó chỉ
 một phần nhỏ đến từ các nhân mà chú thích bỏ sót, vốn không bị gỡ và vẫn đóng góp vào số đếm
@@ -515,7 +516,7 @@ DeNuC~\cite{denuc} & $4{,}37$M & hộp/điểm & phát hiện & $0{,}455$ & $9{,
 Một phần tư ngân sách chú thích đã đủ cho khoảng $93\%$ hiệu năng ở mức nhãn đầy đủ. Trên PanNuke, $R^2$ theo
 tỉ lệ ảnh có nhãn đếm là $0{,}453 \pm 0{,}208$ ở $5\%$, $0{,}742$ ở $10\%$, $0{,}849 \pm 0{,}029$ ở $25\%$,
 $0{,}859$ ở $50\%$ và $0{,}915 \pm 0{,}010$ ở toàn bộ nhãn (ba hạt giống, cùng giao thức đánh giá; giá trị ở mức
-toàn bộ khớp với Bảng~\ref{tab:parity}). Đường cong bão hoà sớm: phần lớn mức tăng đạt được trong một phần tư
+toàn bộ lệch $0{,}003$ so với Bảng~\ref{tab:parity}, nằm trong dao động giữa các hạt giống). Đường cong bão hoà sớm: phần lớn mức tăng đạt được trong một phần tư
 ngân sách đầu tiên, còn từ $25\%$ lên $100\%$ chỉ thêm $0{,}066$. Điểm $5\%$ cho thấy giới hạn dưới của chế độ
 này, nơi phương sai giữa các hạt giống lấn át giá trị trung bình.
 
@@ -528,13 +529,15 @@ Chênh lệch lớn hơn nằm ở phía chú thích. Qu và cộng sự~\cite{q
 trong một ảnh (trung bình khoảng $600$ nhân) tốn khoảng $115$ phút, còn đánh dấu điểm cho toàn bộ nhân tốn khoảng
 $14$ phút. Chi phí của nhãn đếm ở mức ảnh chưa được đo trực tiếp trong y văn, nhưng nó bị chặn trên bởi chi phí
 đánh dấu điểm: đếm đòi hỏi duyệt qua các nhân đúng như khi đánh dấu, mà không cần đặt chính xác từng điểm và
-không cần khoanh viền. Nhãn đếm do đó rẻ hơn mặt nạ đầy đủ ít nhất $8$ lần, và con số xấp xỉ còn rẻ hơn nữa. Đặt cạnh kết quả tương đương ở
-Mục~\ref{sec:parity}, sự bất đối xứng chi phí này là luận điểm hiệu quả trung tâm của bài báo.
+không cần khoanh viền. Nhãn đếm do đó rẻ hơn mặt nạ đầy đủ ít nhất $8$ lần, và con số xấp xỉ còn rẻ hơn nữa.
+Đặt cạnh mức suy giảm độ chính xác đo được ở Mục~\ref{sec:parity}, bị chặn trên bởi khoảng $1\%$ số nhân mỗi
+ảnh, sự bất đối xứng chi phí này là luận điểm hiệu quả trung tâm của bài báo.
 
 \subsection{Định lượng bất định cho triển khai tin cậy}\label{sec:uq}
-Khoảng dự đoán được hiệu chuẩn không chỉ ở cấp độ biên mà còn theo điều kiện cơ quan (Bảng~\ref{tab:uq}). Mức
-phủ biên đạt mục tiêu $0{,}90$, và sơ đồ mondrian nâng mức phủ của cơ quan thấp nhất lên $0{,}906$ mà không để cơ
-quan nào thiếu phủ.
+Khoảng dự đoán được hiệu chuẩn không chỉ ở cấp độ biên mà còn theo điều kiện cơ quan (Bảng~\ref{tab:uq}). Cả
+ba sơ đồ đều đạt mức phủ biên mục tiêu $0{,}90$, nhưng chỉ mondrian nâng được mức phủ của cơ quan thấp nhất lên
+tới chính mục tiêu đó ($0{,}906$), trong khi một ngưỡng chung để bốn trong $19$ loại mô rơi xuống dưới ngưỡng
+dung sai. Cái giá là khoảng dự đoán rộng thêm khoảng $15\%$.
 
 Việc neo $\sigma$ vào nền phương sai Poisson quan trọng khi dải số đếm rộng. Trên NuInsSeg, nơi số đếm mỗi ảnh
 trải từ vài nhân tới hơn $500$, dạng neo Poisson cho độ rộng khoảng $37{,}7$ so với $67{,}9$ của một $\sigma$
@@ -564,9 +567,10 @@ cluster & $0{,}906$ & $14{,}8$ & $\mathbf{20{,}0}$ & $0{,}859$ & $0/19$ \\
 %%============================================================%%
 \section{Thảo luận}\label{sec:discuss}
 
-\paragraph{Vì sao giám sát mức ảnh có thể đủ cho tác vụ đếm.} Trên các tập dữ liệu được xét, lợi ích của giám
-sát ở mức điểm ảnh so với giám sát count-only bị chặn trên bởi khoảng $1\%$ số nhân mỗi ảnh. Thí nghiệm gỡ nhân
-khoanh vùng cơ chế đứng sau điều đó, bằng cách loại trừ cả hai thái cực.
+\paragraph{Vì sao giám sát mức ảnh có thể đủ cho tác vụ đếm.} Trên tập dữ liệu lớn nhất, lợi ích của giám sát ở
+mức điểm ảnh so với giám sát count-only bị chặn trên bởi khoảng $1\%$ số nhân mỗi ảnh; trên hai tập còn lại,
+không chế độ nào tỏ ra vượt trội một cách nhất quán. Thí nghiệm gỡ nhân khoanh vùng cơ chế đứng sau điều đó,
+bằng cách loại trừ cả hai thái cực.
 
 Số đếm dự đoán \emph{không} phải sản phẩm của tương quan toàn cục thuần túy. Nó giảm đơn điệu khi nhân bị gỡ, và
 \emph{không} đổi khi một diện tích mô tương đương không chứa nhân bị gỡ. Nhưng mô hình cũng \emph{không} phát
@@ -574,9 +578,8 @@ hiện rồi cộng từng thực thể: đáp ứng chỉ đạt khoảng $64\%
 như không đổi qua mọi liều, và bản đồ mật độ của nó gần như không định vị được nhân.
 
 Cách đọc phù hợp là mô hình học một \emph{phép tích hợp} bằng chứng liên quan tới nhân trên toàn ảnh: một nghiệm
-chỉ cần đúng ở mức tổng, đúng như đại lượng được giám sát. Cách đọc này cũng dự đoán giới hạn của phương pháp.
-Vì nghiệm chỉ bị ràng buộc ở mức tổng, không nên kỳ vọng bộ đếm cung cấp thông tin vị trí, và độ chính xác của nó
-có thể suy giảm khi phân phối kích thước hoặc mật độ nhân dịch chuyển xa so với miền huấn luyện.
+chỉ cần đúng ở mức tổng, đúng như đại lượng được giám sát. Cách đọc này cũng dự đoán giới hạn của phương pháp:
+vì nghiệm chỉ bị ràng buộc ở mức tổng, không nên kỳ vọng bộ đếm cung cấp thông tin vị trí.
 
 \paragraph{Chuyển giao ngoài miền.} Cơ chế nêu trên dự đoán một chế độ hỏng cụ thể. Vì số đếm được tạo ra bằng
 cách tích hợp bằng chứng trên một thang không gian đã học, độ chính xác điểm sẽ suy giảm khi độ phóng đại hoặc
@@ -592,17 +595,17 @@ nên kết luận về tính đủ của giám sát count-only gắn với chín
 hay không, chẳng hạn bộ mã hóa dạng transformer hay các mạng phân vùng nhân chuyên dụng, là một câu hỏi thực
 nghiệm mở.
 
-Nhánh mask cũng được đánh giá dưới cùng kiến trúc bộ đếm, nên nó đo lợi ích của \emph{tín hiệu giám sát} chứ
-không phải năng lực tối đa của một quy trình phân vùng được tối ưu riêng. Kết luận chính của bài báo do đó nên
-được hiểu là một phát biểu về vai trò của loại giám sát trong cùng một họ kiến trúc, không phải về giới hạn trên
-của các hệ phân vùng nhân chuyên dụng; Mục~\ref{sec:paradigm} chỉ bổ khuyết một phần cho khía cạnh sau.
+Vì lý do đã nêu ở Mục~\ref{sec:parity}, kết luận chính là một phát biểu về vai trò của \emph{loại giám sát}
+trong cùng một họ kiến trúc, không phải về giới hạn trên của các hệ phân vùng nhân chuyên dụng;
+Mục~\ref{sec:paradigm} chỉ bổ khuyết một phần cho khía cạnh sau, với ba phương pháp so sánh mỗi phương pháp chỉ
+được huấn luyện một lần.
 
 %%============================================================%%
 \section{Kết luận}\label{sec:conclusion}
 
-Trên ba tập dữ liệu mô bệnh học độc lập, giám sát chỉ bằng số đếm ở mức ảnh đạt độ chính xác đếm tương đương
-giám sát bằng mặt nạ ở mức điểm ảnh khi giữ nguyên kiến trúc, dữ liệu và giao thức đánh giá, với chênh lệch bị
-chặn trên bởi khoảng $1\%$ số nhân mỗi ảnh trên tập kiểm tra lớn nhất, trong khi chi phí chú thích thấp hơn
+Trên ba tập dữ liệu mô bệnh học độc lập, khi giữ nguyên kiến trúc, dữ liệu và giao thức đánh giá, không chế độ
+giám sát nào chiếm ưu thế nhất quán giữa các tập; trên tập kiểm tra lớn nhất, phần nhỉnh hơn của giám sát mặt
+nạ bị một kiểm định tương đương chặn trên ở khoảng $1\%$ số nhân mỗi ảnh, trong khi chi phí chú thích thấp hơn
 ít nhất tám lần. Các thí nghiệm
 can thiệp cho thấy mô hình học cách tích hợp bằng chứng liên quan tới nhân trên toàn ảnh, thay vì dựa vào thông
 tin định vị tường minh. Ngoài ra, bộ đếm count-only nhẹ đạt $R^2$ và MAE tốt hơn các đại diện của ba dòng phương
@@ -618,8 +621,7 @@ lệ; và mở rộng đầu bất định để nắm bắt sai số do dịch 
 \backmatter
 
 \bmhead{Acknowledgements}
-This research was funded by the VNUHCM-University of Information Technology's Scientific Research Supported
-Fund.
+The authors thank the VNUHCM-University of Information Technology for supporting this research.
 
 \bmhead{Declarations}
 
