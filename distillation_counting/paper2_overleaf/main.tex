@@ -12,11 +12,6 @@
 \graphicspath{{figures/}{./}}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{booktabs}
-\usepackage{tikz}
-\usetikzlibrary{positioning,arrows.meta,fit}
-\definecolor{maskc}{HTML}{EB6834}   % nhanh mask  (cung palette da kiem CVD voi make_figs.py)
-\definecolor{cntc}{HTML}{2A78D6}    % nhanh count-only
-\definecolor{uncc}{HTML}{1BAF7A}    % nhanh bat dinh / conformal
 
 \raggedbottom
 \begin{document}
@@ -164,89 +159,9 @@ either. This paper is designed to answer these questions directly.
 %%============================================================%%
 \section{Method}\label{sec:method}
 
-\begin{figure}[!t]
-\centering
-\begin{tikzpicture}[font=\footnotesize, >={Stealth[length=1.7mm]},
-  %% text width co dinh -> be rong moi khoi biet truoc, khong khoi nao de len khoi nao
-  box/.style={draw=black!55,rounded corners=2pt,align=center,text width=1.7cm,
-              inner sep=3pt,minimum height=7.5mm},
-  hd/.style={box,fill=white},   %% KHONG dat ten 'out': trung key co san cua TikZ
-  lm/.style={box,draw=maskc,fill=maskc!8},
-  lc/.style={box,draw=cntc,fill=cntc!8},
-  lu/.style={box,draw=uncc,fill=uncc!8},
-  bar/.style={draw=black!45,fill=black!12,rounded corners=1pt,minimum width=0.3cm,inner sep=0},
-  skip/.style={->,dashed,draw=black!35},
-  a/.style={->,draw=black!55,thick},
-  am/.style={->,draw=maskc,thick},
-  ac/.style={->,draw=cntc,thick},
-  au/.style={->,draw=uncc,thick}]
-
-%% ---- than chung: giong het nhau o CA HAI che do giam sat
-\node[draw=black!55,inner sep=0] (img) at (0,0) {\includegraphics[width=1.5cm]{fig_patch_input}};
-\node[font=\scriptsize,black!60,align=center] at (0,-1.08) {H\&E patch\\$256{\times}256$};
-\node[bar,minimum height=1.5cm] (e1) at (1.9,0) {};
-\node[bar,minimum height=1.2cm] (e2) at (2.4,0) {};
-\node[bar,minimum height=0.9cm] (e3) at (2.9,0) {};
-\node[bar,minimum height=0.6cm] (e4) at (3.4,0) {};
-\node[bar,minimum height=0.6cm] (d1) at (4.1,0) {};
-\node[bar,minimum height=0.9cm] (d2) at (4.6,0) {};
-\node[bar,minimum height=1.2cm] (d3) at (5.1,0) {};
-\node[bar,minimum height=1.5cm] (d4) at (5.6,0) {};
-\node[font=\scriptsize,black!60] at (2.65,-1.02) {encoder};
-\node[font=\scriptsize,black!60] at (4.85,-1.02) {decoder};
-\draw[skip] (e1.north) to[bend left=16] (d4.north);
-\draw[skip] (e2.north) to[bend left=16] (d3.north);
-\draw[skip] (e3.north) to[bend left=16] (d2.north);
-\draw[a] (img) -- (e1);   \draw[a] (e4) -- (d1);
-\coordinate (br) at (6.1,0);
-\draw[draw=black!55,thick] (d4.east) -- (br);
-\node[hd] (dm) at (7.3,0.8)  {density map $\hat d$};
-\node[hd] (mu) at (9.5,0.8)  {$\mu=\sum_p \hat d_p$};
-\node[hd] (sg) at (7.3,-1.1) {$\sigma$ head\\{\scriptsize$\mu$ detached}};
-\draw[a] (br) |- (dm.west);   \draw[a] (br) |- (sg.west);   \draw[a] (dm) -- (mu);
-\node[draw=black!30,dashed,rounded corners=3pt,inner sep=8pt,fit=(img)(e1)(d4)(dm)(mu)(sg)] {};
-\node[font=\scriptsize,black!55,anchor=west] at (-0.9,1.95) {shared, identical in both regimes};
-
-%% ---- hai nguon nhan: mot ban do so voi MOT con so
-\node[draw=maskc,fill=white,minimum size=0.85cm,inner sep=0] (mskb) at (7.3,4.15) {};
-\fill[maskc!65] (7.09,4.35) circle (0.07);  \fill[maskc!65] (7.46,4.39) circle (0.06);
-\fill[maskc!65] (7.25,4.10) circle (0.08);  \fill[maskc!65] (7.52,3.96) circle (0.07);
-\fill[maskc!65] (7.06,3.93) circle (0.06);
-\node[font=\scriptsize,black!60,anchor=south] at (7.3,4.65) {pixel-level masks};
-\node[draw=cntc,fill=white,minimum size=0.85cm,inner sep=0] (cnb) at (9.5,4.15) {$N{=}22$};
-\node[font=\scriptsize,black!60,anchor=south] at (9.5,4.65) {one number};
-
-%% ---- hai duong giam sat: KHAC NHAU DUNG MOT CHO la trong so ham mat mat
-\node[lm] (Ld) at (7.3,2.7) {$\mathcal{L}_{\text{density}}$\\{\scriptsize target map}};
-\node[lc] (Lc) at (9.5,2.7) {$\mathcal{L}_{\text{count}}$\\{\scriptsize$=|\mu-N|$}};
-\draw[am] (mskb) -- (Ld);   \draw[ac] (cnb) -- (Lc);
-\draw[am] (Ld) -- node[right=1pt,font=\scriptsize,black]{$w_d$} (dm);
-\draw[ac] (Lc) -- node[right=1pt,font=\scriptsize,black]{$w_c$} (mu);
-
-%% ---- nhanh bat dinh + hieu chuan hau nghiem
-\node[lu] (nll)  at (9.5,-1.1) {$\mathcal{L}_{\text{NLL}}$ {\scriptsize($\beta$)}};
-\node[lu] (conf) at (7.3,-2.7) {split\\conformal};
-\node[lu] (pi)   at (9.5,-2.7) {$[\mu \pm q\sigma]$};
-\draw[au] (sg) -- node[above=1pt,font=\scriptsize,black]{$w_n$} (nll);
-\draw[au] (sg) -- (conf);   \draw[au] (conf) -- (pi);
-
-%% ---- bang che do: nhanh mask VAN giu w_c>0 (loi the nho, da neu o 3.2)
-\node[draw=black!55,rounded corners=2pt,fill=black!3,align=left,inner sep=5pt,anchor=north west]
-  at (-1.15,-2.1) {\textbf{count-only:}~~$w_d{=}0$,~$w_c{=}1$\\[1pt]
-                   \textbf{mask:}~~~~~~~~~$w_d{=}1$,~$w_c{=}0.1$};
-\end{tikzpicture}
-\caption{Controlled comparison of supervision regimes. Everything inside the dashed box is identical in both
-regimes, which differ only in the loss weights $(w_d, w_c)$. The mask regime keeps $w_c = 0.1$ because density
-supervision on a sparse map degenerates at $w_c = 0$, so it also receives the count signal and any measured
-difference is a conservative estimate of the benefit of masks (Section~\ref{sec:setup}). The input is a real
-PanNuke test patch, the same one as Fig.~\ref{fig:qualitative}a; the mask icon is schematic.}
-\label{fig:overview}
-\end{figure}
-
 \subsection{Architecture and outputs}
 The model, denoted DensitySigmaUNet, consists of an ImageNet-pretrained EfficientNet-lite0~\cite{efficientnet}
-encoder coupled with a U-Net style decoder~\cite{unet}. The network has two outputs
-(Fig.~\ref{fig:overview}).
+encoder coupled with a U-Net style decoder~\cite{unet}. The network has two outputs.
 
 The \emph{density} head produces a non-negative map, and the predicted count is its sum over the image,
 $\mu = \sum_p \hat d_p$. The \emph{uncertainty} head predicts the standard deviation of the count,
