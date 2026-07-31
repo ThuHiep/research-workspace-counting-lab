@@ -181,21 +181,21 @@ parameters.
 
 \subsection{Supervision regimes}
 The supervision variable is isolated by keeping the architecture, the data and the evaluation protocol fixed
-and changing only the loss weights in
-$\mathcal{L} = w_d\,\mathcal{L}_{\text{density}} + w_c\,\mathcal{L}_{\text{count}}
-+ w_{n}\,\mathcal{L}_{\text{NLL}}$:
-\begin{itemize}
-\item \textbf{count-only} ($w_d{=}0,\ w_c{=}1$): the model uses only the image-level count as its training
-signal, with no pixel-level target map.
-\item \textbf{mask} ($w_d{=}1$): the model fits a density map built from the ground-truth masks; a small count
-weight $w_c$ is retained to avoid the degenerate solution of the density loss, with its value and selection
-given in Section~\ref{sec:setup}.
-\end{itemize}
-$\mathcal{L}_{\text{density}}$ is the per-pixel mean squared error between the predicted and target maps;
-$\mathcal{L}_{\text{count}} = |\mu - N|$ averaged over the batch, where $N$ is the ground-truth number of nuclei
-in the image; and $\mathcal{L}_{\text{NLL}}$ is a $\beta$-NLL negative log-likelihood~\cite{bnll}, which trains
-$\sigma$ without affecting $\mu$. The uncertainty head is thus pre-trained with $\beta$-NLL, while the final
-prediction intervals are calibrated post hoc as described below.
+and changing only the weights of the training objective
+\begin{equation}
+\mathcal{L} = w_d\,\mathcal{L}_{\text{density}} + w_c\,\mathcal{L}_{\text{count}}
++ w_{n}\,\mathcal{L}_{\text{NLL}},
+\end{equation}
+where $\mathcal{L}_{\text{density}}$ is the per-pixel mean squared error between the predicted map and a target
+map built from the ground-truth masks, $\mathcal{L}_{\text{count}} = |\mu - N|$ averaged over the batch with
+$N$ the ground-truth number of nuclei in the image, and $\mathcal{L}_{\text{NLL}}$ is a $\beta$-NLL negative
+log-likelihood~\cite{bnll} that trains $\sigma$ without affecting $\mu$.
+
+The \emph{count-only} regime sets $w_d = 0$ and $w_c = 1$, so the model receives the image-level count as its
+only training signal and never sees a pixel-level target. The \emph{mask} regime sets $w_d = 1$ and retains a
+small count weight $w_c > 0$, without which density supervision on a sparse target map degenerates; its value
+and how it was selected are reported in Section~\ref{sec:setup}. The uncertainty weight $w_n$ is the same in
+both regimes, and the final prediction intervals are calibrated post hoc as described below.
 
 Two features of this design deserve attention. First, in the count-only regime the loss constrains only the
 \emph{sum} of the density map. Many different maps can therefore yield the same count, and whether the learned
