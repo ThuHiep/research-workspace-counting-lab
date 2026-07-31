@@ -356,6 +356,24 @@ CHƯA thiết lập.** (Sửa lại chú thích ‡ đã viết sai "tính có �
   dò**; pvt lr 3e-4 chỉ chọn từ dò **3 epoch / 1 seed** = chưa dò thật. lr 1e-3 sập CẢ HAI nhánh, 3e-4 sập 1/3
   count-only ⇒ hướng là còn cao → **dò 1e-4** trước khi kết luận bất cứ điều gì.
 - Nếu chạy tiếp: **cả hai nhánh CÙNG một lr đã dò** (biến duy nhất = loại giám sát).
+
+**★★ NHÁNH MASK về (2026-07-31, npz `pvt_mask_3seed.npz`):** median **+0.8553**, **SẬP 1/3**, MAE 11.10±9.47
+(mean +0.1054±1.087 = vô nghĩa).
+
+| nhánh | median R² | sập | MAE |
+|---|---|---|---|
+| count-only | +0.8836 | **1/3** | 10.77±9.70 |
+| mask | +0.8553 | **1/3** | 11.10±9.47 |
+
+⇒ **SẬP ĐỐI XỨNG** (cùng tỉ lệ, cùng cấu hình) ⇒ nguyên nhân là **tối ưu hoá/backbone**, KHÔNG phải loại giám
+sát. Đây là bằng chứng phụ ủng hộ cách viết ở §3.3 (suy biến = thất bại tối ưu hoá). *(Chỉ ghi MASTER, KHÔNG
+đưa vào bài: backbone này không nằm trong bài.)*
+- ⛔ **KHÔNG gộp 2 npz lúc này**: Wilcoxon gộp sẽ đo mấy seed sập (`sup_compare` tự cảnh báo). Mỗi nhánh chỉ còn
+  **2 seed sống** → chênh trung vị 0.028 không nói lên gì; và 2 seed mâu thuẫn chuẩn của chính bài (đa hạt giống).
+- **QUYẾT ĐỊNH đề xuất: DỪNG.** Bài KHÔNG cần thí nghiệm này (§5 đã để ngỏ tính khái quát qua họ kiến trúc).
+  Chạy lại đúng chuẩn = dò lr 1e-4 + 3 seed × 2 nhánh × 60 epoch ≈ **6 giờ GPU**, cho một mục bài không bán.
+  Nếu vẫn muốn: dò `lr 1e-4` (3 epoch, CẢ HAI nhánh, 1 seed) xác nhận hết sập rồi mới chạy full.
+- ⚠️ Máy B chạy **clone cũ** (cảnh báo sập vẫn là bản trước khi sửa). Lần sau clone lại trước khi chạy.
 - Bài KHÔNG cần thí nghiệm này: §5 đã ghi kết luận gắn với một họ kiến trúc và để ngỏ câu hỏi mở (trung thực).
   Dừng ở đó là chấp nhận được nếu pvt tiếp tục đòi chỉnh cấu hình từng vòng.
 
