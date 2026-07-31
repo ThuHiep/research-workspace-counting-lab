@@ -41,9 +41,10 @@ giờ công chuyên gia và khó mở rộng sang loại mô, cơ quan hoặc tr
 lượng số đếm thông qua phân vùng, phát hiện hoặc định vị nhân, hàm ý rằng giám sát không gian dày đặc là điều
 kiện cần cho độ chính xác đếm cao. Giả định này được kiểm định bằng một thí nghiệm có kiểm soát: kiến trúc, dữ
 liệu và giao thức đánh giá được giữ nguyên, chỉ thay mức giám sát từ mặt nạ điểm ảnh sang một nhãn đếm duy nhất
-cho mỗi ảnh. Trên ba bộ dữ liệu độc lập (PanNuke, NuInsSeg và MoNuSeg), hai chế độ giám sát cho độ chính xác đếm
-tương đương: trên tập lớn nhất, giám sát mặt nạ nhỉnh hơn một lượng bị chặn trên bởi $1{,}1\%$ số nhân trung
-bình mỗi ảnh, còn trên hai tập còn lại count-only nhỉnh hơn. Một can thiệp có đối chứng giả xác nhận đáp ứng của
+cho mỗi ảnh. Trên ba bộ dữ liệu độc lập (PanNuke, NuInsSeg và MoNuSeg), không chế độ nào chiếm ưu thế nhất
+quán: $R^2$ trung bình của count-only cao hơn trên hai tập, và trên tập lớn nhất, nơi tập kiểm tra cố định đủ
+lớn cho một kiểm định tương đương, giám sát mặt nạ nhỉnh hơn một lượng bị chặn trên bởi $1{,}1\%$ số nhân trung
+bình mỗi ảnh. Một can thiệp có đối chứng giả xác nhận đáp ứng của
 mô hình đặc hiệu với nội dung nhân: thay toàn bộ nhân bằng mô không chứa nhân, giữ nguyên hình dạng và diện
 tích, làm số đếm dự đoán giảm còn $0{,}37$ lần, trong khi đối chứng giả duy trì ở mức $1{,}02$ lần. Trên PanNuke,
 bộ đếm $3{,}62$ triệu tham số huấn luyện count-only đạt $R^2 = 0{,}918$, vượt các đại diện của phân vùng, ước
@@ -79,10 +80,10 @@ sát: mặt nạ ở mức điểm ảnh, hoặc một nhãn đếm duy nhất c
 
 Các đóng góp chính của bài báo như sau.
 \begin{itemize}
-\item Trên ba tập dữ liệu độc lập, giám sát count-only đạt độ chính xác đếm tương đương giám sát bằng mặt nạ
-trên cùng kiến trúc. Chiều của chênh lệch không đồng nhất giữa các tập, và trên tập kiểm tra cố định, kiểm định
-tương đương bắt cặp theo từng ảnh chặn chênh lệch ở mức $1{,}1\%$ số nhân trung bình mỗi ảnh
-(Mục~\ref{sec:parity}).
+\item Trên ba tập dữ liệu độc lập và cùng một kiến trúc, không chế độ giám sát nào chiếm ưu thế nhất quán.
+Trên tập kiểm tra cố định và đủ lớn, kiểm định tương đương bắt cặp theo từng ảnh chặn chênh lệch ở mức
+$1{,}1\%$ số nhân trung bình mỗi ảnh; trên hai tập nhỏ hơn, phương sai giữa các chia lấn át và biên chặt nhất
+đạt được rộng hơn khoảng sáu lần (Mục~\ref{sec:parity}).
 \item Một thí nghiệm can thiệp có đối chứng giả kiểm tra liệu dự đoán của mô hình có phụ thuộc đặc hiệu vào nội
 dung nhân hay không, qua đó khoanh vùng cơ chế đứng sau kết quả tương đương (Mục~\ref{sec:fidelity}).
 \item Khi được huấn luyện lại và đánh giá trên cùng phân chia dữ liệu, bộ đếm count-only nhẹ vượt các đại diện
