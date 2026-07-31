@@ -377,6 +377,22 @@ sát. Đây là bằng chứng phụ ủng hộ cách viết ở §3.3 (suy bi�
 - Bài KHÔNG cần thí nghiệm này: §5 đã ghi kết luận gắn với một họ kiến trúc và để ngỏ câu hỏi mở (trung thực).
   Dừng ở đó là chấp nhận được nếu pvt tiếp tục đòi chỉnh cấu hình từng vòng.
 
+**★★ SỔ lr ĐÃ THỬ cho `pvt_v2_b0` (PanNuke fold3, `sup_compare.py`) — ĐỌC TRƯỚC KHI CHẠY LẠI, ĐỪNG THỬ LẠI 2 lr ĐẦU:**
+
+| lr | epoch × seed | w_count_mask | count-only | mask | kết luận |
+|---|---|---|---|---|---|
+| **1e-3** (mặc định script) | dò 2026-07-29 (số epoch không ghi lại) | — | **SẬP** R²=−1,43 | **SẬP** R²=−1,43 | ⛔ chết hẳn, đừng thử lại |
+| **3e-4** | 3 × 1 (seed 42) | 0,01 | +0,8563 / MAE 4,50 | +0,9178 / MAE 3,63 | dò thấy "không sập" — **dò SAI** |
+| **3e-4** | 60 × 3 (42/43/44) | 0,1 | median +0,8836, **sập 1/3** | median +0,8553, **sập 1/3** | ⛔ chạy thật vẫn sập, không báo cáo được |
+| **1e-4** | — | — | **CHƯA THỬ** | **CHƯA THỬ** | bước duy nhất còn lại nếu muốn tiếp |
+
+- **Bài học tái dùng được (quan trọng hơn mấy con số trên):** dò **3 epoch / 1 seed** KHÔNG dự báo được ổn định
+  ở 60 epoch / 3 seed. 3e-4 qua vòng dò sạch sẽ rồi sập 1/3 khi chạy thật ⇒ suy biến xuất hiện **muộn**.
+  Lần sau dò lr cho backbone mới: dò bằng **≥3 seed**, và chỉ tin khi **0/3 sập**, chứ không phải 1 seed sống.
+- Chữ ký nhận sập trên fold3: `R² = −1,4313` **và** `MAE = 24,49` (= số nhân TB) ⇒ mô hình xuất hằng số 0.
+- efflite0 giữ lr **1e-3** (đã dò, 0/5 sập) — sổ này CHỈ áp cho pvt_v2_b0.
+- **Trạng thái: DỪNG.** npz `pvt_count_3seed.npz` + `pvt_mask_3seed.npz` đã backup kaggle; không có số nào vào bài.
+
 ---
 
 ## 1. IDENTITY & RANH GIỚI
