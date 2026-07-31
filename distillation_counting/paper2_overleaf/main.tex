@@ -531,12 +531,12 @@ dominates in the high density regime.
 \caption{Comparison of four paradigms on PanNuke (same test set, counting task). The count-only counter reports
 the mean and standard deviation over $5$ seeds, the same figures as in Table~\ref{tab:parity}; the three
 compared methods are a single training run each, so differences between them should be read against the level
-of between-seed variation shown by the count-only column.}\label{tab:paradigm}
+of between-seed variation shown by the count-only column. The best value in each column is in bold.}\label{tab:paradigm}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
 Method & Params & Labels & Paradigm & $R^2\uparrow$ & MAE$\downarrow$ \\
 \midrule
-DensitySigmaUNet (count-only) & $3.62$M & counts & regression & $0.918\pm0.011$ & $3.60\pm0.10$ \\
+DensitySigmaUNet (count-only) & $3.62$M & counts & regression & $\mathbf{0.918\pm0.011}$ & $\mathbf{3.60\pm0.10}$ \\
 StarDist~\cite{stardist} & $1.43$M & masks & segmentation & $0.841$ & $4.64$ \\
 DualU-Net~\cite{dualunet} & ${\sim}35$M & masks & centroid density & $0.804$ & $5.33$ \\
 DeNuC~\cite{denuc} & $4.37$M & boxes or points & detection & $0.455$ & $9.64$ \\
@@ -595,14 +595,16 @@ uncertainty branch.
 $20$ random calibration splits. The target coverage is $0.90$; width and Winkler score are in units of nuclei,
 lower being better. A tissue type counts as under-covered when its coverage falls more than $0.05$ below the
 target, that is below $0.85$; this tolerance explains why the cluster scheme has a worst-organ coverage of
-$0.859$ and yet no tissue type counted as under-covered.}\label{tab:uq}
+$0.859$ and yet no tissue type counted as under-covered. The best value in each column is in bold, except for
+marginal coverage, which is a validity check against the $0.90$ target rather than a quantity to be
+maximised.}\label{tab:uq}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
 Scheme & Marginal coverage & Width & Winkler & Worst-organ coverage & Under-covered organs \\
 \midrule
-global & $0.904$ & $14.5$ & $20.3$ & $0.765$ & $4/19$ \\
-mondrian & $0.923$ & $16.6$ & $20.5$ & $0.906$ & $0/19$ \\
-cluster & $0.906$ & $14.8$ & $20.0$ & $0.859$ & $0/19$ \\
+global & $0.904$ & $\mathbf{14.5}$ & $20.3$ & $0.765$ & $4/19$ \\
+mondrian & $0.923$ & $16.6$ & $20.5$ & $\mathbf{0.906}$ & $\mathbf{0/19}$ \\
+cluster & $0.906$ & $14.8$ & $\mathbf{20.0}$ & $0.859$ & $\mathbf{0/19}$ \\
 \bottomrule
 \end{tabular}
 \end{table}
