@@ -119,17 +119,21 @@ số có độ phủ được bảo đảm không chỉ trên trung bình mà tr
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_design.pdf}
-\caption{Thí nghiệm có đối chứng làm nền cho bài báo. Một mảnh PanNuke fold~3 duy nhất (xuất hiện ở mọi khâu) có
-thể được chú thích theo hai cách: khoanh viền từng nhân trong số $22$ nhân, tốn $11{,}5$ giây công chuyên gia mỗi
-nhân, hoặc ghi lại đúng một con số $22$, tốn không quá $1{,}4$ giây mỗi nhân~\cite{qu2020}. Hai chế độ sau đó dùng
-chung mạng, dữ liệu huấn luyện, lịch $60$ epoch, tập kiểm tra và cả năm seed, nên trọng số mất mát $(w_d, w_c)$ là
-đại lượng duy nhất khác biệt và mọi chênh lệch độ chính xác đều quy về chú thích. Mạng xuất một bản đồ mật độ mà
-tổng của nó là số đếm dự đoán $\mu$, kèm một độ bất định $\sigma$. Bản đồ được hiển thị là \emph{mục tiêu} của
-mảnh ảnh đó, dựng từ mặt nạ bằng cách trải một đơn vị khối lượng lên mỗi nhân sao cho bản đồ tích phân đúng bằng
-$22$; đây không phải đầu ra của mô hình. Đặt $w_d = 0$ loại bỏ hoàn toàn mục tiêu ấy, khiến bản đồ dự đoán không
-hề được giám sát ở mức điểm ảnh và chỉ tổng của nó bị ràng buộc, nên việc nó vẫn thu được khả năng định vị hay
-không trở thành một câu hỏi thực nghiệm (Mục~\ref{sec:fidelity}). Kết cục nêu ở dưới cùng: khoảng cách còn lại phát hiện
-được về mặt thống kê nhưng đồng thời bị chặn ở mức thấp hơn hẳn một nhân.}
+\caption{Thí nghiệm có đối chứng làm nền cho bài báo, vẽ thành hai luồng chỉ khác nhau đúng một điểm.
+Một mảnh PanNuke fold~3 chứa $22$ nhân đi vào cả hai luồng, và các hàng được đánh số căn thẳng nhau để đối chiếu
+được từng bước.
+\emph{Hàng 1, chuyên gia làm gì.} Luồng~A khoanh viền cả $22$ nhân, tốn $11{,}5$ giây công chuyên gia mỗi nhân;
+luồng~B chỉ ghi con số $22$ và không gì khác, tốn không quá $1{,}4$ giây mỗi nhân~\cite{qu2020}.
+\emph{Hàng 2, tín hiệu huấn luyện thu được.} Luồng~A có một bản đồ mật độ, dựng từ mặt nạ bằng cách trải một đơn
+vị khối lượng lên mỗi nhân sao cho bản đồ tích phân đúng bằng $22$; bản đồ hiển thị là mục tiêu đó, không phải
+đầu ra của mô hình. Luồng~B không có bất kỳ mục tiêu mức điểm ảnh nào.
+\emph{Hàng 3, hàm mất mát.} Trọng số $(w_d, w_c)$ lần lượt là $(1; 0{,}1)$ và $(0; 1)$, và đó là đại lượng duy
+nhất trong toàn sơ đồ khác nhau giữa hai luồng.
+Mọi thứ bên dưới hai luồng đều dùng chung: cùng mạng, cùng dữ liệu huấn luyện, cùng lịch $60$ epoch, cùng tập
+kiểm tra và cùng năm seed, nên chênh lệch độ chính xác quy hoàn toàn về chú thích. Vì $w_d = 0$ loại bỏ mục tiêu
+mức điểm ảnh, bản đồ mà luồng~B vẫn dự đoán chỉ bị ràng buộc qua tổng của nó, nên việc nó vẫn thu được khả năng
+định vị hay không trở thành một câu hỏi thực nghiệm (Mục~\ref{sec:fidelity}). Kết luận nêu ở dưới cùng: khoảng
+cách còn lại phát hiện được về mặt thống kê nhưng đồng thời bị chặn ở mức thấp hơn hẳn một nhân.}
 \label{fig:design}
 \end{figure}
 

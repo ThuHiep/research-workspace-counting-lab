@@ -132,18 +132,23 @@ tissue type (Section~\ref{sec:deploy}).
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_design.pdf}
-\caption{The controlled experiment behind this paper. A single PanNuke fold~3 patch (shown at every stage) can
-be annotated in two ways: by outlining each of its $22$ nuclei, at $11.5$ seconds of expert time per nucleus,
-or by recording the single number $22$, at no more than $1.4$ seconds per nucleus~\cite{qu2020}. The two
-regimes then share the network, the training data, the $60$-epoch schedule, the test set and the five seeds,
-so the loss weights $(w_d, w_c)$ are the only quantity that differs and any difference in accuracy is
-attributable to the annotation alone. The network emits one density map, whose sum is the predicted count
-$\mu$, together with an uncertainty $\sigma$. The map displayed is the \emph{target} for that patch, built
-from its masks by spreading a unit of mass over each nucleus so that the map integrates to $22$; it is not a
-model output. Setting $w_d = 0$ discards that target entirely, leaving the predicted map without any
-pixel-level supervision and constraining only its sum, which is what makes the localisation the map
-nevertheless acquires an empirical question (Section~\ref{sec:fidelity}). The outcome is stated at the bottom: the residual gap is
-statistically detectable and at the same time bounded well below one nucleus.}
+\caption{The controlled experiment behind this paper, drawn as two tracks that differ in exactly one respect.
+A single PanNuke fold~3 patch containing $22$ nuclei enters both tracks, and the numbered rows are aligned so
+that the two can be compared step by step.
+\emph{Row 1, what the expert does.} Track~A outlines all $22$ nuclei at $11.5$ seconds of expert time per
+nucleus; track~B records the number $22$ and nothing else, at no more than $1.4$ seconds per
+nucleus~\cite{qu2020}.
+\emph{Row 2, the training target this produces.} Track~A obtains a density map, built from the masks by
+spreading a unit of mass over each nucleus so that it integrates to $22$; the map shown is that target and not
+a model output. Track~B obtains no pixel-level target at all.
+\emph{Row 3, the loss.} The weights $(w_d, w_c)$ are $(1, 0.1)$ and $(0, 1)$ respectively, and they are the
+only quantity in the whole diagram that differs between the tracks.
+Everything below the tracks is shared: the same network, training data, $60$-epoch schedule, test set and five
+seeds, so the difference in accuracy is attributable to the annotation alone. Because $w_d = 0$ discards the
+pixel-level target, the map that track~B still predicts is constrained only through its sum, which is what
+makes the localisation it nevertheless acquires an empirical question (Section~\ref{sec:fidelity}). The
+verdict is stated at the bottom: the residual gap is statistically detectable and at the same time bounded
+well below one nucleus.}
 \label{fig:design}
 \end{figure}
 

@@ -13,9 +13,8 @@ Neu dau tieng Viet loi: doi main_vi.tex sang XeLaTeX (huong dan o dau file).
 `figures/fig_design.drawio` la NGUON. Bai dang \includegraphics{fig_design.pdf}, file PDF do CHUA co.
 Mo drawio > File > Export as > PDF, bo chon "Crop", luu de len `figures/fig_design.pdf`.
 
-Sinh lai anh nhung trong so do (neu doi patch):
-    python ../fig1_patches.py && python ../fig1_embed.py
-`fig1_embed.py` idempotent (da kiem: chay 3 lan ra cung md5), chay lai bao nhieu lan cung duoc.
-NHUNG neu ban tu sua bo cuc trong drawio thi dung chay lai - no se ghi de cac o mkim/ctim/he.
+So do = HAI LUONG song song (trai mask / phai count-only), cac hang danh so can thang de doi chieu.
+Sinh lai toan bo (fig1_build.py ghi DE file drawio, dung chay neu ban vua sua tay trong app):
+    python ../fig1_patches.py && python ../fig1_build.py
 
 Ban Springer sn-jnl GIU nguyen o `../paper2_overleaf/` - dung neu RINENG desk-reject.
