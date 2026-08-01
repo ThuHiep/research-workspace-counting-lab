@@ -82,6 +82,9 @@ def main():
     ap.add_argument("--out_csv", default="")   # rong -> tu dat theo seed
     args = ap.parse_args()
     args.out_csv = args.out_csv or f"/kaggle/working/stardist_fold3_counts_s{args.seed}.csv"
+    # kiem quyen ghi NGAY, khong doi den dong cuoi: train + predict mat 2-4h, hong o day la mat trang
+    Path(args.out_csv).parent.mkdir(parents=True, exist_ok=True)
+    _p = Path(args.out_csv + ".probe"); _p.write_text(""); _p.unlink()   # do quyen ghi, KHONG tao san out_csv
 
     from csbdeep.utils import normalize
     from stardist import fill_label_holes, calculate_extents
