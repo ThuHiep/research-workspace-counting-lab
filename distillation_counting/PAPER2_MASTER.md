@@ -7,6 +7,22 @@
 ---
 
 
+
+## ★ REPO GỐC + LỆNH CHẠY của 2 baseline ngoài (tra lại 2026-08-01, trước đó KHÔNG ghi ở đâu)
+
+| baseline | repo | train | eval |
+|---|---|---|---|
+| DualU-Net | `https://github.com/davidanglada/DualU-Net` | `python train.py --config <yaml>` | ta dùng `eval_count_dualunet.py --config-file <yaml> --checkpoint <pth>` |
+| DeNuC | `https://github.com/ZijiangY1116/DeNuC` | `python ./denuc_train.py --arch denuc_det_shufflenet_x2_0 --datasets pannuke12_3` | `python ./denuc_eval.py --exp_name <exp> --eval_dataset pannuke12_3 --eval_mode test` (nms_dist mặc định 12.0) |
+
+**BẪY cờ:** repo DualU-Net dùng **`--config`**, script `eval_count_dualunet.py` CỦA TA dùng **`--config-file`**. Không lẫn.
+`--arch denuc_det_shufflenet_x2_0` khớp ShuffleNet-x2 4.37M ở Bảng 4 ✓. Clone DualU-Net PHẢI vào đúng
+`/kaggle/working/DualU-Net` vì `eval_count_dualunet.py:24` hard-code sys.path.
+
+**Seed:** DualU-Net có sẵn `experiment.seed` trong yaml → chỉ cần sinh config (đổi cả `"resnext_pannuke_fold12"`
+ở `name:`+`output_name:` kẻo 5 seed đè checkpoint nhau). DeNuC README không nhắc seed → phải vá.
+
+
 ## ★★ CHOT TAP CHI (2026-08-01): Results in Engineering (Elsevier), Special Issue 335088
 
 **Ban thao:** `paper2_rineng/main.tex` (elsarticle). Ban Springer `paper2_overleaf/main.tex` GIU LAI lam du phong.
