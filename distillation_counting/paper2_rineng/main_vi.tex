@@ -119,21 +119,18 @@ số có độ phủ được bảo đảm không chỉ trên trung bình mà tr
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_design.pdf}
-\caption{Hai chế độ giám sát vận hành ra sao, vẽ thành hai luồng chỉ khác nhau đúng một điểm.
-Một mảnh PanNuke fold~3 chứa $22$ nhân đi vào cả hai luồng, và các hàng được đánh số căn thẳng nhau để đối chiếu
-được từng bước.
-\emph{Hàng 1, chuyên gia làm gì.} Luồng~A khoanh viền cả $22$ nhân, tốn $11{,}5$ giây công chuyên gia mỗi nhân;
-luồng~B chỉ ghi con số $22$ và không gì khác, tốn không quá $1{,}4$ giây mỗi nhân~\cite{qu2020}.
-\emph{Hàng 2, tín hiệu huấn luyện thu được.} Luồng~A có một bản đồ mật độ, dựng từ mặt nạ bằng cách trải một đơn
-vị khối lượng lên mỗi nhân sao cho bản đồ tích phân đúng bằng $22$; bản đồ hiển thị là mục tiêu đó, không phải
-đầu ra của mô hình. Luồng~B không có bất kỳ mục tiêu mức điểm ảnh nào.
-\emph{Hàng 3, hàm mất mát.} Trọng số $(w_d, w_c)$ lần lượt là $(1; 0{,}1)$ và $(0; 1)$, và đó là đại lượng duy
-nhất trong toàn sơ đồ khác nhau giữa hai luồng.
-Mọi thứ ở dải dưới đều dùng chung: cùng bộ mã hoá và giải mã, cùng số tham số, dữ liệu huấn luyện, lịch huấn
-luyện, tập kiểm tra và các seed. Do đó cả hai luồng đều dự đoán một bản đồ mật độ, lấy tổng ra số đếm $\mu$ và
-gắn thêm độ bất định $\sigma$; vì $w_d = 0$ loại bỏ mục tiêu mức điểm ảnh, bản đồ mà luồng~B dự đoán chỉ bị ràng
-buộc qua tổng của nó. Bản đồ như vậy có định vị được nhân hay không là một câu hỏi thực nghiệm, khảo sát ở
-Mục~\ref{sec:fidelity}, còn độ chính xác hai luồng đạt được thì báo cáo ở Mục~\ref{sec:parity}.}
+\caption{Hai chế độ giám sát khác nhau ở đâu. Cả hai bảng chạy cùng một đường đi xuôi: mảnh ảnh H\&E qua
+cùng bộ mã hoá và giải mã, sinh ra một bản đồ mật độ mà tổng của nó là số đếm dự đoán $\mu$. Hai bảng giống hệt
+nhau về kiến trúc, số tham số, dữ liệu huấn luyện, lịch huấn luyện, tập kiểm tra và các seed; chúng chỉ khác ở
+chỗ tín hiệu giám sát nào được nối vào, vẽ thành các mũi tên đi từ dưới lên.
+Ở bảng~A, chuyên gia khoanh viền từng nhân, các mặt nạ đó được chuyển thành bản đồ mật độ mục tiêu, rồi mục tiêu
+ấy được so với bản đồ dự đoán theo từng điểm ảnh ($w_d = 1$), đồng thời số đếm cũng được giám sát
+($w_c = 0{,}1$). Ở bảng~B, mối nối thứ nhất bị cắt ($w_d = 0$): mạng vẫn dự đoán một bản đồ mật độ,
+nhưng không gì ràng buộc nó ngoài chính tổng của nó, mà tổng ấy được giám sát bởi đúng một con số $N = 22$
+($w_c = 1$). Dựng bản đồ mục tiêu tốn $11{,}5$ giây công chuyên gia mỗi nhân, so với không quá $1{,}4$ giây cho
+nhãn đếm~\cite{qu2020}. Một bản đồ chỉ bị ràng buộc qua tổng liệu có định vị được nhân hay không là câu hỏi thực
+nghiệm, khảo sát ở Mục~\ref{sec:fidelity}; độ chính xác hai chế độ đạt được báo cáo ở Mục~\ref{sec:parity}. Đầu
+ra độ bất định được lược khỏi hình vì nó giống nhau và được giám sát như nhau ở cả hai chế độ.}
 \label{fig:design}
 \end{figure}
 
