@@ -79,35 +79,48 @@ def row(g, Y, hdr, mask_sup):
     edge(f"{g}f2", f"{g}pm", f"{g}sg", 1, .5, 0, .5)
     edge(f"{g}f3", f"{g}sg", f"{g}mu", 1, .5, 0, .5)
 
-    # --- nguon giam sat: DAY moi la cho hai hang khac nhau, va CHI cho nay co mau ---
+    # --- giam sat: du doan VA nhan cung di VAO nut loss; loss moi sinh gradient sua mo hinh.
+    # KHONG noi target -> predicted map: the doc thanh luong du lieu, sai nghia hoan toan.
     col = ORG if mask_sup else BLU
+    d = 0 if mask_sup else 1                      # net dut = nhanh bi tat
+    lc = col if mask_sup else MUT
+    box(f"{g}Ld", "L&lt;sub&gt;density&lt;/sub&gt;&#10;w&lt;sub&gt;d&lt;/sub&gt; = "
+                  + ("1" if mask_sup else "0"), XM + 5, Y + 180, 100, 48, lc, "#FFFFFF", 15, 1, d, fc=lc)
+    box(f"{g}Lc", "L&lt;sub&gt;count&lt;/sub&gt;&#10;w&lt;sub&gt;c&lt;/sub&gt; = "
+                  + ("0.1" if mask_sup else "1"), XU + 20, Y + 180, 100, 48, col, "#FFFFFF", 15, 1, fc=col)
+    edge(f"{g}p1", f"{g}pm", f"{g}Ld", .5, 1, .5, 0, lc, "", d)
+    edge(f"{g}p2", f"{g}mu", f"{g}Lc", .5, 1, .5, 0, col)
+
     if mask_sup:
-        img(f"{g}an", MASK, XA, Y + 215, S, S, ORG)
+        img(f"{g}an", MASK, XA, Y + 262, S, S, ORG)
         txt(f"{g}la", "expert outlines every nucleus&#10;&lt;b&gt;11.5 s&lt;/b&gt; per nucleus",
-            XA - 40, Y + 332, 190, 40)
-        img(f"{g}tg", DENS, XM, Y + 215, S, S, ORG)
-        txt(f"{g}lt", "target density map", XM - 40, Y + 332, 190, 22)
+            XA - 40, Y + 380, 190, 40)
+        img(f"{g}tg", DENS, XM, Y + 262, S, S, ORG)
+        txt(f"{g}lt", "target density map", XM - 40, Y + 380, 190, 22)
         edge(f"{g}a0", f"{g}an", f"{g}tg", 1, .5, 0, .5, ORG)
-        edge(f"{g}s0", f"{g}tg", f"{g}pm", .5, 0, .5, 1, ORG, "w&lt;sub&gt;d&lt;/sub&gt; = 1", sw=2)
     else:
-        box(f"{g}tg", "no pixel-level target", XM, Y + 215, S, S, MUT, "#FFFFFF", 15, 0, dash=1, fc=MUT)
-        edge(f"{g}s0", f"{g}tg", f"{g}pm", .5, 0, .5, 1, MUT, "w&lt;sub&gt;d&lt;/sub&gt; = 0", dash=1)
-    box(f"{g}N", "N = 22", XU, Y + 243, 140, 54, col, "#FFFFFF", 18, 1)
+        box(f"{g}tg", "no pixel-level&#10;target", XM, Y + 262, S, S, MUT, "#FFFFFF", 15, 0, 1, fc=MUT)
+    edge(f"{g}s0", f"{g}tg", f"{g}Ld", .5, 0, .5, 1, lc, "", d)
+    box(f"{g}N", "N = 22", XU, Y + 290, 140, 54, col, "#FFFFFF", 18, 1)
     txt(f"{g}l2", ("image count, also used" if mask_sup else
                    "image count, &lt;b&gt;the only label&lt;/b&gt;&#10;&#8804; &lt;b&gt;1.4 s&lt;/b&gt; per nucleus"),
-        XU - 25, Y + 332, 190, 40)
-    edge(f"{g}s1", f"{g}N", f"{g}mu", .5, 0, .5, 1, col,
-         "w&lt;sub&gt;c&lt;/sub&gt; = " + ("0.1" if mask_sup else "1"), sw=2)
+        XU - 25, Y + 380, 190, 40)
+    edge(f"{g}s1", f"{g}N", f"{g}Lc", .5, 0, .5, 1, col)
+    # gradient quay NGUOC lai sua mo hinh. CHI ve tu loss dang HOAT DONG:
+    # hang (b) co w_d = 0 nen L_density khong sinh gradient nao -> khong ve mui ten do.
+    edge(f"{g}gc", f"{g}Lc", f"{g}e4", 0, .5, .5, 1, MUT, "gradients", 1)
+    if mask_sup:
+        edge(f"{g}gd", f"{g}Ld", f"{g}e4", 0, .5, 1, 1, MUT, "", 1)
 
 
 row("a", 30, "(a)&#160;&#160;mask supervision", True)
-row("b", 440, "(b)&#160;&#160;count-only supervision", False)
+row("b", 490, "(b)&#160;&#160;count-only supervision", False)
 txt("note", "grey elements are identical in both rows: same architecture (3.62M parameters), same training "
-            "data, 60-epoch schedule, test set and 5 seeds", 20, 836, 1040, 22, fs=15, fc=MUT, al="left")
+            "data, 60-epoch schedule, test set and 5 seeds", 20, 940, 1040, 22, fs=15, fc=MUT, al="left")
 
 xml = ('<mxfile host="app.diagrams.net"><diagram id="fig1" name="Figure 1">'
        '<mxGraphModel dx="1200" dy="900" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" '
-       'arrows="1" fold="1" page="1" pageScale="1" pageWidth="1080" pageHeight="880" math="0" shadow="0">'
+       'arrows="1" fold="1" page="1" pageScale="1" pageWidth="1080" pageHeight="985" math="0" shadow="0">'
        '<root><mxCell id="0"/><mxCell id="1" parent="0"/>' + "".join(C) +
        '</root></mxGraphModel></diagram></mxfile>')
 assert "&#8212;" not in xml and "—" not in xml, "ban thao khong dung gach ngang dai"

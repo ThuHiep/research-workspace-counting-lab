@@ -132,19 +132,21 @@ tissue type (Section~\ref{sec:deploy}).
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_design.pdf}
-\caption{How the two supervision regimes differ. Both rows run the same forward path, drawn in grey and
-identical throughout: the H\&E patch passes through the same encoder and decoder, which emit a density map
-whose sum is the predicted count $\mu$. Colour marks the only thing that changes, namely which supervision
-signal is connected.
-\textbf{(a)} The expert outlines every nucleus; those masks are turned into a target density map, which is
-compared with the predicted map pixel by pixel ($w_d = 1$), and the image count is used as well
-($w_c = 0.1$).
-\textbf{(b)} That connection is severed ($w_d = 0$, dashed). The network still predicts a density map, but
-nothing constrains it except its own sum, which is supervised by the single number $N = 22$ ($w_c = 1$).
+\caption{How the two supervision regimes differ. The forward path, drawn in grey, is identical in both rows:
+the H\&E patch passes through the same encoder and decoder, which emit a density map whose sum is the
+predicted count $\mu$. A prediction and a label never feed into each other; they meet at a \emph{loss} node,
+and it is the loss that sends gradients back into the network. Colour marks the only thing that changes,
+namely which loss term is switched on.
+\textbf{(a)} The expert outlines every nucleus and those masks are turned into a target density map. That
+target and the predicted map meet at $L_{\text{density}}$ ($w_d = 1$), while $\mu$ and the image count meet at
+$L_{\text{count}}$ ($w_c = 0.1$); both terms train the network.
+\textbf{(b)} The density term is switched off ($w_d = 0$, dashed), so it contributes no gradient and the
+network receives nothing about \emph{where} nuclei are. The predicted map is still produced, but it is
+constrained only through its sum, which $L_{\text{count}}$ compares with the single number $N = 22$
+($w_c = 1$).
 Producing the outlines costs $11.5$ seconds of expert time per nucleus against at most $1.4$ seconds for the
-count~\cite{qu2020}. Whether a map constrained only through its sum nevertheless localises nuclei is an
-empirical question, examined in Section~\ref{sec:fidelity}; the accuracy the two regimes reach is reported in
-Section~\ref{sec:parity}. The uncertainty head is omitted because it is identical and identically supervised
+count~\cite{qu2020}. Whether a map constrained only through its sum nevertheless localises nuclei is examined
+in Section~\ref{sec:fidelity}. The uncertainty head and its loss term are omitted because they are identical
 in both regimes.}
 \label{fig:design}
 \end{figure}

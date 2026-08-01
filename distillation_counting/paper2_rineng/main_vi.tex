@@ -119,18 +119,19 @@ số có độ phủ được bảo đảm không chỉ trên trung bình mà tr
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_design.pdf}
-\caption{Hai chế độ giám sát khác nhau ở đâu. Cả hai hàng chạy cùng một đường đi xuôi, vẽ bằng màu xám và
-giống hệt nhau từ đầu đến cuối: mảnh ảnh H\&E qua cùng bộ mã hoá và giải mã, sinh ra một bản đồ mật độ mà tổng
-của nó là số đếm dự đoán $\mu$. Màu chỉ đánh dấu đúng thứ thay đổi, tức là tín hiệu giám sát nào được nối vào.
-\textbf{(a)} Chuyên gia khoanh viền từng nhân; các mặt nạ đó được chuyển thành bản đồ mật độ mục tiêu, rồi mục
-tiêu ấy được so với bản đồ dự đoán theo từng điểm ảnh ($w_d = 1$), đồng thời số đếm của ảnh cũng được dùng
-($w_c = 0{,}1$).
-\textbf{(b)} Mối nối đó bị cắt ($w_d = 0$, nét đứt). Mạng vẫn dự đoán một bản đồ mật độ, nhưng không gì ràng
-buộc nó ngoài chính tổng của nó, mà tổng ấy được giám sát bởi đúng một con số $N = 22$ ($w_c = 1$).
+\caption{Hai chế độ giám sát khác nhau ở đâu. Đường đi xuôi, vẽ bằng màu xám, giống hệt nhau ở cả hai hàng:
+mảnh ảnh H\&E qua cùng bộ mã hoá và giải mã, sinh ra bản đồ mật độ mà tổng của nó là số đếm dự đoán $\mu$. Dự
+đoán và nhãn không bao giờ đi vào nhau; chúng gặp nhau ở một nút \emph{hàm mất mát}, và chính hàm mất mát mới
+gửi gradient ngược về mạng. Màu chỉ đánh dấu đúng thứ thay đổi, tức là số hạng mất mát nào được bật.
+\textbf{(a)} Chuyên gia khoanh viền từng nhân và các mặt nạ đó được chuyển thành bản đồ mật độ mục tiêu. Mục
+tiêu ấy gặp bản đồ dự đoán ở $L_{\text{density}}$ ($w_d = 1$), còn $\mu$ gặp số đếm của ảnh ở
+$L_{\text{count}}$ ($w_c = 0{,}1$); cả hai số hạng đều huấn luyện mạng.
+\textbf{(b)} Số hạng mật độ bị tắt ($w_d = 0$, nét đứt) nên nó không đóng góp gradient nào và mạng không nhận
+được thông tin nào về \emph{vị trí} của nhân. Bản đồ dự đoán vẫn được sinh ra, nhưng chỉ bị ràng buộc qua tổng
+của nó, và $L_{\text{count}}$ so tổng ấy với đúng một con số $N = 22$ ($w_c = 1$).
 Việc khoanh viền tốn $11{,}5$ giây công chuyên gia mỗi nhân, so với không quá $1{,}4$ giây cho nhãn
-đếm~\cite{qu2020}. Một bản đồ chỉ bị ràng buộc qua tổng liệu có định vị được nhân hay không là câu hỏi thực
-nghiệm, khảo sát ở Mục~\ref{sec:fidelity}; độ chính xác hai chế độ đạt được báo cáo ở Mục~\ref{sec:parity}.
-Đầu ra độ bất định được lược khỏi hình vì nó giống nhau và được giám sát như nhau ở cả hai chế độ.}
+đếm~\cite{qu2020}. Một bản đồ chỉ bị ràng buộc qua tổng liệu có định vị được nhân hay không được khảo sát ở
+Mục~\ref{sec:fidelity}. Đầu ra độ bất định và số hạng mất mát của nó được lược đi vì giống nhau ở cả hai chế độ.}
 \label{fig:design}
 \end{figure}
 
