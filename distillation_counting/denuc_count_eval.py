@@ -24,11 +24,20 @@ def r2_mae(gt, pr):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--infer", required=True, help="path tới *_infer_res.npy (test_results)")
+    ap.add_argument("--out_csv", default="", help="xuất gt,pred cho agg_baseline_seeds.py")
     args = ap.parse_args()
 
     r = np.load(args.infer, allow_pickle=True).item()
-    gt = np.array([len(v["gt_coords"]) for v in r.values()], float)
-    pr = np.array([len(v["pred_coords"]) for v in r.values()], float)
+    keys = sorted(r)                       # THỨ TỰ CỐ ĐỊNH: không sort thì 2 seed lệch thứ tự ảnh
+    gt = np.array([len(r[k]["gt_coords"]) for k in keys], float)
+    pr = np.array([len(r[k]["pred_coords"]) for k in keys], float)
+    if args.out_csv:
+        from pathlib import Path
+        Path(args.out_csv).parent.mkdir(parents=True, exist_ok=True)
+        with open(args.out_csv, "w") as f:
+            f.write("gt,pred\n")
+            for g, p in zip(gt, pr):
+                f.write(f"{int(g)},{int(p)}\n")
 
     r2, mae = r2_mae(gt, pr)
     print(f"DeNuC (detection) fold3  N={len(gt)}")
