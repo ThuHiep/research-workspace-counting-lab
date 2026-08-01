@@ -6,6 +6,34 @@
 
 ---
 
+
+## ★★ CHOT TAP CHI (2026-08-01): Results in Engineering (Elsevier), Special Issue 335088
+
+**Ban thao:** `paper2_rineng/main.tex` (elsarticle). Ban Springer `paper2_overleaf/main.tex` GIU LAI lam du phong.
+
+| hang muc | gia tri |
+|---|---|
+| tap chi | Results in Engineering, gold OA, IF 9.4 (6/2026), JCR **Q1**, WoS+Scopus+DOAJ |
+| APC | **2.160 USD** chua thue, thu SAU khi accept -> nop thu KHONG mat tien |
+| tac gia | Duong Viet Hang dung dau (de xin ho tro ~50% APC cho giang vien), Dinh Thi Thu Hiep corresponding |
+
+**RUI RO CHINH = cua "engineering" trong scope:** *"A clear engineering problem, system, or process must be
+addressed"* + *"not only the re-application of a known AI algorithm to existing problems"*. Bai la nghien cuu
+y-sinh, mo hinh dung linh kien co san -> **rui ro desk-reject**. Desk-reject mat ~1-2 tuan, khong mat tien.
+
+**Cach da xu ly:** viet lai quanh **BA NGAN SACH** (chu thich / tinh toan / dac ta do tin cay), KHONG them so
+lieu moi - moi con so da co san, chi doi thu tu uu tien:
+- ngan sach chu thich: Qu et al. 115 phut mask vs 14 phut diem -> >=8x; 25% ngan sach = 93% hieu nang
+- ngan sach tinh toan: 3.62M, 0.98 GMACs, 6.0ms GPU / 46ms CPU, 37.9MB, nho hon 11.3x DualU-Net ma van chinh xac hon
+- dac ta do tin cay: mondrian worst-organ 0.906, **0/19** duoi phu (global 4/19) - gia la interval rong hon 15%
+
+**Kiem da chay:** numeric-token diff Springer vs Elsevier = chi mat 2 dong ORCID; moi \cite co trong bib;
+5 highlights deu <= 85 ky tu; moi truong/ngoac/$ can; so cot moi bang khop header.
+**CHUA build** - tren may khong co LaTeX, phai build tren Overleaf.
+
+**CAN QUYET:** muc *Declaration of generative AI* dang de BAT trong main.tex. Neu khong khai thi xoa CA muc.
+
+
 ## 0. ★ VERIFICATION STATUS (NGUỒN CHÂN LÝ — mọi số phải khớp bảng này)
 
 | Thành phần | Trạng thái | Số honest |
