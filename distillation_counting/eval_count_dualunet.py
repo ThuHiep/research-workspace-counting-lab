@@ -5,15 +5,15 @@ Baseline CÔNG BẰNG cho Paper 2 (lightweight SOTA, leak-free): DualU-Net train
 Đếm = số peak trên centroid-map (đầu classes_c của họ), DÙNG ĐÚNG find_local_maxima của repo (h-maxima, h=th).
 GT đếm/ảnh = số annotation của image_id (COCO).
 
-CÔNG BẰNG với efflite0: LOẠI colon khỏi fold_3 (efflite0 đo trên fold3-no-colon, xem pannuke-colon-exclusion).
-Tissue lấy từ types.npy fold3 gốc (map theo thứ tự: COCO im{id}.png <-> images.npy[id]).
+CÙNG NỀN với efflite0: FULL fold_3 (2722 ảnh), GIỮ colon — khớp bảng chính (MASTER 2026-07-25).
+Loại colon chỉ cần khi PathoSAM là teacher (Lizard chồng PanNuke-colon); bài này không có teacher.
+Vẫn giữ cờ --exclude cho thí nghiệm cũ có teacher; khi đó mới cần --pannuke_root (types.npy).
 
 Chạy Kaggle (sau khi train xong, có checkpoint):
   !python eval_count_dualunet.py \
       --config-file /kaggle/working/DualU-Net/configs/config_eval_pannuke.yaml \
       --checkpoint  /kaggle/working/checkpoints/<tên-checkpoint>.pth \
-      --pannuke_root /kaggle/input/datasets/hipinhththu/pannuke \
-      --exclude colon
+      --out_csv /kaggle/working/dualunet_fold3_counts_s42.csv
 """
 import argparse, os, sys, json
 import os.path as osp
@@ -52,7 +52,7 @@ def main():
     ap.add_argument("--config-file", required=True)
     ap.add_argument("--checkpoint", default="", help="đường dẫn .pth; bỏ trống -> tự lấy .pth MỚI NHẤT trong output_dir của config")
     ap.add_argument("--pannuke_root", default="", help="dataset PanNuke gốc (chứa types.npy) — chỉ cần khi --exclude != ''")
-    ap.add_argument("--exclude", default="colon", help="tissue loại khỏi test (khớp efflite0)")
+    ap.add_argument("--exclude", default="", help='"" = full fold3 GIỮ colon (bảng chính); chỉ đặt tissue khi chạy lại TN có teacher')
     ap.add_argument("--out_csv", default="/kaggle/working/dualunet_fold3_counts.csv")
     args = ap.parse_args()
 
