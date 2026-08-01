@@ -118,7 +118,7 @@ số có độ phủ được bảo đảm không chỉ trên trung bình mà tr
 %%============================================================%%
 \section{Công trình liên quan}\label{sec:related}
 
-\paragraph{Phân đoạn và phát hiện nhân.} U-Net~\cite{unet} và các mở rộng như HoVer-Net~\cite{hovernet} hay
+\paragraph{Phân đoạn và phát hiện nhân} U-Net~\cite{unet} và các mở rộng như HoVer-Net~\cite{hovernet} hay
 StarDist~\cite{stardist} đạt độ chính xác phân đoạn cao trên các benchmark như PanNuke~\cite{pannuke}; trong các
 phương pháp này, số đếm là đại lượng dẫn xuất từ đầu ra phân đoạn và nhãn huấn luyện là mặt nạ mức điểm ảnh. Điều
 tương tự cũng đúng với các mô hình nhẹ gần đây cho định lượng nhân, dù được chưng cất từ một mô hình nền bệnh
@@ -127,7 +127,7 @@ giám sát bằng điểm ước lượng vị trí nhân một cách rời rạ
 đủ~\cite{qu2020}, nhưng vẫn đòi hỏi định vị và vẫn nhạy với bước hậu xử lý khi các nhân chồng lấn; hệ quả của tính
 chất này đối với độ chính xác đếm ở vùng dày đặc được đo trực tiếp ở Mục~\ref{sec:paradigm}.
 
-\paragraph{Nới lỏng nhãn trong phân tích nhân.} Một hướng nghiên cứu tích cực làm yếu dần mức chú thích cần
+\paragraph{Nới lỏng nhãn trong phân tích nhân} Một hướng nghiên cứu tích cực làm yếu dần mức chú thích cần
 thiết. Các mức được đề xuất trải từ một điểm cho mỗi nhân~\cite{pseudoedgenet}, tới chỉ một tập con các điểm
 đó~\cite{qu2020}, tới một chỉ báo đếm có ngưỡng trên các mảnh nhỏ~\cite{lirnet}, rồi tới nhãn mức
 ảnh~\cite{cyclic}. Ở mức chỉ báo có ngưỡng, người chú thích chỉ phải quyết định một mảnh chứa không, một, hay
@@ -141,13 +141,13 @@ mức ảnh cũng đã được khai thác rộng rãi ở mức lát cắt cho 
 thể~\cite{campanella}. Câu hỏi đặt ra ở đây khác về bản chất: khi đại lượng quan tâm \emph{chính là} số đếm, giám
 sát không gian có còn cần thiết không?
 
-\paragraph{Đếm bằng hồi quy mật độ.} Lempitsky và Zisserman~\cite{lempitsky} thiết lập cách đếm bằng hồi quy một
+\paragraph{Đếm bằng hồi quy mật độ} Lempitsky và Zisserman~\cite{lempitsky} thiết lập cách đếm bằng hồi quy một
 bản đồ mật độ mà tích phân trên một vùng cho ra số đối tượng trong vùng đó, thay vì phát hiện rồi đếm từng thực
 thể. Ý tưởng được chuyển sang hiển vi bởi các mạng hồi quy toàn chập~\cite{fcrn} và các sơ đồ đếm dư thừa trường
 tiếp nhận~\cite{countception}, và trở thành chuẩn mực cho đếm tế bào. Tuy rẻ hơn phân đoạn thực thể, giám sát mật
 độ vẫn giả định biết trước vị trí đối tượng, vì bản đồ đích được dựng từ điểm hoặc mặt nạ.
 
-\paragraph{Đếm chỉ với giám sát bằng số đếm.} Trong đếm đám đông, giám sát chỉ bằng tổng số mức ảnh đã trở thành
+\paragraph{Đếm chỉ với giám sát bằng số đếm} Trong đếm đám đông, giám sát chỉ bằng tổng số mức ảnh đã trở thành
 một hướng riêng. Một con số cho mỗi ảnh là tín hiệu huấn luyện yếu, nên các công trình hướng này bổ sung thêm
 nguồn tín hiệu: tác vụ phụ trợ~\cite{matt}, thông tin xếp hạng tiềm ẩn giữa các ảnh~\cite{sorting}, hoặc mô hình
 hoá ngữ cảnh toàn cục bằng transformer~\cite{transcrowd}. Lei và cộng sự~\cite{matt} cho biết việc hồi quy trực
@@ -164,7 +164,7 @@ hàng bản đồ lịch sử và một ràng buộc chính quy hoá không gian
 Ngoài ảnh tự nhiên, giám sát chỉ-đếm gần đây đã được chuyển sang một vài bài toán đếm vi sinh vật trong hiển
 vi~\cite{microvit}, còn trong đếm nhân ở bệnh học thì vẫn hiếm.
 
-\paragraph{Khoảng trống.} Bất chấp nhiều nỗ lực giảm chi phí chú thích trong phân tích nhân, phần lớn nghiên cứu
+\paragraph{Khoảng trống} Bất chấp nhiều nỗ lực giảm chi phí chú thích trong phân tích nhân, phần lớn nghiên cứu
 vẫn giả định rằng cần có một mức giám sát không gian nào đó. Vậy thứ còn thiếu không phải một kiến trúc mới mà là
 một \emph{đánh giá có đối chứng} xem thông tin không gian thực sự đáng giá bao nhiêu cho bài toán đếm. Cụ thể,
 dưới cùng kiến trúc, cùng dữ liệu và cùng giao thức đánh giá, việc thay mặt nạ mức điểm ảnh bằng một nhãn đếm duy
@@ -302,7 +302,7 @@ nên nó cung cấp đặc tả độ tin cậy nêu ở Mục~\ref{sec:intro} m
 %%============================================================%%
 \section{Thiết lập thí nghiệm}\label{sec:setup}
 
-\paragraph{Dữ liệu.} Đánh giá được thực hiện trên ba bộ dữ liệu độc lập từ các nguồn khác nhau:
+\paragraph{Dữ liệu} Đánh giá được thực hiện trên ba bộ dữ liệu độc lập từ các nguồn khác nhau:
 PanNuke~\cite{pannuke} (đa loại ung thư, $256\times256$, 19 loại mô; huấn luyện trên fold~1--2 với $5179$ mảnh,
 kiểm tra trên fold~3 với $2722$ mảnh), NuInsSeg~\cite{nuinsseg} ($665$ ảnh đa cơ quan, chia ngẫu nhiên $80/20$ theo
 từng seed) và MoNuSeg~2018~\cite{monuseg} (đa cơ quan, từ TCGA, $37$ ảnh huấn luyện và $14$ ảnh kiểm tra theo phân
@@ -310,13 +310,13 @@ chia chính thức; ảnh $1000\times1000$ được cắt thành các mảnh $25
 $256\times256$ với PanNuke và MoNuSeg, và là toàn ảnh với NuInsSeg. Xuyên suốt bài, các đơn vị này được gọi chung
 là ``ảnh'' ở những chỗ mà phân biệt không quan trọng.
 
-\paragraph{Chi tiết huấn luyện.} Bộ mã hoá được khởi tạo từ trọng số ImageNet và bộ giải mã dùng $32$ kênh. Mọi mô
+\paragraph{Chi tiết huấn luyện} Bộ mã hoá được khởi tạo từ trọng số ImageNet và bộ giải mã dùng $32$ kênh. Mọi mô
 hình được huấn luyện $60$ epoch bằng Adam với tốc độ học $10^{-3}$, kích thước lô $16$ và đầu vào $256\times256$,
 kèm cắt chuẩn gradient ở mức $5$ để tránh các lần phân kỳ hiếm gặp của $\beta$-NLL. Trọng số bất định là
 $w_n = 0{,}01$ và $\beta = 0{,}5$. Không dùng tăng cường dữ liệu. Hai chế độ giám sát dùng chung cấu hình huấn
 luyện và chỉ khác nhau ở cặp trọng số $(w_d, w_c)$.
 
-\paragraph{Giao thức.} Mọi phương pháp được so sánh đều được huấn luyện lại từ đầu trên cùng tập huấn luyện và
+\paragraph{Giao thức} Mọi phương pháp được so sánh đều được huấn luyện lại từ đầu trên cùng tập huấn luyện và
 đánh giá trên cùng tập kiểm tra. Mỗi cấu hình được lặp với nhiều seed ngẫu nhiên, báo cáo trung bình và độ lệch
 chuẩn.
 
@@ -337,7 +337,7 @@ biên, độ phủ của cơ quan bị phủ kém nhất, bề rộng khoảng v
 giữa hai chế độ giám sát cần cẩn trọng hơn, và được trình bày đầy đủ ở đây vì luận điểm trung tâm của bài là một
 khẳng định về một hiệu số \emph{bị chặn}, chứ không phải về một hiệu số lớn.
 
-\paragraph{Mô hình sai số bắt cặp.} Gọi $N_i$ là số đếm thật của đơn vị đánh giá $i$ và $\mu_i^{(r)}$ là dự đoán
+\paragraph{Mô hình sai số bắt cặp} Gọi $N_i$ là số đếm thật của đơn vị đánh giá $i$ và $\mu_i^{(r)}$ là dự đoán
 của chế độ $r \in \{\mathrm{c},\mathrm{m}\}$ (chỉ-đếm, mặt nạ), đã lấy trung bình trên các seed ở một tập kiểm tra
 cố định, để nhiễu seed bị khử trước khi bắt cặp chứ không bị coi là lặp lại độc lập. Với
 $e_i^{(r)} = |N_i - \mu_i^{(r)}|$ là sai số tuyệt đối từng đơn vị, đại lượng quan tâm là hiệu bắt cặp và trung
@@ -350,7 +350,7 @@ d_i \;=\; e_i^{(\mathrm{c})} - e_i^{(\mathrm{m})}, \qquad
 Bắt cặp trên cùng một đơn vị khử đi nguồn phương sai trội nhất, đó là độ khó của chính đơn vị đó, và $\Delta$ mang
 đúng đơn vị của đại lượng cần ước lượng: số nhân trên mỗi đơn vị đánh giá.
 
-\paragraph{Hai câu hỏi, hai kiểm định.} Một hiệu số có thể vừa là thật vừa nhỏ tới mức không đáng kể, và hai phát
+\paragraph{Hai câu hỏi, hai kiểm định} Một hiệu số có thể vừa là thật vừa nhỏ tới mức không đáng kể, và hai phát
 biểu này cần hai kiểm định riêng vì cái nọ không kéo theo cái kia.
 
 Câu hỏi thứ nhất là hai chế độ có khác nhau hay không. Một kiểm định Wilcoxon hạng có dấu bắt cặp được áp lên
@@ -376,7 +376,7 @@ và tương đương ở biên $\delta$ được công bố khi $p_{\text{TOST}}
 nằm gọn trong $(-\delta, +\delta)$. Khoảng đó thu được bằng bootstrap phân vị trên các đơn vị ($B = 10^{4}$ lần
 lấy lại mẫu, $\alpha = 0{,}05$, do đó là khoảng $90\%$), tránh phải giả định dạng phân phối cho $d$.
 
-\paragraph{Biên nhỏ nhất còn bảo vệ được.} Một $\delta$ định trước dễ bị phản bác là đã chọn cho vừa kết quả. Vì
+\paragraph{Biên nhỏ nhất còn bảo vệ được} Một $\delta$ định trước dễ bị phản bác là đã chọn cho vừa kết quả. Vì
 vậy bài báo báo cáo biên mà tại đó kết luận đảo chiều,
 \begin{equation}\label{eq:dstar}
 \delta^\star \;=\; \inf\{\delta > 0:\ \text{tương đương đúng ở biên } \delta\} \;=\; \max\big(|L|,\ |U|\big),
@@ -514,7 +514,7 @@ một con số cho mỗi ảnh về nguyên tắc có thể khai thác các tư�
 nhuộm) thay vì chính các nhân. Hai phân tích dưới đây kiểm định khả năng đó trên PanNuke fold~3 ($n=2722$ mảnh, số
 đếm trung bình $24{,}5$).
 
-\paragraph{Độ chính xác được giữ trên cả 19 loại mô.} Các phân tích dưới đây dùng ba mô hình chỉ-đếm được huấn
+\paragraph{Độ chính xác được giữ trên cả 19 loại mô} Các phân tích dưới đây dùng ba mô hình chỉ-đếm được huấn
 luyện độc lập theo giao thức ở Mục~\ref{sec:setup}, từ một lần huấn luyện tách khỏi các mô hình của
 Bảng~\ref{tab:parity}; mô hình dùng cho Bảng~\ref{tab:perorgan} và Hình~\ref{fig:agreement} đạt $R^2 = 0{,}934$ và
 MAE $3{,}40$ trên toàn tập kiểm tra. Các dự đoán nằm sát đường đếm chính xác trên toàn dải số đếm
@@ -563,7 +563,7 @@ Gan               & $93$  & $0{,}884$ & $3{,}39$ & \textbf{Tổng} & $2722$ & $0
 \end{tabular}
 \end{table}
 
-\paragraph{Xoá nhân có đối chứng giả.} Để kiểm định quan hệ nhân quả, một tỉ lệ $k$ số nhân đã được chú thích bị
+\paragraph{Xoá nhân có đối chứng giả} Để kiểm định quan hệ nhân quả, một tỉ lệ $k$ số nhân đã được chú thích bị
 xoá khỏi ảnh và số đếm dự đoán được đo lại. Mỗi nhân được thay bằng một mảnh mô \emph{khớp hình dạng} lấy từ một
 vị trí không có nhân trong cùng ảnh đó, và mặt nạ nhân được giãn nở $2$ điểm ảnh trước khi xoá để phủ cả viền nhân
 mà chú thích thường bỏ sót. Thao tác này giữ nguyên thống kê kết cấu của mô trong khi loại bỏ nội dung nhân. Đối
@@ -774,7 +774,7 @@ cluster & $0{,}906$ & $14{,}8$ & $\mathbf{20{,}0}$ & $0{,}859$ & $\mathbf{0/19}$
 %%============================================================%%
 \section{Thảo luận}\label{sec:discuss}
 
-\paragraph{Vì sao giám sát mức ảnh có thể là đủ cho bài toán đếm nhân.} Các thí nghiệm can thiệp đưa ra một lời
+\paragraph{Vì sao giám sát mức ảnh có thể là đủ cho bài toán đếm nhân} Các thí nghiệm can thiệp đưa ra một lời
 giải thích hợp lý cho việc thông tin vị trí chi tiết không phải là thành phần quyết định của độ chính xác đếm. Số
 đếm dự đoán giảm đúng khi các nhân bị xoá khỏi ảnh nhưng gần như không đổi dưới các can thiệp giả khớp diện tích;
 đồng thời đáp ứng vẫn dưới tuyến tính và bản đồ mật độ học được hầu như không mang thông tin vị trí. Hai quan sát
@@ -782,7 +782,7 @@ này nhất quán với giả thuyết rằng mô hình học cách tích hợp 
 phải phát hiện rồi kiểm đếm từng thực thể. Nếu vậy, một nhãn đếm mức ảnh có thể đã cung cấp phần lớn thông tin cần
 cho tác vụ đếm.
 
-\paragraph{Hệ quả cho thiết kế.} Đọc đối chiếu với ba ngân sách ở Mục~\ref{sec:intro}, các phép đo cho ra một hệ
+\paragraph{Hệ quả cho thiết kế} Đọc đối chiếu với ba ngân sách ở Mục~\ref{sec:intro}, các phép đo cho ra một hệ
 rẻ trên cả ba trục cùng lúc. Hợp đồng chú thích có thể viết cho nhãn đếm mức ảnh, rẻ hơn ít nhất tám lần mỗi ảnh
 so với khoanh viền đầy đủ, và định lượng ở khoảng một phần tư mức phủ toàn bộ để đạt khoảng $93\%$ độ chính xác
 khả dĩ. Chi phí suy luận nằm trong mức mà một CPU phục vụ được theo thời gian thực, nên hệ không áp đặt phần cứng
@@ -792,14 +792,14 @@ phải đánh đổi bị chặn trên ở khoảng $1\%$ số nhân mỗi ảnh
 xứng này, chứ không phải một con số độ chính xác riêng lẻ nào, mới là thứ khiến thiết kế chỉ-đếm là lựa chọn hợp
 lý khi đầu ra cần có là số đếm.
 
-\paragraph{Chuyển giao ngoài miền.} Cơ chế tích hợp bằng chứng toàn ảnh cũng gợi ra một hạn chế tiềm tàng. Vì mô
+\paragraph{Chuyển giao ngoài miền} Cơ chế tích hợp bằng chứng toàn ảnh cũng gợi ra một hạn chế tiềm tàng. Vì mô
 hình học các tín hiệu liên quan tới nhân ở một thang không gian nhất định, độ chính xác có thể suy giảm khi độ
 phóng đại hoặc kích thước nhân biểu kiến khác biệt đáng kể giữa miền huấn luyện và miền triển khai. Ngược lại, các
 khoảng dự báo conformal không giả định dạng phân phối nào: sau khi hiệu chuẩn lại trên một tập hiệu chuẩn nhỏ từ
 miền đích, độ phủ mong muốn vẫn được giữ dưới giả thiết khả hoán ngay cả khi độ chính xác điểm thay đổi. Khi đó
 khoảng nới rộng ra đóng vai trò tín hiệu cảnh báo rằng một mẫu nằm ngoài vùng mà mô hình còn đáng tin.
 
-\paragraph{Hạn chế và phạm vi.} Nghiên cứu này được thiết kế như một thí nghiệm có đối chứng nhằm cô lập vai trò
+\paragraph{Hạn chế và phạm vi} Nghiên cứu này được thiết kế như một thí nghiệm có đối chứng nhằm cô lập vai trò
 của kiểu giám sát. Do đó các kết luận của nó được thiết lập trên một họ kiến trúc duy nhất, một bộ mã hoá nhẹ ghép
 với một bộ giải mã kiểu U-Net. Việc các quan sát tương tự có còn đúng trên những kiến trúc khác, chẳng hạn mô hình
 transformer hay các hệ phân đoạn nhân chuyên dụng, vẫn cần được kiểm chứng bằng thực nghiệm. Ngoài ra, vì nhánh

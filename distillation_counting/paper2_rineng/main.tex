@@ -132,7 +132,7 @@ tissue type (Section~\ref{sec:deploy}).
 %%============================================================%%
 \section{Related work}\label{sec:related}
 
-\paragraph{Nuclei segmentation and detection.} U-Net~\cite{unet} and extensions such as
+\paragraph{Nuclei segmentation and detection} U-Net~\cite{unet} and extensions such as
 HoVer-Net~\cite{hovernet} and StarDist~\cite{stardist} achieve high segmentation accuracy on benchmarks such as
 PanNuke~\cite{pannuke}; in these methods the count is a quantity derived from the segmentation output and the
 training labels are pixel-level masks. The same holds for recent lightweight models for nuclei quantification,
@@ -142,7 +142,7 @@ discretely and thereby reduce annotation cost relative to full masks~\cite{qu202
 localisation and remain sensitive to the post-processing step when nuclei overlap; the consequence of this
 property for counting accuracy in dense regions is measured directly in Section~\ref{sec:paradigm}.
 
-\paragraph{Relaxing labels in nuclei analysis.} An active line of work progressively weakens the annotation
+\paragraph{Relaxing labels in nuclei analysis} An active line of work progressively weakens the annotation
 required. The proposed levels range from one point per nucleus~\cite{pseudoedgenet}, to only a subset of those
 points~\cite{qu2020}, to a thresholded count indicator over small patches~\cite{lirnet}, to image-level
 labels~\cite{cyclic}. At the thresholded-indicator level the annotator only decides whether a patch contains
@@ -157,14 +157,14 @@ the slide level for classification through multiple instance learning~\cite{camp
 here is different in kind: when the quantity of interest \emph{is} the count itself, is spatial supervision
 still necessary?
 
-\paragraph{Counting by density regression.} Lempitsky and Zisserman~\cite{lempitsky} established counting by
+\paragraph{Counting by density regression} Lempitsky and Zisserman~\cite{lempitsky} established counting by
 regressing a density map whose integral over a region gives the number of objects in that region, instead of
 detecting and counting individual instances. The idea was carried over to microscopy by fully convolutional
 regression networks~\cite{fcrn} and by receptive-field redundant counting schemes~\cite{countception}, and
 became standard for cell counting. Although cheaper than instance segmentation, density supervision still
 presupposes known object locations, because the target map is constructed from points or masks.
 
-\paragraph{Counting with count supervision only.} In crowd counting, supervision by the image-level total alone
+\paragraph{Counting with count supervision only} In crowd counting, supervision by the image-level total alone
 has become a line of its own. A single number per image is a weak training signal, so work in this area adds
 further sources of signal: auxiliary tasks~\cite{matt}, latent ranking information between
 images~\cite{sorting}, or global context modelling with transformers~\cite{transcrowd}. Lei et
@@ -182,7 +182,7 @@ including an unsupervised saliency prior, a historical map bank and a spatial re
 Beyond natural images, count-only supervision has recently been transferred to a few microorganism counting
 problems in microscopy~\cite{microvit}, whereas in histopathology nuclei counting it remains rare.
 
-\paragraph{Gap.} Despite considerable effort to reduce annotation cost in nuclei analysis, most studies still
+\paragraph{Gap} Despite considerable effort to reduce annotation cost in nuclei analysis, most studies still
 assume that some level of spatial supervision is necessary. What is missing is therefore not a new
 architecture but a \emph{controlled assessment} of how much spatial information is actually worth for counting.
 Specifically, under the same architecture, the same data and the same evaluation protocol, how much accuracy is
@@ -330,7 +330,7 @@ counter itself was trained.
 %%============================================================%%
 \section{Experimental setup}\label{sec:setup}
 
-\paragraph{Data.} Evaluation is carried out on three independent datasets from different sources:
+\paragraph{Data} Evaluation is carried out on three independent datasets from different sources:
 PanNuke~\cite{pannuke} (pan-cancer, $256\times256$, 19 tissue types; trained on folds~1--2 with $5179$ patches,
 tested on fold~3 with $2722$ patches), NuInsSeg~\cite{nuinsseg} ($665$ multi-organ images, random $80/20$ split
 per seed) and MoNuSeg~2018~\cite{monuseg} (multi-organ, from TCGA, $37$ training and $14$ test images following
@@ -339,13 +339,13 @@ evaluation unit is the $256\times256$ patch for PanNuke and MoNuSeg, and the who
 Throughout the paper these units are referred to collectively as ``images'' where the distinction does not
 matter.
 
-\paragraph{Training details.} The encoder is initialised from ImageNet weights and the decoder uses $32$
+\paragraph{Training details} The encoder is initialised from ImageNet weights and the decoder uses $32$
 channels. All models are trained for $60$ epochs with Adam at learning rate $10^{-3}$, batch size $16$ and
 input size $256\times256$, with gradient norm clipping at $5$ to prevent the rare divergences of $\beta$-NLL.
 The uncertainty weights are $w_n = 0.01$ and $\beta = 0.5$. No data augmentation is used. The two supervision
 regimes share the same training configuration and differ only in the weight pair $(w_d, w_c)$.
 
-\paragraph{Protocol.} All compared methods are retrained from scratch on the same training set and evaluated on
+\paragraph{Protocol} All compared methods are retrained from scratch on the same training set and evaluated on
 the same test set. Each configuration is repeated with several random seeds, reporting the mean and standard
 deviation.
 
@@ -368,7 +368,7 @@ Section~\ref{sec:conformal}. The comparison between supervision regimes needs mo
 full because the central claim of the paper is a claim about a \emph{bounded} difference rather than about a
 difference being large.
 
-\paragraph{Paired error model.} Let $N_i$ be the ground-truth count of evaluation unit $i$ and $\mu_i^{(r)}$
+\paragraph{Paired error model} Let $N_i$ be the ground-truth count of evaluation unit $i$ and $\mu_i^{(r)}$
 the prediction of regime $r \in \{\mathrm{c},\mathrm{m}\}$ (count-only, mask), averaged over seeds on a fixed
 test set so that seed noise is removed before pairing rather than treated as replication. With
 $e_i^{(r)} = |N_i - \mu_i^{(r)}|$ the per-unit absolute errors, the quantity of interest is the paired
@@ -381,7 +381,7 @@ d_i \;=\; e_i^{(\mathrm{c})} - e_i^{(\mathrm{m})}, \qquad
 Pairing on the same unit removes the dominant source of variance, namely how hard that particular unit is to
 count, and $\Delta$ carries the units of the quantity being estimated: nuclei per evaluation unit.
 
-\paragraph{Two questions, two tests.} A difference can be real and yet too small to matter, and the two
+\paragraph{Two questions, two tests} A difference can be real and yet too small to matter, and the two
 statements need separate tests because neither implies the other.
 
 The first question is whether the regimes differ at all. A paired Wilcoxon signed-rank test is applied to
@@ -409,7 +409,7 @@ $[L, U]$ of $\Delta$ is contained in $(-\delta, +\delta)$. That interval is obta
 over units ($B = 10^{4}$ resamples, $\alpha = 0.05$, hence a $90\%$ interval), which avoids assuming a
 distributional shape for $d$.
 
-\paragraph{The smallest defensible margin.} A pre-specified $\delta$ invites the objection that it was chosen
+\paragraph{The smallest defensible margin} A pre-specified $\delta$ invites the objection that it was chosen
 to fit the result. The paper therefore reports the margin at which the conclusion turns,
 \begin{equation}\label{eq:dstar}
 \delta^\star \;=\; \inf\{\delta > 0:\ \text{equivalence holds at margin } \delta\} \;=\; \max\big(|L|,\ |U|\big),
@@ -555,7 +555,7 @@ model that sees only one number per image could in principle exploit global corr
 density, staining characteristics) rather than the nuclei themselves. The two analyses below test that
 possibility on PanNuke fold~3 ($n=2722$ patches, mean count $24.5$).
 
-\paragraph{Accuracy is retained across all 19 tissue types.} The analyses below use three independently trained
+\paragraph{Accuracy is retained across all 19 tissue types} The analyses below use three independently trained
 count-only models following the protocol in Section~\ref{sec:setup}, from a training run separate from the
 models of Table~\ref{tab:parity}; the model used for Table~\ref{tab:perorgan} and Fig.~\ref{fig:agreement}
 attains $R^2 = 0.934$ and MAE $3.40$ over the whole test set. Predictions lie close to the line of exact
@@ -605,7 +605,7 @@ Liver         & $93$  & $0.884$ & $3.39$ & \textbf{Overall} & $2722$ & $0.934$ &
 \end{tabular}
 \end{table}
 
-\paragraph{Sham-controlled nucleus removal.} To test the causal relationship, a fraction $k$ of the annotated
+\paragraph{Sham-controlled nucleus removal} To test the causal relationship, a fraction $k$ of the annotated
 nuclei is removed from the image and the predicted count is measured again. Each nucleus is replaced by a
 \emph{shape-matched} tissue patch taken from a nucleus-free location within the same image, and the nucleus
 mask is dilated by $2$ pixels before removal so as to cover the nuclear rim that annotation commonly omits.
@@ -834,7 +834,7 @@ cluster & $0.906$ & $14.8$ & $\mathbf{20.0}$ & $0.859$ & $\mathbf{0/19}$ \\
 %%============================================================%%
 \section{Discussion}\label{sec:discuss}
 
-\paragraph{Why image-level supervision can suffice for nuclei counting.} The intervention experiments offer a
+\paragraph{Why image-level supervision can suffice for nuclei counting} The intervention experiments offer a
 plausible explanation for why detailed positional information is not the decisive component of counting
 accuracy. The predicted count falls specifically when nuclei are removed from the image but barely changes
 under area-matched sham interventions; at the same time, the response remains sublinear and the learned density
@@ -843,7 +843,7 @@ the model learns to integrate nucleus-related evidence over the whole image rath
 individual instances. In that case, an image-level count label may already provide most of the information
 needed for the counting task.
 
-\paragraph{Design implications.} Read against the three budgets of Section~\ref{sec:intro}, the measurements
+\paragraph{Design implications} Read against the three budgets of Section~\ref{sec:intro}, the measurements
 give a system that is cheap on all three axes at once. The annotation contract can be written for image-level
 counts, at least eight times cheaper per image than full delineation, and sized at roughly a quarter of full
 coverage for about $93\%$ of the attainable accuracy. The inference cost stays within what a CPU can serve in
@@ -853,7 +853,7 @@ not constrain how the counter itself was trained. The single quantity to be trad
 roughly $1\%$ of the nuclei per image on the largest dataset tested. This asymmetry, rather than any individual
 accuracy figure, is what makes the count-only design the rational choice when the required output is the count.
 
-\paragraph{Out-of-domain transfer.} The whole-image evidence integration mechanism also suggests a potential
+\paragraph{Out-of-domain transfer} The whole-image evidence integration mechanism also suggests a potential
 limitation. Because the model learns nucleus-related signals at a particular spatial scale, accuracy may
 degrade when magnification or apparent nuclear size differs substantially between the training and deployment
 domains. Conformal prediction intervals, by contrast, assume no particular distributional form: after
@@ -861,7 +861,7 @@ recalibration on a small calibration set from the target domain, the desired cov
 exchangeability even if point accuracy changes. Widening intervals then act as a warning signal that a sample
 lies outside the region where the model remains trustworthy.
 
-\paragraph{Limitations and scope.} This study was designed as a controlled experiment isolating the role of
+\paragraph{Limitations and scope} This study was designed as a controlled experiment isolating the role of
 supervision type. Its conclusions are therefore established on a single architecture family, a lightweight
 encoder combined with a U-Net style decoder. Whether similar observations continue to hold on other
 architectures, such as transformer models or purpose-built nuclei segmentation systems, remains to be verified
