@@ -154,6 +154,9 @@ def main():
     ap.add_argument("--lr", type=float, default=1e-3,
                     help="Adam LR; efflite0/CNN dùng 1e-3. Backbone transformer (pvt/swin) có thể cần "
                          "hạ (3e-4/1e-4) nếu 1e-3 phá feature pretrained -> sập hằng số.")
+    ap.add_argument("--ckpt_dir", default="",
+                    help="lưu state_dict mỗi arm/seed vào đây (vd /kaggle/working/ckpt). Trước đây chỉ "
+                         "dump_preds nên KHÔNG còn model nhánh mask để vẽ lại density map.")
     ap.add_argument("--work_dir", default="work",
                     help="nơi lưu cache GT-density. ĐẶT NGOÀI repo (vd /kaggle/working/pannuke_cache) "
                          "để 'rm -rf <repo>' mỗi lần clone KHÔNG xóa cache -> khỏi build lại (rất chậm).")
@@ -203,7 +206,7 @@ def main():
                 nm = str(k[6:]).replace("_", " ")
                 per_img.setdefault(nm, []).extend(list(z[k]))
                 print(f"[load_preds] nạp '{nm}': {len(z[k])} seed × {len(z[k][0])} ảnh từ {args.load_preds}")
-    for name, wd, wc in configs:
+    for key, (name, wd, wc) in zip(arms, configs):
         r2s, maes = [], []
         for sd in seeds:
             np.random.seed(sd); torch.manual_seed(sd); torch.cuda.manual_seed_all(sd)
@@ -216,6 +219,9 @@ def main():
             # train(data, device, epochs, ch, lr, train_idx, w_density, w_count, w_nll, beta, bs, detach_mu, sigma_mode, backbone)
             model = train(data, dev, args.epochs, args.ch, args.lr, tr,
                           wd, wc, 0.01, 0.5, args.bs, True, "poisson", args.backbone, preload=args.preload)
+            if args.ckpt_dir:
+                os.makedirs(args.ckpt_dir, exist_ok=True)
+                torch.save(model.state_dict(), f"{args.ckpt_dir}/{key}_s{sd}.pt")
             r2, mae = eval_r2_mae(model, data, te, dev)
             r2s.append(r2); maes.append(mae)
             per_img[name].append(_per_image_pred(model, data, te, dev))
