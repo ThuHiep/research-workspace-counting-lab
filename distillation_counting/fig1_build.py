@@ -60,13 +60,18 @@ def row(g, Y, hdr, mask_sup):
     img(f"{g}im", PLAIN, XI, Y + 44, S, S)
     for k, (dx, h) in enumerate(zip((0, 32, 64, 96, 128), (S, 82, 60, 82, S))):
         box(f"{g}e{k}", "", XN + dx, Y + 99 - h // 2, 26, h, MUT, NET)
+    # o ban do: ke luoi mo + ghi kich thuoc -> doc ra "mot ban do HxW", khong phai o trong.
+    # KHONG ve ban do du doan that: do la ket qua thi nghiem, va chi co checkpoint count-only.
     box(f"{g}pm", "", XM, Y + 44, S, S, INK)
+    for j in range(1, 4):
+        box(f"{g}gv{j}", "", XM + j * S // 4, Y + 44, 1, S, "#DDDDDD", "#DDDDDD")
+        box(f"{g}gh{j}", "", XM, Y + 44 + j * S // 4, S, 1, "#DDDDDD", "#DDDDDD")
     box(f"{g}sg", "&#8721;", XS, Y + 76, 46, 46, INK, "#FFFFFF", 19, 1, sh="ellipse")
     box(f"{g}mu", "&#956;", XU, Y + 72, 140, 54, INK, "#FFFFFF", 19, 1)
 
     txt(f"{g}li", "input patch", XI - 15, Y + 160, 140, 22, fc=MUT)
     txt(f"{g}ln", "encoder + decoder", XN - 20, Y + 160, 200, 22, fc=MUT)
-    txt(f"{g}lm", "predicted density map", XM - 45, Y + 16, 200, 22, fc=MUT)
+    txt(f"{g}lm", "predicted density map, 256 &#215; 256", XM - 60, Y + 16, 230, 22, fc=MUT)
     txt(f"{g}lu", "predicted count", XU, Y + 16, 140, 22, fc=MUT)
 
     edge(f"{g}f0", f"{g}im", f"{g}e0", 1, .5, 0, .5)
