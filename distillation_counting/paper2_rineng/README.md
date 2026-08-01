@@ -8,6 +8,12 @@ Upload len Overleaf: ca hai .tex + `references.bib` + `figures/`.
 Doi file chinh trong Menu > Main document de build ban con lai.
 Neu dau tieng Viet loi: doi main_vi.tex sang XeLaTeX (huong dan o dau file).
 
+## Hinh 1 - DANG TAM GO KHOI BAI (2026-08-02)
+
+Khoi \begin{figure} boc trong `\iffalse ... \fi` o ca 2 file .tex, va cau `\ref{fig:design}`
+trong Introduction da comment. Bai build duoc BINH THUONG, khong can fig_design.pdf.
+**Bat lai:** xoa dong `\iffalse` + `\fi`, va bo `%% [HINH 1 TAM GO]` truoc cau ref.
+
 ## Hinh 1 - PHAI XUAT TRUOC KHI BUILD
 
 `figures/fig_design.drawio` la NGUON. Bai dang \includegraphics{fig_design.pdf}, file PDF do CHUA co.

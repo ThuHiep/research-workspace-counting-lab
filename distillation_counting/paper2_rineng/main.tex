@@ -106,7 +106,7 @@ open question, and with it the size of the annotation budget that a deployment m
 This paper answers that question with a \emph{controlled experiment}. The model architecture, the data and the
 evaluation protocol are held fixed, and the single experimental variable is the type of supervision:
 pixel-level masks, or one count label per image. Any observed difference is therefore attributable to
-\emph{annotation}, not to model capacity. Figure~\ref{fig:design} shows the design and states its outcome.
+\emph{annotation}, not to model capacity. %% [HINH 1 TAM GO] Figure~\ref{fig:design} shows the design and states its outcome.
 
 The main contributions are as follows.
 \begin{itemize}
@@ -129,6 +129,8 @@ distribution-free prediction intervals whose coverage is guaranteed not only on 
 tissue type (Section~\ref{sec:deploy}).
 \end{itemize}
 
+%% ===== HINH 1 TAM GO KHOI BAI (chua ung y). Bat lai: xoa dong \iffalse va \fi =====
+\iffalse
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_design.pdf}
@@ -150,6 +152,7 @@ examined in Section~\ref{sec:fidelity}. The uncertainty head and its loss are om
 identical in both regimes.}
 \label{fig:design}
 \end{figure}
+\fi
 
 %%============================================================%%
 \section{Related work}\label{sec:related}
