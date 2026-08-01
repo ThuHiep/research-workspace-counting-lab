@@ -30,6 +30,12 @@
 ở `name:`+`output_name:` kẻo 5 seed đè checkpoint nhau). DeNuC README không nhắc seed → phải vá.
 
 
+**★ StarDist 5-SEED XONG (2026-08-02, leak-free full fold3 n=2722):** R² per-seed 0.8537/0.8452/0.8582/0.8483/0.8283
+→ **0.847±0.011**; MAE 4.316/4.390/4.363/4.449/4.393 → **4.38±0.05**. Thay số 1-seed cũ (0.841/4.64 — nằm ở
+biên dưới). Pred mean 21.5 vs GT 24.5 = **under-count 12.2%**. Bảng 4 + caption 2 bản .tex ĐÃ SỬA.
+⚠️ CSV `/kaggle/working/out/stardist_fold3_counts_s4{2..6}.csv` CHƯA backup kaggle — làm NGAY.
+Còn lại 1-seed: DualU-Net, DeNuC.
+
 ## ★★ CHOT TAP CHI (2026-08-01): Results in Engineering (Elsevier), Special Issue 335088
 
 **Ban thao:** `paper2_rineng/main.tex` (elsarticle). Ban Springer `paper2_overleaf/main.tex` GIU LAI lam du phong.
@@ -245,7 +251,7 @@ Scaling **bão hoà ở 3.6M** (lớn hơn tệ đi) = lập luận **efficiency
 | DeNuC (retrain fold12, 2026) | 4.37M (ShuffleNet-x2) | detection (centroid) | 0.455 | 9.64 | ✅ (F1 68.0 P89/R55; LỚN hơn efflite0 mà kém xa; under-count sụp theo mật độ, bias 45+ −30.4) |
 | DualU-Net (retrain fold_1+2) | ~35M (resnext50) | mask | 0.804 | 5.33 | ✅ (over-count 26.2) |
 | ↳ **param VERIFIED 2026-08-01 — SỬA `~35M` → `41.0M`** | **41,006,775** (+ 0.07M buffer BN = 41.08M) | — | — | — | `resnext_pannuke_fold12_epoch_50.zip` key `model`; encoder 23.05M + decoder 9.01M + **decoder_count 9.01M** (hai decoder = tên DualU-Net). `~35M` cũ có lẽ quên nhánh decoder thứ hai. Bảng 4 đã sửa. |
-| StarDist (retrain fold_1+2) | 1.43M (U-Net) | mask | 0.841 | 4.64 | ✅ (under-count 20.8; nhỏ hơn efflite0 nhưng cần mask + kém acc) |
+| StarDist (retrain fold_1+2, **5 seed** 2026-08-02) | 1.43M (U-Net) | mask | **0.847±0.011** | **4.38±0.05** | ✅ (under-count 20.8; nhỏ hơn efflite0 nhưng cần mask + kém acc) |
 | ↳ **param VERIFIED 2026-08-01** | **1,425,761** (= 1.43M, khớp bảng) | — | — | — | cộng mọi dataset trong `weights_best.h5` (kaggle `dattong12/stardist-ckpt-fold1-2-pannuke`); gồm cả non-trainable (BN moving stats) |
 | **PACT efflite0 (ours)** | **3.62M** | **count-only** | **0.920±0.005** | **3.61±0.07** | ✅ **thắng CẢ 3 paradigm** |
 

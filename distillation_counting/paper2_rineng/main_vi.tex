@@ -690,16 +690,16 @@ cao.
 \begin{table}[!htbp]
 \centering
 \caption{So sánh bốn mô thức trên PanNuke (cùng tập kiểm tra, tác vụ đếm). DensitySigmaUNet báo trung bình và độ
-lệch chuẩn trên $5$ seed, đúng các con số ở Bảng~\ref{tab:parity}; ba phương pháp so sánh mỗi phương pháp chỉ có
-một lần huấn luyện, nên khác biệt giữa chúng nên được đọc đối chiếu với mức biến thiên giữa các seed nêu ở hàng
-đầu. Giá trị tốt nhất mỗi cột được in đậm.}\label{tab:paradigm}
+lệch chuẩn trên $5$ seed, đúng các con số ở Bảng~\ref{tab:parity}, và StarDist đã được huấn luyện lại trên cùng
+$5$ seed đó; DualU-Net và DeNuC mỗi phương pháp chỉ có một lần huấn luyện, nên khác biệt liên quan đến chúng nên
+được đọc đối chiếu với mức biến thiên giữa các seed nêu ở những hàng có con số đó. Giá trị tốt nhất mỗi cột được in đậm.}\label{tab:paradigm}
 \small
 \begin{tabular}{@{}lccccc@{}}
 \toprule
 Phương pháp & Tham số & Nhãn & Mô thức & $R^2\uparrow$ & MAE$\downarrow$ \\
 \midrule
 DensitySigmaUNet & $3{,}62$M & số đếm & hồi quy & $\mathbf{0{,}918\pm0{,}011}$ & $\mathbf{3{,}60\pm0{,}10}$ \\
-StarDist~\cite{stardist} & $1{,}43$M & mặt nạ & phân đoạn & $0{,}841$ & $4{,}64$ \\
+StarDist~\cite{stardist} & $1{,}43$M & mặt nạ & phân đoạn & $0{,}847\pm0{,}011$ & $4{,}38\pm0{,}05$ \\
 DualU-Net~\cite{dualunet} & $41{,}0$M & mặt nạ & mật độ trọng tâm & $0{,}804$ & $5{,}33$ \\
 DeNuC~\cite{denuc} & $4{,}37$M & điểm & phát hiện & $0{,}455$ & $9{,}64$ \\
 \bottomrule
