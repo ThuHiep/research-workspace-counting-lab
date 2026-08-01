@@ -178,6 +178,12 @@ def main():
         os.makedirs(args.work_dir, exist_ok=True)   # nơi lưu cache GT-density (kẻo build xong không save được)
     except OSError as e:
         print(f"[work_dir] không tạo được ({e}) — chỉ ĐỌC cache, ok nếu pkl đã có sẵn")
+    # do quyen ghi NGAY: train 1h/seed, hong o buoc luu la mat trang (bai hoc stardist_baseline.py)
+    for _d in (args.ckpt_dir, os.path.dirname(os.path.abspath(args.dump_preds)) if args.dump_preds else ""):
+        if _d:
+            os.makedirs(_d, exist_ok=True)
+            _p = os.path.join(_d, ".probe"); open(_p, "w").close(); os.remove(_p)
+
     tr_folds = [int(x) for x in args.train_folds.split(",")]
     fstr = "".join(str(x) for x in sorted(tr_folds))
     train_data = build_pannuke_density(args.pannuke_root, tr_folds, dev,
