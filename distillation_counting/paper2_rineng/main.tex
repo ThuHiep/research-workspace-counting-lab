@@ -138,9 +138,11 @@ or by recording the single number $22$, at no more than $1.4$ seconds per nucleu
 regimes then share the network, the training data, the $60$-epoch schedule, the test set and the five seeds,
 so the loss weights $(w_d, w_c)$ are the only quantity that differs and any difference in accuracy is
 attributable to the annotation alone. The network emits one density map, whose sum is the predicted count
-$\mu$, together with an uncertainty $\sigma$. Setting $w_d = 0$ leaves that map without any pixel-level
-supervision and constrains only its sum, which is what makes the localisation it nevertheless acquires an
-empirical question (Section~\ref{sec:fidelity}). The outcome is stated at the bottom: the residual gap is
+$\mu$, together with an uncertainty $\sigma$. The map displayed is the \emph{target} for that patch, built
+from its masks by spreading a unit of mass over each nucleus so that the map integrates to $22$; it is not a
+model output. Setting $w_d = 0$ discards that target entirely, leaving the predicted map without any
+pixel-level supervision and constraining only its sum, which is what makes the localisation the map
+nevertheless acquires an empirical question (Section~\ref{sec:fidelity}). The outcome is stated at the bottom: the residual gap is
 statistically detectable and at the same time bounded well below one nucleus.}
 \label{fig:design}
 \end{figure}

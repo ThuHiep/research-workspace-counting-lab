@@ -15,8 +15,10 @@ from pathlib import Path
 F = Path("paper2_rineng/figures")
 DW = F / "fig_design.drawio"
 b64 = lambda p: base64.b64encode((F / p).read_bytes()).decode()
-MASK, PLAIN = b64("fig1_mask.png"), b64("fig1_plain.png")
+MASK, PLAIN, DENS = b64("fig1_mask.png"), b64("fig1_plain.png"), b64("fig1_density.png")
 IMST = "shape=image;html=1;imageAspect=0;imageBorder={};image=data:image/png,{};"
+IMG_CELL = ('<mxCell id="{}" value="" style="' + IMST + '" vertex="1" parent="1">'
+            '<mxGeometry x="{}" y="{}" width="{}" height="{}" as="geometry"/></mxCell>')
 
 t = DW.read_text()
 
@@ -57,11 +59,16 @@ if 'id="hd"' not in t:
     box = ('<mxCell id="{}" value="{}" style="rounded=1;html=1;fillColor=#FFFFFF;strokeColor=#7B5EA7;'
            'strokeWidth=2;fontSize=21;fontColor=#333333;align=center;verticalAlign=middle;" '
            'vertex="1" parent="1"><mxGeometry x="{}" y="{}" width="{}" height="{}" as="geometry"/></mxCell>')
+    # 2 dong chu dai -> 1 dong ngan (khoi tim truoc day toan chu)
+    t = re.sub(r'(<mxCell id="shb" value=")[^"]*"',
+               r'\g<1>EfficientNet-lite0 encoder + U-Net decoder &#183; 3.62M params &#183; '
+               r'same data, schedule, test set and 5 seeds"', t)
     strip = (
-        box.format("hd", "DENSITY MAP 256&#215;256&#10;&#10;when w&lt;sub&gt;d&lt;/sub&gt; = 0 it is "
-                         "&lt;b&gt;never&lt;/b&gt; supervised&#10;pixel by pixel",
-                   350, 516, 300, 120)
-        + box.format("hmu", "predicted count &#956; = &lt;b&gt;sum&lt;/b&gt; of the map", 690, 516, 380, 52)
+        # ANH THAT thay cho chu "DENSITY MAP": ban do muc tieu, tong = 22
+        IMG_CELL.format("hdimg", "#7B5EA7", DENS, 350, 516, 120, 120)
+        + box.format("hd", "w&lt;sub&gt;d&lt;/sub&gt; = 0 &#8594;&#10;map &lt;b&gt;never&lt;/b&gt; "
+                           "supervised&#10;pixel by pixel", 484, 516, 186, 120)
+        + box.format("hmu", "&#956; = &lt;b&gt;sum&lt;/b&gt; of the map = 22", 690, 516, 380, 52)
         + box.format("hsg", "&#963; = &#8730;max(&#956;,1) &#215; exp(log s)", 690, 584, 380, 52))
     edge = ('<mxCell id="{}" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;'
             'strokeColor=#7B5EA7;exitX={};exitY={};exitDx=0;exitDy=0;entryX={};entryY={};entryDx=0;entryDy=0;" '
