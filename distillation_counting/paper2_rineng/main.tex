@@ -520,7 +520,8 @@ the two datasets with a fixed test set. On PanNuke, $|\hat{\Delta}| = 0.21$ and 
 so the precision term contributes $0.06$ nuclei, that is $22\%$ of the bound; on MoNuSeg, $|\hat{\Delta}| =
 0.66$ and $\delta^\star = 0.89$, a precision term of $0.23$ nuclei or $26\%$. The bound is therefore already
 dominated by the effect itself rather than by experimental noise, and no amount of additional test data would
-move $\delta^\star$ on PanNuke below about $0.9\%$ of the mean count. The ratio of the two precision terms is
+move $\delta^\star$ on PanNuke below the $0.86\%$ that $|\hat{\Delta}|$ itself represents. The ratio of the two
+precision terms is
 $3.8$, close to the value $\sqrt{2722/224} = 3.5$ expected from the sample sizes alone; the two agree because
 the implied dispersion of the paired differences is similar on the two datasets ($s_d \approx 1.9$ and $2.1$
 nuclei from Eq.~\eqref{eq:dstardecomp}, assuming an approximately symmetric bootstrap interval), even though
@@ -784,7 +785,8 @@ The observed coverages are not free parameters: all three follow from Eq.~\eqref
 calibration groups, with nothing fitted. The calibration half of fold~3 holds $n = 1361$ images, giving a
 predicted global coverage of $k/(n+1) = 0.901$ against $0.904$ observed. Under the mondrian scheme the same
 images are split by organ into groups of $n_g = 14$ (Pancreatic) to $387$ (Breast); the single group below the
-threshold of $15$ falls back on the global $q$, and the size-weighted average of $k_g/(n_g+1)$ over the
+threshold of $15$, itself a margin over the feasibility bound of Eq.~\eqref{eq:feas}, falls back on the global
+$q$, and the size-weighted average of $k_g/(n_g+1)$ over the
 remaining eighteen is $0.919$, against $0.923$ observed. For the cluster scheme the three pooled groups are
 large enough that the prediction is $0.903$ regardless of which organs are pooled together, varying by less
 than $0.001$ over every possible assignment of the nineteen organs to three groups, against $0.906$ observed.
