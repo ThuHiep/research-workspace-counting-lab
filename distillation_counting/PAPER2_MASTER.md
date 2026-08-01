@@ -33,7 +33,10 @@
 **★ StarDist 5-SEED XONG (2026-08-02, leak-free full fold3 n=2722):** R² per-seed 0.8537/0.8452/0.8582/0.8483/0.8283
 → **0.847±0.011**; MAE 4.316/4.390/4.363/4.449/4.393 → **4.38±0.05**. Thay số 1-seed cũ (0.841/4.64 — nằm ở
 biên dưới). Pred mean 21.5 vs GT 24.5 = **under-count 12.2%**. Bảng 4 + caption 2 bản .tex ĐÃ SỬA.
-⚠️ CSV `/kaggle/working/out/stardist_fold3_counts_s4{2..6}.csv` CHƯA backup kaggle — làm NGAY.
+✅ **KIEM CHEO LOCAL 2026-08-02** bằng `agg_baseline_seeds.py` trên 5 CSV thật ở `~/Documents/stardist/`:
+ra ĐÚNG 0.847±0.011 / 4.38±0.05, và **chặn cứng cột `gt` đã qua** → cả 5 seed cùng một tập kiểm tra.
+Mỗi file n=2722, GT mean 24.49, tổng 66.654 nhân — khớp tuyệt đối bảng chính (full fold3, GIỮ colon).
+CSV gốc cũng có trong `~/Downloads/results-2,-3,-4/out/`. Checkpoint `.h5` ở `results-*/stardist_models/`.
 Còn lại 1-seed: DualU-Net, DeNuC.
 
 ## ★★ CHOT TAP CHI (2026-08-01): Results in Engineering (Elsevier), Special Issue 335088
