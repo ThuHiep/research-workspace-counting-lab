@@ -1,7 +1,7 @@
 dataset:
   train:
     name: pannuke
-    root: "/kaggle/working/coco"      # chứa fold12/ (đã gộp fold1+fold2, trừ colon)
+    root: "/kaggle/working/coco"      # chứa fold12/ (gộp fold1+fold2 ĐẦY ĐỦ = 5179 ảnh, GIỮ colon)
     fold: fold12
     num_classes: 5
   val:
