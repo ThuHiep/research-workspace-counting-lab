@@ -129,6 +129,25 @@ distribution-free prediction intervals whose coverage is guaranteed not only on 
 tissue type (Section~\ref{sec:deploy}).
 \end{itemize}
 
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_efficiency.pdf}
+\caption{The annotation-efficiency argument of this paper, drawn to scale.
+\textbf{(a)} Expert time per nucleus for the two label types, from the timing study of Qu et
+al.~\cite{qu2020}; the count-only bar is an upper bound, because counting requires the same visual scan as
+point marking without placing each point (Section~\ref{sec:cost}).
+\textbf{(b)} Counting accuracy of the two supervision regimes on PanNuke fold~3 ($n = 2722$ patches, $5$ seeds
+per arm, error bars are between-seed standard deviations). Both arms use the same network, the same training
+data, the same $60$-epoch schedule and the same seeds; only the loss weights $(w_d, w_c)$ differ, so the
+difference between the bars is attributable to annotation alone (Section~\ref{sec:parity}). The axis starts at
+zero, so the near-equality is not an artefact of a truncated scale.
+\textbf{(c)} Accuracy as a function of the fraction of images given a count label; filled markers carry
+between-seed deviations over $3$ seeds, open markers are single runs (Section~\ref{sec:label}).
+The three panels are the same argument in three steps: the labels cost an order of magnitude less, that costs
+almost no accuracy, and a quarter of them already suffices.}
+\label{fig:efficiency}
+\end{figure}
+
 %%============================================================%%
 \section{Related work}\label{sec:related}
 

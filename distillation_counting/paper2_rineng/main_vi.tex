@@ -115,6 +115,25 @@ suy luận trên GPU và CPU, độ chính xác thu hồi được trên mỗi �
 số có độ phủ được bảo đảm không chỉ trên trung bình mà trong từng loại mô (Mục~\ref{sec:deploy}).
 \end{itemize}
 
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_efficiency.pdf}
+\caption{Lập luận hiệu quả chú thích của bài báo, vẽ đúng tỉ lệ.
+\textbf{(a)} Thời gian chuyên gia trên mỗi nhân của hai kiểu nhãn, lấy từ nghiên cứu đo thời gian của Qu và cộng
+sự~\cite{qu2020}; cột chỉ-đếm là một cận trên, vì đếm đòi hỏi cùng thao tác quét mắt như đánh dấu điểm mà không
+phải đặt từng điểm (Mục~\ref{sec:cost}).
+\textbf{(b)} Độ chính xác đếm của hai chế độ giám sát trên PanNuke fold~3 ($n = 2722$ mảnh, $5$ seed mỗi nhánh,
+thanh sai số là độ lệch chuẩn giữa các seed). Hai nhánh dùng cùng mạng, cùng dữ liệu huấn luyện, cùng lịch $60$
+epoch và cùng các seed; chỉ trọng số mất mát $(w_d, w_c)$ là khác, nên hiệu số giữa hai cột quy hoàn toàn về chú
+thích (Mục~\ref{sec:parity}). Trục bắt đầu từ không, nên việc hai cột gần bằng nhau không phải hiện vật của thang
+đo bị cắt.
+\textbf{(c)} Độ chính xác theo tỉ lệ ảnh được gán nhãn đếm; điểm đặc có độ lệch giữa $3$ seed, điểm rỗng là một
+lần chạy duy nhất (Mục~\ref{sec:label}).
+Ba panel là cùng một lập luận qua ba bước: nhãn rẻ hơn một bậc độ lớn, cái giá phải trả gần như bằng không, và
+một phần tư trong số đó đã là đủ.}
+\label{fig:efficiency}
+\end{figure}
+
 %%============================================================%%
 \section{Công trình liên quan}\label{sec:related}
 
