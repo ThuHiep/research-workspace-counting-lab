@@ -78,14 +78,19 @@ def main():
     ap.add_argument("--exclude_tissue", default="")   # "" = full fold3 (khớp efflite0 0.920)
     ap.add_argument("--epochs", type=int, default=150)
     ap.add_argument("--steps", type=int, default=200)
-    ap.add_argument("--out_csv", default="/kaggle/working/stardist_fold3_counts.csv")
+    ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--out_csv", default="")   # rong -> tu dat theo seed
     args = ap.parse_args()
+    args.out_csv = args.out_csv or f"/kaggle/working/stardist_fold3_counts_s{args.seed}.csv"
 
     from csbdeep.utils import normalize
     from stardist import fill_label_holes, calculate_extents
     from stardist.models import Config2D, StarDist2D
+    import random
     import tensorflow as tf
-    print(f"[tf] {tf.__version__} | GPU {tf.config.list_physical_devices('GPU')}")
+    # seed init + thu tu batch + split val. cuDNN van khong bit-exact -> tai lap XAP XI, khong tuyet doi.
+    random.seed(args.seed); np.random.seed(args.seed); tf.random.set_seed(args.seed)
+    print(f"[tf] {tf.__version__} | GPU {tf.config.list_physical_devices('GPU')} | seed {args.seed}")
 
     root = Path(args.pannuke_root)
     trX, trY = [], []
@@ -104,7 +109,7 @@ def main():
     teXn = [normalize(x, 1, 99.8, axis=axis_norm) for x in teX]
 
     # split nhỏ val cho StarDist (10%)
-    rng = np.random.default_rng(42)
+    rng = np.random.default_rng(args.seed)
     idx = rng.permutation(len(trX)); nval = max(1, len(trX) // 10)
     vi, ti = idx[:nval], idx[nval:]
     Xt = [trX[i] for i in ti]; Yt = [trY[i] for i in ti]
@@ -115,7 +120,7 @@ def main():
     conf = Config2D(n_rays=n_rays, grid=grid, use_gpu=False, n_channel_in=3,   # use_gpu=gputools/OpenCL; tắt -> CPU cho NMS, mạng vẫn GPU qua TF
                     train_epochs=args.epochs, train_steps_per_epoch=args.steps,
                     train_patch_size=(256, 256), train_batch_size=8)
-    model = StarDist2D(conf, name="stardist_pannuke_f12", basedir="/kaggle/working/stardist_models")
+    model = StarDist2D(conf, name=f"stardist_pannuke_f12_s{args.seed}", basedir="/kaggle/working/stardist_models")
     med = calculate_extents(list(Yt), np.median)
     print(f"[stardist] median object extent {med}")
 
@@ -140,12 +145,11 @@ def main():
         for g, p in zip(teC, pred):
             f.write(f"{int(g)},{int(p)}\n")
 
-    print(f"\n=== StarDist count (fold_3, loại '{args.exclude_tissue or 'none'}') — leak-free baseline ===")
+    print(f"\n=== StarDist count (fold_3, loại '{args.exclude_tissue or 'none'}', seed {args.seed}) — leak-free ===")
     print(f"  N ảnh {len(teX)} | GT mean {teC.mean():.1f} | Pred mean {pred.mean():.1f}")
     print(f"  R²  {r2:+.4f}")
     print(f"  MAE {mae:.3f}")
     print(f"  -> CSV: {args.out_csv}")
-    print("\nĐiền vào bảng chính cạnh efflite0 (3.6M count-only, R² 0.920) + DualU-Net.")
 
 
 if __name__ == "__main__":
