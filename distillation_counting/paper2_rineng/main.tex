@@ -106,7 +106,7 @@ open question, and with it the size of the annotation budget that a deployment m
 This paper answers that question with a \emph{controlled experiment}. The model architecture, the data and the
 evaluation protocol are held fixed, and the single experimental variable is the type of supervision:
 pixel-level masks, or one count label per image. Any observed difference is therefore attributable to
-\emph{annotation}, not to model capacity.
+\emph{annotation}, not to model capacity. Figure~\ref{fig:design} shows the design and states its outcome.
 
 The main contributions are as follows.
 \begin{itemize}
@@ -131,21 +131,18 @@ tissue type (Section~\ref{sec:deploy}).
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=\textwidth]{fig_efficiency.pdf}
-\caption{The annotation-efficiency argument of this paper, drawn to scale.
-\textbf{(a)} Expert time per nucleus for the two label types, from the timing study of Qu et
-al.~\cite{qu2020}; the count-only bar is an upper bound, because counting requires the same visual scan as
-point marking without placing each point (Section~\ref{sec:cost}).
-\textbf{(b)} Counting accuracy of the two supervision regimes on PanNuke fold~3 ($n = 2722$ patches, $5$ seeds
-per arm, error bars are between-seed standard deviations). Both arms use the same network, the same training
-data, the same $60$-epoch schedule and the same seeds; only the loss weights $(w_d, w_c)$ differ, so the
-difference between the bars is attributable to annotation alone (Section~\ref{sec:parity}). The axis starts at
-zero, so the near-equality is not an artefact of a truncated scale.
-\textbf{(c)} Accuracy as a function of the fraction of images given a count label; filled markers carry
-between-seed deviations over $3$ seeds, open markers are single runs (Section~\ref{sec:label}).
-The three panels are the same argument in three steps: the labels cost an order of magnitude less, that costs
-almost no accuracy, and a quarter of them already suffices.}
-\label{fig:efficiency}
+\includegraphics[width=\textwidth]{fig_design.pdf}
+\caption{The controlled experiment behind this paper. A single PanNuke fold~3 patch (shown at every stage) can
+be annotated in two ways: by outlining each of its $22$ nuclei, at $11.5$ seconds of expert time per nucleus,
+or by recording the single number $22$, at no more than $1.4$ seconds per nucleus~\cite{qu2020}. The two
+regimes then share the network, the training data, the $60$-epoch schedule, the test set and the five seeds,
+so the loss weights $(w_d, w_c)$ are the only quantity that differs and any difference in accuracy is
+attributable to the annotation alone. The network emits one density map, whose sum is the predicted count
+$\mu$, together with an uncertainty $\sigma$. Setting $w_d = 0$ leaves that map without any pixel-level
+supervision and constrains only its sum, which is what makes the localisation it nevertheless acquires an
+empirical question (Section~\ref{sec:fidelity}). The outcome is stated at the bottom: the residual gap is
+statistically detectable and at the same time bounded well below one nucleus.}
+\label{fig:design}
 \end{figure}
 
 %%============================================================%%

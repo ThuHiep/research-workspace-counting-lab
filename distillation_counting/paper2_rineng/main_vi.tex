@@ -97,6 +97,7 @@ thích mà một đợt triển khai phải dự trù.
 Bài báo trả lời câu hỏi đó bằng một \emph{thí nghiệm có đối chứng}. Kiến trúc mô hình, dữ liệu và giao thức đánh
 giá được giữ cố định, và biến thí nghiệm duy nhất là kiểu giám sát: mặt nạ mức điểm ảnh, hay một nhãn đếm cho mỗi
 ảnh. Do đó mọi khác biệt quan sát được đều quy về \emph{chú thích}, không phải về dung lượng mô hình.
+Hình~\ref{fig:design} trình bày thiết kế này và nêu kết cục của nó.
 
 Các đóng góp chính như sau.
 \begin{itemize}
@@ -117,21 +118,17 @@ số có độ phủ được bảo đảm không chỉ trên trung bình mà tr
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=\textwidth]{fig_efficiency.pdf}
-\caption{Lập luận hiệu quả chú thích của bài báo, vẽ đúng tỉ lệ.
-\textbf{(a)} Thời gian chuyên gia trên mỗi nhân của hai kiểu nhãn, lấy từ nghiên cứu đo thời gian của Qu và cộng
-sự~\cite{qu2020}; cột chỉ-đếm là một cận trên, vì đếm đòi hỏi cùng thao tác quét mắt như đánh dấu điểm mà không
-phải đặt từng điểm (Mục~\ref{sec:cost}).
-\textbf{(b)} Độ chính xác đếm của hai chế độ giám sát trên PanNuke fold~3 ($n = 2722$ mảnh, $5$ seed mỗi nhánh,
-thanh sai số là độ lệch chuẩn giữa các seed). Hai nhánh dùng cùng mạng, cùng dữ liệu huấn luyện, cùng lịch $60$
-epoch và cùng các seed; chỉ trọng số mất mát $(w_d, w_c)$ là khác, nên hiệu số giữa hai cột quy hoàn toàn về chú
-thích (Mục~\ref{sec:parity}). Trục bắt đầu từ không, nên việc hai cột gần bằng nhau không phải hiện vật của thang
-đo bị cắt.
-\textbf{(c)} Độ chính xác theo tỉ lệ ảnh được gán nhãn đếm; điểm đặc có độ lệch giữa $3$ seed, điểm rỗng là một
-lần chạy duy nhất (Mục~\ref{sec:label}).
-Ba panel là cùng một lập luận qua ba bước: nhãn rẻ hơn một bậc độ lớn, cái giá phải trả gần như bằng không, và
-một phần tư trong số đó đã là đủ.}
-\label{fig:efficiency}
+\includegraphics[width=\textwidth]{fig_design.pdf}
+\caption{Thí nghiệm có đối chứng làm nền cho bài báo. Một mảnh PanNuke fold~3 duy nhất (xuất hiện ở mọi khâu) có
+thể được chú thích theo hai cách: khoanh viền từng nhân trong số $22$ nhân, tốn $11{,}5$ giây công chuyên gia mỗi
+nhân, hoặc ghi lại đúng một con số $22$, tốn không quá $1{,}4$ giây mỗi nhân~\cite{qu2020}. Hai chế độ sau đó dùng
+chung mạng, dữ liệu huấn luyện, lịch $60$ epoch, tập kiểm tra và cả năm seed, nên trọng số mất mát $(w_d, w_c)$ là
+đại lượng duy nhất khác biệt và mọi chênh lệch độ chính xác đều quy về chú thích. Mạng xuất một bản đồ mật độ mà
+tổng của nó là số đếm dự đoán $\mu$, kèm một độ bất định $\sigma$. Đặt $w_d = 0$ khiến bản đồ đó không hề được
+giám sát ở mức điểm ảnh và chỉ tổng của nó bị ràng buộc, nên việc nó vẫn thu được khả năng định vị hay không trở
+thành một câu hỏi thực nghiệm (Mục~\ref{sec:fidelity}). Kết cục nêu ở dưới cùng: khoảng cách còn lại phát hiện
+được về mặt thống kê nhưng đồng thời bị chặn ở mức thấp hơn hẳn một nhân.}
+\label{fig:design}
 \end{figure}
 
 %%============================================================%%
