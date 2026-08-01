@@ -207,10 +207,21 @@ baseline:
 \end{equation}
 The Poisson baseline is chosen because counts are discrete and satisfy $\sigma = \sqrt{\mu}$ in the Poisson
 case. Anchoring $\sigma$ around this baseline lets the uncertainty scale with the magnitude of the count
-instead of having to be learned entirely from data. The exponential factor allows the model to express both
-under- and over-dispersion relative to Poisson, with the clamping range $[-2, 2]$ corresponding to factors from
-$0.14$ to $7.4$ times $\sqrt{\mu}$; the clamp therefore only serves numerical stability early in training and
-does not constrain the model. This anchoring choice is compared directly against an unanchored $\sigma$ in
+instead of having to be learned entirely from data. The parameterisation is more transparent when written in
+terms of the \emph{dispersion factor}
+\begin{equation}
+\varphi \;=\; \frac{\sigma^2}{\max(\mu,1)} \;=\; \exp\!\big(2\,\mathrm{clamp}(\log s,-2,2)\big),
+\qquad \log s = \tfrac{1}{2}\log\varphi ,
+\end{equation}
+so that the network predicts one half of the log dispersion of the count rather than its scale. Poisson
+behaviour is $\varphi = 1$, over-dispersion is $\varphi > 1$ and under-dispersion $\varphi < 1$; the clamping
+range $[-2,2]$ therefore admits $\varphi \in [e^{-4}, e^{4}] = [0.018,\,54.6]$, that is factors from $0.14$ to
+$7.4$ times $\sqrt{\mu}$. The clamp only serves numerical stability early in training and does not constrain
+the model, since the dispersion factors observed on all three datasets lie well inside that range. What the
+anchoring buys is a change of the quantity that must be learned: without it the head must reproduce the entire
+dynamic range of $\sigma$, which on a dataset whose counts span two orders of magnitude means learning a
+function that varies by a factor of ten, whereas the anchored head only has to learn the residual departure
+from $\sqrt{\mu}$. Section~\ref{sec:uq} measures what this is worth on the two count ranges available. This anchoring choice is compared directly against an unanchored $\sigma$ in
 Section~\ref{sec:uq}. Gradients from the uncertainty branch are not propagated back into $\mu$, so that
 uncertainty estimation cannot affect how the count is learned. The configuration used has $3.62$ million
 parameters.
@@ -225,7 +236,27 @@ and changing only the weights of the training objective
 where $\mathcal{L}_{\text{density}}$ is the per-pixel mean squared error between the predicted map and a target
 map built from the ground-truth masks, $\mathcal{L}_{\text{count}} = |\mu - N|$ averaged over the batch with
 $N$ the ground-truth number of nuclei in the image, and $\mathcal{L}_{\text{NLL}}$ is a $\beta$-NLL negative
-log-likelihood~\cite{bnll} that trains $\sigma$ without affecting $\mu$.
+log-likelihood~\cite{bnll} that trains $\sigma$ without affecting $\mu$. Writing $\lfloor\cdot\rfloor_{\text{sg}}$
+for the stop-gradient operator, the last term is
+\begin{equation}
+\mathcal{L}_{\text{NLL}}
+= \frac{1}{B}\sum_{i=1}^{B}
+\big\lfloor \sigma_i^{2}\big\rfloor_{\text{sg}}^{\,\beta}\;
+\frac{1}{2}\!\left[
+\frac{\big(N_i - \lfloor\mu_i\rfloor_{\text{sg}}\big)^{2}}{\sigma_i^{2}}
+\;+\; 2\log\sigma_i
+\right],
+\end{equation}
+with the additive constant $\tfrac{1}{2}\log 2\pi$ omitted. Two stop-gradients appear, and they serve different
+purposes. The factor $\lfloor\sigma^{2}\rfloor_{\text{sg}}^{\beta}$ is the $\beta$-weighting of~\cite{bnll}: an
+unweighted Gaussian likelihood scales the gradient of the mean by $\sigma^{-2}$, so high-uncertainty images
+contribute least to learning precisely where the error is largest. Setting $\beta = 0.5$ removes half of that
+inverse-variance weighting, and $\beta = 1$ would recover a plain squared error. The stop-gradient on $\mu$ has
+a different role: it makes $\mathcal{L}_{\text{NLL}}$ a function of $\sigma$ alone at fixed $\mu$, so the
+minimiser at each image is $\sigma_i^{\star} = |N_i - \mu_i|$ and the uncertainty head is fitted to the error
+actually made by the count head rather than negotiating with it. Without this term the objective would be
+minimised jointly, and enlarging $\sigma$ on a difficult image would be an alternative to counting it
+correctly.
 
 The \emph{count-only} regime sets $w_d = 0$ and $w_c = 1$, so the model receives the image-level count as its
 only training signal and never sees a pixel-level target. The \emph{mask} regime sets $w_d = 1$ and retains a
@@ -242,14 +273,59 @@ density supervision on sparse maps. This gives the mask branch a small advantage
 signal directly related to the evaluation metric. Any difference observed between the two regimes can therefore
 be regarded as a conservative estimate of the benefit of mask supervision.
 
-\subsection{Prediction interval calibration}
-After training, split conformal prediction~\cite{vovk,cqr} is applied on a calibration set to construct the
-prediction interval $[\mu - q\sigma,\ \mu + q\sigma]$ at target coverage $1-\alpha$, with $\alpha = 0.1$ in all
-reported results. Three calibration strategies are considered: a global threshold, an organ-conditional
-threshold (mondrian) and a difficulty-cluster threshold. They represent different trade-offs between interval
-width and per-group coverage guarantees. This is standard split conformal prediction; it supplies the
-reliability specification introduced in Section~\ref{sec:intro} and assesses the practical deployability of the
-counter.
+\subsection{Prediction interval calibration}\label{sec:conformal}
+After training, split conformal prediction~\cite{vovk,cqr} converts the pair $(\mu,\sigma)$ into an interval
+with a finite-sample coverage guarantee. On a calibration set of $n$ images held out from training, the
+normalised residual
+\begin{equation}
+r_i \;=\; \frac{|N_i - \mu_i|}{\sigma_i}, \qquad i = 1,\dots,n,
+\end{equation}
+is computed, and $q$ is taken to be the empirical quantile of $\{r_i\}$ at level
+$\lceil (n+1)(1-\alpha)\rceil / n$, that is the $k$-th order statistic $r_{(k)}$ with
+$k = \lceil (n+1)(1-\alpha)\rceil$. The interval for a new image is
+\begin{equation}
+C(x) \;=\; \big[\max(0,\ \mu - q\sigma),\ \ \mu + q\sigma\big],
+\end{equation}
+truncated below at zero because counts are non-negative, which can only increase coverage. If the calibration
+and test images are exchangeable and the scores are almost surely distinct, then~\cite{vovk}
+\begin{equation}\label{eq:cov}
+1-\alpha \;\le\; \mathbb{P}\big(N \in C(X)\big) \;=\; \frac{k}{n+1} \;\le\; 1-\alpha + \frac{1}{n+1}.
+\end{equation}
+The guarantee is distribution-free: it requires no assumption about the shape of the error distribution and no
+assumption that $\sigma$ is a correct standard deviation. A poor $\sigma$ costs interval width, not validity.
+Throughout, $\alpha = 0.1$, the calibration set is one half of the evaluation fold, and every reported figure is
+averaged over $20$ random calibration/test splits.
+
+Equation~\eqref{eq:cov} is a statement about \emph{marginal} coverage, averaged over the whole population. It
+does not prevent an interval from systematically under-covering one tissue type while over-covering another,
+which for a deployed instrument is the failure mode that matters. Three ways of choosing $q$ are therefore
+compared. The \emph{global} scheme uses a single $q$ for all images. The \emph{mondrian} scheme partitions the
+calibration set by organ and applies the same construction inside each group $g$, which upgrades the guarantee
+to a conditional one,
+\begin{equation}
+\mathbb{P}\big(N \in C(X) \mid G = g\big) \;\ge\; 1-\alpha \quad \text{for every } g,
+\end{equation}
+at the price of a smaller calibration set per group. That price is not merely statistical: $q_g$ exists only
+when $\lceil (n_g+1)(1-\alpha)\rceil \le n_g$, that is when
+\begin{equation}\label{eq:feas}
+n_g \;\ge\; \lceil 1/\alpha \rceil - 1 \;=\; 9 \quad \text{for } \alpha = 0.1,
+\end{equation}
+and below that threshold no finite $q_g$ can meet the target, so the group must fall back on the global
+threshold. A margin is kept over this bound and a group-specific threshold is used only when $n_g \ge 15$. The
+\emph{cluster} scheme is the intermediate option: organs are ordered by their median calibration residual and
+pooled into three difficulty groups, so that each group is large enough for the $1/(n_g+1)$ term in
+Eq.~\eqref{eq:cov} to stay small while groups of similar difficulty still receive different thresholds.
+Section~\ref{sec:uq} shows that the coverage actually observed for all three schemes is predicted by
+Eq.~\eqref{eq:cov} alone.
+
+Interval quality is scored with the Winkler, or interval, score~\cite{winkler}, a proper scoring rule that
+penalises width and non-coverage on one scale,
+\begin{equation}
+S_\alpha(l,u;y) \;=\; (u-l) \;+\; \frac{2}{\alpha}(l-y)_{+} \;+\; \frac{2}{\alpha}(y-u)_{+},
+\end{equation}
+where $(z)_+ = \max(z,0)$; lower is better. Calibration is a post-hoc procedure applied to a trained model, so
+it supplies the reliability specification introduced in Section~\ref{sec:intro} without constraining how the
+counter itself was trained.
 
 %%============================================================%%
 \section{Experimental setup}\label{sec:setup}
@@ -284,24 +360,78 @@ completely and cannot be trained, so ``pure mask supervision'' is not an observa
 architecture; lowering $w_c$ makes the mask branch less stable rather than better, consistent with the
 conservative reading given in Section~\ref{sec:method}.
 
-\paragraph{Metrics and tests.} Counting accuracy is measured by $R^2$ and mean absolute error (MAE). To compare
-the two supervision regimes, a paired Wilcoxon signed-rank test is applied to the per-image absolute errors,
-where each image error is averaged over seeds on a fixed test set. When the evaluation units are cropped from a
-small number of source images they are not independent and the test tends to be anti-conservative; in that case
-the test is repeated after pooling the patches of each image into a single count, and both results are
-reported.
+\subsection{Statistical framework}\label{sec:stats}
 
-Equivalence is accordingly not inferred from the absence of statistical significance but assessed separately
-with a TOST procedure. Two one-sided tests on the same paired errors reject the null hypothesis
-$|\Delta| \ge \delta$, where $\Delta$ is the mean difference of the per-image absolute errors, in units of
-nuclei. Equivalence is granted when the $90\%$ bootstrap confidence interval of $\Delta$ lies entirely within
-$(-\delta, +\delta)$. Alongside pre-specified equivalence margins, the paper also reports $\delta^\star$, the
-smallest margin at which the equivalence conclusion still holds; this quantity lets readers apply whatever
-equivalence threshold suits their own application.
+Counting accuracy is measured by $R^2$ and mean absolute error (MAE). Interval quality is measured by marginal
+coverage, the coverage of the worst-covered organ, interval width and the Winkler score of
+Section~\ref{sec:conformal}. The comparison between supervision regimes needs more care, and is set out here in
+full because the central claim of the paper is a claim about a \emph{bounded} difference rather than about a
+difference being large.
 
-Prediction interval quality is measured by marginal coverage, the coverage of the worst-covered organ, interval
-width and the Winkler score~\cite{winkler}, a score that combines interval width with a penalty when the true
-value falls outside the interval and therefore reflects both tightness and coverage; lower is better.
+\paragraph{Paired error model.} Let $N_i$ be the ground-truth count of evaluation unit $i$ and $\mu_i^{(r)}$
+the prediction of regime $r \in \{\mathrm{c},\mathrm{m}\}$ (count-only, mask), averaged over seeds on a fixed
+test set so that seed noise is removed before pairing rather than treated as replication. With
+$e_i^{(r)} = |N_i - \mu_i^{(r)}|$ the per-unit absolute errors, the quantity of interest is the paired
+difference and its mean,
+\begin{equation}
+d_i \;=\; e_i^{(\mathrm{c})} - e_i^{(\mathrm{m})}, \qquad
+\Delta \;=\; \mathbb{E}[d], \qquad
+\hat{\Delta} \;=\; \frac{1}{n}\sum_{i=1}^{n} d_i .
+\end{equation}
+Pairing on the same unit removes the dominant source of variance, namely how hard that particular unit is to
+count, and $\Delta$ carries the units of the quantity being estimated: nuclei per evaluation unit.
+
+\paragraph{Two questions, two tests.} A difference can be real and yet too small to matter, and the two
+statements need separate tests because neither implies the other.
+
+The first question is whether the regimes differ at all. A paired Wilcoxon signed-rank test is applied to
+$\{d_i\}$, using the statistic $W = \sum_i \mathrm{sgn}(d_i)\,R_i$ with $R_i$ the rank of $|d_i|$, against
+$H_0:\ \mathrm{med}(d) = 0$. A rank test is used rather than a paired $t$-test because absolute errors are
+strongly right-skewed. When evaluation units are cropped from a small number of source images they are not
+independent and the test is anti-conservative; in that case it is repeated after pooling the patches of each
+source image into a single count, which restores the unit of analysis to the unit of sampling, and both results
+are reported.
+
+The second question is whether any difference is bounded. Failing to reject $H_0$ is not evidence of
+equivalence, since an underpowered test fails to reject whatever the truth is. Equivalence is therefore
+assessed by two one-sided tests (TOST) on the same paired differences, against the composite null
+$H_0^{-}: \Delta \le -\delta$ and $H_0^{+}: \Delta \ge +\delta$ for a margin $\delta > 0$. With
+$\widehat{\mathrm{se}} = s_d/\sqrt{n}$ and $s_d$ the sample standard deviation of $\{d_i\}$, the two statistics
+and the combined $p$-value are
+\begin{equation}
+t_{-} = \frac{\hat{\Delta}+\delta}{\widehat{\mathrm{se}}}, \qquad
+t_{+} = \frac{\hat{\Delta}-\delta}{\widehat{\mathrm{se}}}, \qquad
+p_{\text{TOST}} = \max\!\big\{\,\mathbb{P}(T_{n-1} > t_{-}),\ \mathbb{P}(T_{n-1} < t_{+})\,\big\},
+\end{equation}
+and equivalence at margin $\delta$ is declared when $p_{\text{TOST}} < \alpha$. By the standard duality between
+TOST and interval estimation this is exactly the statement that the $(1-2\alpha)$ confidence interval
+$[L, U]$ of $\Delta$ is contained in $(-\delta, +\delta)$. That interval is obtained by a percentile bootstrap
+over units ($B = 10^{4}$ resamples, $\alpha = 0.05$, hence a $90\%$ interval), which avoids assuming a
+distributional shape for $d$.
+
+\paragraph{The smallest defensible margin.} A pre-specified $\delta$ invites the objection that it was chosen
+to fit the result. The paper therefore reports the margin at which the conclusion turns,
+\begin{equation}\label{eq:dstar}
+\delta^\star \;=\; \inf\{\delta > 0:\ \text{equivalence holds at margin } \delta\} \;=\; \max\big(|L|,\ |U|\big),
+\end{equation}
+so that a reader may apply any threshold appropriate to their own application: equivalence holds for every
+$\delta > \delta^\star$ and fails for every $\delta < \delta^\star$. A small $\delta^\star$ is strong evidence
+of equivalence.
+
+Equation~\eqref{eq:dstar} also makes explicit what $\delta^\star$ is made of. When the bootstrap interval is
+approximately symmetric, $[L,U] \approx [\hat{\Delta} - z_{1-\alpha}\widehat{\mathrm{se}},\
+\hat{\Delta} + z_{1-\alpha}\widehat{\mathrm{se}}]$ and
+\begin{equation}\label{eq:dstardecomp}
+\delta^\star \;\approx\; \underbrace{|\hat{\Delta}|}_{\text{effect}} \;+\;
+\underbrace{z_{1-\alpha}\,\frac{s_d}{\sqrt{n}}}_{\text{precision}} .
+\end{equation}
+The first term is a property of the two regimes and the second is a property of the experiment. Two
+consequences follow, and both are visible in the results. A large $n$ drives the precision term towards zero,
+so $\delta^\star \to |\hat{\Delta}|$ and the bound becomes as tight as the effect itself; conversely, on a
+small test set $\delta^\star$ is dominated by the precision term and a weak bound reflects a small experiment
+rather than a large difference. The same large $n$ makes the Wilcoxon test able to resolve an arbitrarily small
+$\hat{\Delta}$. Significance and equivalence therefore move in opposite directions with sample size, which is
+why the two are reported together throughout.
 
 %%============================================================%%
 \section{Results}\label{sec:results}
@@ -385,9 +515,21 @@ On NuInsSeg only per-split tests are possible, and the tightest margin attained 
 
 The three $\delta^\star$ values line up exactly with the statistical power each dataset affords: $1.1\%$ with
 $2722$ fixed test patches, $3.0\%$ with $224$ patches, and $6.6\%$ when the test set holds only ${\sim}133$
-images and changes with the seed. What the three datasets say jointly is not that one regime is better than the
-other, but that the magnitude of the difference is always bounded within a few percent of the nuclei per image
-even though its sign reverses.
+images and changes with the seed. The decomposition of Eq.~\eqref{eq:dstardecomp} separates the two causes on
+the two datasets with a fixed test set. On PanNuke, $|\hat{\Delta}| = 0.21$ and $\delta^\star = 0.27$ nuclei,
+so the precision term contributes $0.06$ nuclei, that is $22\%$ of the bound; on MoNuSeg, $|\hat{\Delta}| =
+0.66$ and $\delta^\star = 0.89$, a precision term of $0.23$ nuclei or $26\%$. The bound is therefore already
+dominated by the effect itself rather than by experimental noise, and no amount of additional test data would
+move $\delta^\star$ on PanNuke below about $0.9\%$ of the mean count. The ratio of the two precision terms is
+$3.8$, close to the value $\sqrt{2722/224} = 3.5$ expected from the sample sizes alone; the two agree because
+the implied dispersion of the paired differences is similar on the two datasets ($s_d \approx 1.9$ and $2.1$
+nuclei from Eq.~\eqref{eq:dstardecomp}, assuming an approximately symmetric bootstrap interval), even though
+the datasets differ by an order of magnitude in size and by a factor of two in MAE. Pairing on the same
+evaluation unit is what makes $s_d$ this stable: it cancels the difficulty of the unit, which is the term that
+does differ between datasets.
+
+What the three datasets say jointly is not that one regime is better than the other, but that the magnitude of
+the difference is always bounded within a few percent of the nuclei per image even though its sign reverses.
 
 \begin{figure}[!htbp]
 \centering
@@ -637,6 +779,24 @@ four of the $19$ tissue types below the tolerance threshold. The price is an int
 distinction is what turns an average-case number into a usable specification: a system whose stated tolerance
 holds overall but fails on four tissue types out of nineteen cannot be certified for those tissues, and the
 $15\%$ width penalty is the cost of removing that failure mode.
+
+The observed coverages are not free parameters: all three follow from Eq.~\eqref{eq:cov} and the sizes of the
+calibration groups, with nothing fitted. The calibration half of fold~3 holds $n = 1361$ images, giving a
+predicted global coverage of $k/(n+1) = 0.901$ against $0.904$ observed. Under the mondrian scheme the same
+images are split by organ into groups of $n_g = 14$ (Pancreatic) to $387$ (Breast); the single group below the
+threshold of $15$ falls back on the global $q$, and the size-weighted average of $k_g/(n_g+1)$ over the
+remaining eighteen is $0.919$, against $0.923$ observed. For the cluster scheme the three pooled groups are
+large enough that the prediction is $0.903$ regardless of which organs are pooled together, varying by less
+than $0.001$ over every possible assignment of the nineteen organs to three groups, against $0.906$ observed.
+Each prediction is therefore within $0.004$ of the measurement, and the residual is positive in all three
+cases, as expected: the interval is truncated below at zero and the scores are ties-prone because counts are
+integers, and both effects can only raise coverage above the bound in Eq.~\eqref{eq:cov}.
+
+This is the sense in which the over-coverage of mondrian, $0.923$ against a target of $0.90$, is not a defect
+of calibration but the price of the conditional guarantee. Splitting $1361$ calibration images into nineteen
+organ groups makes the $1/(n_g+1)$ slack of Eq.~\eqref{eq:cov} roughly nineteen times larger, and it is that
+slack, not a miscalibrated $\sigma$, which produces both the extra coverage and the $15\%$ extra width. The
+quantity a deployment buys with that width is the last column of Table~\ref{tab:uq}.
 
 Anchoring $\sigma$ to a Poisson variance baseline matters when the range of counts is wide. On NuInsSeg, where
 the per-image count spans from a few nuclei to more than $500$, the Poisson-anchored form gives an interval
