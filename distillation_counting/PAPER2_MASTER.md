@@ -19,6 +19,13 @@
 `--arch denuc_det_shufflenet_x2_0` khớp ShuffleNet-x2 4.37M ở Bảng 4 ✓. Clone DualU-Net PHẢI vào đúng
 `/kaggle/working/DualU-Net` vì `eval_count_dualunet.py:24` hard-code sys.path.
 
+**DỮ LIỆU COCO cho DualU-Net** (bước `pannuke2coco` KHÔNG còn trong repo — chỉ còn sản phẩm):
+`/kaggle/input/datasets/hipinhththu/pannuke2coco/coco` chứa `fold1/ fold2/ fold3/`, mỗi fold có
+`annotations.json` + `images/`. Bản gốc ở máy: `~/Downloads/coco.zip` (794 MB).
+**Đã verify 2026-08-01:** fold1 2656 + fold2 2523 = **5179** (=train, GIỮ colon ✓), fold3 **2722**,
+5 category; fold3 có 66.654 annotation → **24,49 nhân/ảnh**, khớp đúng GT trung bình dùng khắp bài.
+⚠️ Mất bộ này = phải dựng lại bộ chuyển đổi từ đầu.
+
 **Seed:** DualU-Net có sẵn `experiment.seed` trong yaml → chỉ cần sinh config (đổi cả `"resnext_pannuke_fold12"`
 ở `name:`+`output_name:` kẻo 5 seed đè checkpoint nhau). DeNuC README không nhắc seed → phải vá.
 
