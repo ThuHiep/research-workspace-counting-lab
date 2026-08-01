@@ -82,39 +82,42 @@ box("aW", "&lt;b&gt;3. loss&lt;/b&gt;&#160;&#160; (w&lt;sub&gt;d&lt;/sub&gt;, w&
 box("bW", "&lt;b&gt;3. loss&lt;/b&gt;&#160;&#160; (w&lt;sub&gt;d&lt;/sub&gt;, w&lt;sub&gt;c&lt;/sub&gt;)"
           " = (0, 1)", 800, 650, 600, 76, BLU, "#FFFFFF", 22)
 
-# ---- dai dung chung ----
-box("shared", "&lt;b&gt;IDENTICAL IN BOTH TRACKS&lt;/b&gt;&#10;EfficientNet-lite0 encoder + U-Net decoder "
-              "&#183; 3.62M params &#183; same training data&#10;same 60-epoch schedule &#183; same test set "
-              "&#183; same 5 seeds &#183; both predict a map whose sum is &#956;",
-    40, 786, 1380, 116, PUR, PURF, 20, fc=PUR)
+# ---- dai dung chung: VE kien truc, khong ke chu ----
+box("shared", "", 40, 786, 1380, 290, PUR, PURF)
+txt("shTtl", "&lt;b&gt;IDENTICAL IN BOTH TRACKS&lt;/b&gt;", 40, 796, 1380, 30, fs=23, fc=PUR)
 
-# ---- ket qua ----
-box("rA", "R&#178; = &lt;b&gt;0.931 &#177; 0.006&lt;/b&gt;", 40, 942, 640, 84, ORG, ORGF, 26, fc=INK)
-box("rB", "R&#178; = &lt;b&gt;0.918 &#177; 0.011&lt;/b&gt;", 780, 942, 640, 84, BLU, BLUF, 26, fc=INK)
+img("shIn", PLAIN, 220, 850, 100, 100, PUR)
+ENC, DEC = "#B9A5D6", "#D8CBEA"
+for k, (x, h) in enumerate(zip((370, 416, 462, 508), (120, 96, 74, 56))):
+    box(f"en{k}", "", x, 900 - h // 2, 34, h, PUR, ENC, r=0)
+box("bott", "", 554, 878, 34, 44, PUR, PUR, r=0)
+for k, (x, h) in enumerate(zip((600, 646, 692, 738), (56, 74, 96, 120))):
+    box(f"de{k}", "", x, 900 - h // 2, 34, h, PUR, DEC, r=0)
+txt("encL", "EfficientNet-lite0 encoder", 350, 972, 240, 26, fs=18, fc=PUR)
+txt("decL", "U-Net decoder", 590, 972, 240, 26, fs=18, fc=PUR)
 
-box("vd", "", 40, 1066, 1380, 150, GRN, GRNF)
-# dung &lt;sup&gt; chu KHONG dung ky tu so mu U+207B: phong hay thieu glyph -> ra o vuong
-txt("vd1", "the gap is &lt;b&gt;REAL&lt;/b&gt;&#10;&#10;&#916;R&#178; = &#8722;0.013&#10;"
-           "Wilcoxon p = 1.1&#215;10&lt;sup&gt;&#8722;13&lt;/sup&gt;", 70, 1076, 620, 130, fs=21)
-txt("vd2", "and it is &lt;b&gt;BOUNDED&lt;/b&gt;&#10;&#10;TOST &#948;* = 0.27 nuclei&#10;"
-           "= 1.1&#37; of the mean count", 770, 1076, 620, 130, fs=21)
-C.append('<mxCell id="vsep" value="" style="html=1;fillColor=%s;strokeColor=%s;" vertex="1" parent="1">'
-         '<mxGeometry x="729" y="1096" width="2" height="90" as="geometry"/></mxCell>' % (GRN, GRN))
-txt("foot", "PanNuke fold 3 &#183; n = 2722 patches &#183; 5 seeds per arm", 40, 1230, 1380, 30, fs=19)
+box("omap", "predicted&#10;density map", 830, 845, 120, 110, PUR, "#FFFFFF", 18, fc=PUR)
+box("omu", "&#956; = &lt;b&gt;sum&lt;/b&gt; of the map", 1000, 846, 240, 48, PUR, "#FFFFFF", 19, fc=INK)
+box("osg", "&#963; = uncertainty of &#956;", 1000, 906, 240, 48, PUR, "#FFFFFF", 19, fc=INK)
+
+for k, (x, w, v) in enumerate(zip((300, 500, 700, 860, 1020), (180, 180, 140, 140, 140),
+        ("3.62M params", "same training data", "60 epochs", "same test set", "same 5 seeds"))):
+    box(f"ch{k}", v, x, 1014, w, 44, PUR, "#FFFFFF", 18, fc=PUR)
+
+edge("ea", "shIn", "en0", 1, 0.5, 0, 0.5, PUR)
+edge("eb", "de3", "omap", 1, 0.5, 0, 0.5, PUR)
+edge("ec", "omap", "omu", 1, 0.5, 0, 0.5, PUR)
+edge("ed", "omu", "osg", 0.5, 1, 0.5, 0, PUR)
 
 # ---- mui ten ----
 edge("e1", "inimg", "laneA", 0, 0.5, 0.5, 0, PUR)
 edge("e2", "inimg", "laneB", 1, 0.5, 0.5, 0, PUR)
 edge("e3", "aW", "shared", 0.5, 1, 0.25, 0, ORG)
 edge("e4", "bW", "shared", 0.5, 1, 0.75, 0, BLU)
-edge("e5", "shared", "rA", 0.25, 1, 0.5, 0, ORG)
-edge("e6", "shared", "rB", 0.75, 1, 0.5, 0, BLU)
-edge("e7", "rA", "vd", 0.5, 1, 0.25, 0, ORG)
-edge("e8", "rB", "vd", 0.5, 1, 0.75, 0, BLU)
 
 xml = ('<mxfile host="app.diagrams.net"><diagram id="fig1" name="Figure 1">'
        '<mxGraphModel dx="1400" dy="900" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" '
-       'arrows="1" fold="1" page="1" pageScale="1" pageWidth="1460" pageHeight="1290" math="0" shadow="0">'
+       'arrows="1" fold="1" page="1" pageScale="1" pageWidth="1460" pageHeight="1120" math="0" shadow="0">'
        '<root><mxCell id="0"/><mxCell id="1" parent="0"/>' + "".join(C) +
        '</root></mxGraphModel></diagram></mxfile>')
 assert "&#8212;" not in xml and "—" not in xml, "ban thao khong dung gach ngang dai"

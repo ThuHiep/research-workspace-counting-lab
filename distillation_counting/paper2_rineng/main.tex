@@ -132,7 +132,7 @@ tissue type (Section~\ref{sec:deploy}).
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=\textwidth]{fig_design.pdf}
-\caption{The controlled experiment behind this paper, drawn as two tracks that differ in exactly one respect.
+\caption{How the two supervision regimes operate, drawn as two tracks that differ in exactly one respect.
 A single PanNuke fold~3 patch containing $22$ nuclei enters both tracks, and the numbered rows are aligned so
 that the two can be compared step by step.
 \emph{Row 1, what the expert does.} Track~A outlines all $22$ nuclei at $11.5$ seconds of expert time per
@@ -143,12 +143,12 @@ spreading a unit of mass over each nucleus so that it integrates to $22$; the ma
 a model output. Track~B obtains no pixel-level target at all.
 \emph{Row 3, the loss.} The weights $(w_d, w_c)$ are $(1, 0.1)$ and $(0, 1)$ respectively, and they are the
 only quantity in the whole diagram that differs between the tracks.
-Everything below the tracks is shared: the same network, training data, $60$-epoch schedule, test set and five
-seeds, so the difference in accuracy is attributable to the annotation alone. Because $w_d = 0$ discards the
-pixel-level target, the map that track~B still predicts is constrained only through its sum, which is what
-makes the localisation it nevertheless acquires an empirical question (Section~\ref{sec:fidelity}). The
-verdict is stated at the bottom: the residual gap is statistically detectable and at the same time bounded
-well below one nucleus.}
+Everything in the lower band is shared: the same encoder and decoder, the same parameter count, training data,
+schedule, test set and seeds. Both tracks therefore predict a density map, sum it to a count $\mu$ and attach
+an uncertainty $\sigma$; because $w_d = 0$ removes the pixel-level target, the map predicted by track~B is
+constrained only through its sum. Whether such a map nevertheless localises nuclei is an empirical question,
+examined in Section~\ref{sec:fidelity}, and the accuracy the two tracks reach is reported in
+Section~\ref{sec:parity}.}
 \label{fig:design}
 \end{figure}
 
