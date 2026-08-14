@@ -23,7 +23,7 @@ for _p in (os.path.join(_REPO, "kaggle", "lib"), _REPO, _HERE):
         sys.path.insert(0, _p)
 import numpy as np
 import torch
-from distill_student_r2 import train
+from distill_student_r2 import DensitySigmaUNet, train
 from parity_nuinsseg import per_image_pred, r2mae
 
 
@@ -85,10 +85,14 @@ def main():
             ck = f"{args.ckpt_dir}/{name}_s{seed}.pt" if args.ckpt_dir else None
             np.random.seed(seed); torch.manual_seed(seed); torch.cuda.manual_seed_all(seed)
             torch.backends.cudnn.benchmark = True
-            model = train(data, dev, args.epochs, args.ch, 1e-3, list(tr),
-                          wd, wc, 0.01, 0.5, 16, True, "poisson", args.backbone)
-            if ck:
-                torch.save(model.state_dict(), ck)
+            if ck and os.path.exists(ck):        # resume: phiên đứt giữa chừng khỏi train lại từ đầu
+                model = DensitySigmaUNet(args.ch, sigma_mode="poisson", backbone=args.backbone).to(dev)
+                model.load_state_dict(torch.load(ck, map_location=dev))
+            else:
+                model = train(data, dev, args.epochs, args.ch, 1e-3, list(tr),
+                              wd, wc, 0.01, 0.5, 16, True, "poisson", args.backbone)
+                if ck:
+                    torch.save(model.state_dict(), ck)
             preds[name] = per_image_pred(model, data, te, dev)
         if len(arms) == 1:                       # chạy 1 nhánh: chỉ lưu, ghép ở phiên sau
             n0 = arms[0][0]
