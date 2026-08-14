@@ -92,6 +92,7 @@ def main():
             preds[name] = per_image_pred(model, data, te, dev)
         if len(arms) == 1:                       # chạy 1 nhánh: chỉ lưu, ghép ở phiên sau
             n0 = arms[0][0]
+            assert args.dump_preds, "chạy 1 nhánh thì BẮT BUỘC --dump_preds, không thì mất kết quả"
             np.savez(args.dump_preds.replace(".npz", f"_{n0}_s{seed}.npz"),
                      gt=gt, pred=preds[n0], te=te)
             r2, mae = r2mae(preds[n0], gt)
