@@ -3,8 +3,8 @@
 
 Cô lập DUY NHẤT biến supervision: dùng CÙNG một data (build_pannuke_density use_gt=True → có cả
 GT-density map lẫn count), CÙNG efflite0+U-Net, CÙNG eval (count=Σdensity trên fold3). Chỉ đổi loss:
-  - count-only      : w_density=0, w_count=1  (chỉ học từ 1 số/ảnh, KHÔNG dùng density map)
-  - GT-density(mask): w_density=1, w_count=0  (học khớp density map dựng từ instance mask)
+  - count-only      : w_density=0,      w_count=1    (chỉ học từ 1 số/ảnh, KHÔNG dùng density map)
+  - GT-density(mask): w_density=6553.6, w_count=0.1  (w_d = H*W*w_c, lập luận đơn vị §3.2)
 
 Nếu count-only ≥ GT-density → chứng minh: ĐẾM KHÔNG CẦN giám sát pixel, và cái thắng đến từ
 SUPERVISION chứ KHÔNG phải kiến trúc (vì kiến trúc y hệt). Đây là finding lõi của paper.
@@ -136,6 +136,8 @@ def main():
     ap.add_argument("--preload", action="store_true",
                     help="đẩy toàn tập train lên GPU 1 lần (bỏ nghẽn CPU stack/copy mỗi batch) -> nhanh ~5-15x. "
                          "PanNuke fold12 ~2.4GB GPU, vừa T4. TẮT nếu OOM.")
+    ap.add_argument("--w_density", type=float, default=6553.6,
+                    help="w_d = H*W*w_c = 65536*0.1 (lap luan don vi, §3.2)")
     ap.add_argument("--w_count_mask", type=float, default=0.1,
                     help="neo count cho mask (0.1 ổn định; 0.01 cũ có thể sập theo seed)")
     ap.add_argument("--arms", default="count,mask",
@@ -198,7 +200,8 @@ def main():
     seeds = [int(s) for s in args.seeds.split(",")]
     # GT-density cần neo count NHỎ (0.01) để train được — density MSE thuần bị background(0) chi phối
     # → collapse về ~0 nếu w_count=0 (đúng recipe density-counting chuẩn; số cũ NuInsSeg 0.881 dùng vậy).
-    _ARM = {"count": ("count-only", 0.0, 1.0), "mask": ("GT-density (mask)", 1.0, args.w_count_mask)}
+    _ARM = {"count": ("count-only", 0.0, 1.0),
+            "mask": ("GT-density (mask)", args.w_density, args.w_count_mask)}
     arms = [a.strip() for a in args.arms.split(",") if a.strip()]
     assert all(a in _ARM for a in arms), f"--arms chỉ nhận count/mask, nhận được {arms}"
     configs = [_ARM[a] for a in arms]
@@ -223,15 +226,27 @@ def main():
             else:
                 torch.backends.cudnn.benchmark = True   # NHANH; PanNuke lớn+ổn định nên không cần tất định
             # train(data, device, epochs, ch, lr, train_idx, w_density, w_count, w_nll, beta, bs, detach_mu, sigma_mode, backbone)
-            model = train(data, dev, args.epochs, args.ch, args.lr, tr,
-                          wd, wc, 0.01, 0.5, args.bs, True, "poisson", args.backbone, preload=args.preload)
-            if args.ckpt_dir:
-                os.makedirs(args.ckpt_dir, exist_ok=True)
-                torch.save(model.state_dict(), f"{args.ckpt_dir}/{key}_s{sd}.pt")
+            ck = f"{args.ckpt_dir}/{key}_s{sd}.pt" if args.ckpt_dir else None
+            if ck and os.path.exists(ck):        # resume: seed da chay xong thi khoi train lai
+                from distill_student_r2 import DensitySigmaUNet
+                model = DensitySigmaUNet(args.ch, sigma_mode="poisson", backbone=args.backbone).to(dev)
+                model.load_state_dict(torch.load(ck, map_location=dev))
+            else:
+                model = train(data, dev, args.epochs, args.ch, args.lr, tr,
+                              wd, wc, 0.01, 0.5, args.bs, True, "poisson", args.backbone,
+                              preload=args.preload)
+                if ck:
+                    os.makedirs(args.ckpt_dir, exist_ok=True)
+                    torch.save(model.state_dict(), ck)
             r2, mae = eval_r2_mae(model, data, te, dev)
             r2s.append(r2); maes.append(mae)
             per_img[name].append(_per_image_pred(model, data, te, dev))
             print(f"    [{name:16s}] seed {sd}: R² {r2:+.4f}  MAE {mae:.2f}")   # per-seed để bắt collapse
+            if args.dump_preds:                  # luu ngay: 1 seed ~1.5h, dung de mat khi phien dut
+                np.savez(args.dump_preds, gt=gt_te, seeds=np.array(seeds),
+                         **{f"pred__{n2.replace(' ', '_')}": np.array(v)
+                            for n2, v in per_img.items() if len(v)},
+                         **{f"r2__{name.replace(' ', '_')}": np.array(r2s)})
         nc = int(np.sum(np.array(r2s) < args.collapse_thr))
         rows.append((name, np.mean(r2s), np.std(r2s), np.mean(maes), np.std(maes),
                      float(np.median(r2s)), nc, list(r2s)))
