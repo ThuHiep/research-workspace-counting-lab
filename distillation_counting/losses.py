@@ -1,5 +1,5 @@
 """
-r2_losses.py — Loss cho Paper 2 / thiết kế R2: Distributional Count Distillation.
+losses.py — Loss cho Paper 2 / thiết kế R2: Distributional Count Distillation.
 
 Ý tưởng (xem PHAN_TICH_LOI_va_THIET_KE_LAI.md mục 6): student xuất TRỰC TIẾP (mu, log_sigma)
 cho MỖI ảnh; train/eval CÙNG đo (mu, sigma) -> aligned. Bỏ chuỗi "instance -> PB -> conformal
@@ -20,7 +20,7 @@ CƠ SỞ (không heuristic):
     "On the Pitfalls of Heteroscedastic Uncertainty Estimation". beta=0.5 khuyến nghị.
   - Poisson count NLL (tùy chọn, equidispersion): so sánh ablation.
 
-TẤT CẢ khả vi. Test local: test_r2_losses.py.
+TẤT CẢ khả vi. Test local: test_losses.py.
 """
 from __future__ import annotations
 from typing import Dict

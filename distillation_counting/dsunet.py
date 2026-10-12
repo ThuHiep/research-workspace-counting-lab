@@ -1,5 +1,5 @@
 """
-distill_student_r2.py — Trainer Paper 2 / R2: Distributional Count Distillation.
+dsunet.py — Trainer Paper 2 / R2: Distributional Count Distillation.
 
 Student nhẹ xuất TRỰC TIẾP (density_map, log_sigma). count mu = sum(density); sigma = exp(log_sigma).
 Train/eval CÙNG đo (mu, sigma) -> aligned (sửa misalignment của PBUD/CCAD, xem
@@ -14,14 +14,14 @@ Student (Phase B): DensitySigmaUNet = TinyUNet backbone + density head (softplus
   + log_sigma head (global pool bottleneck -> scalar/ảnh).
 
 Inference (Phase C): mu = sum(density_S), sigma = exp(log_sigma). Output schema:
-  {preds:[{mu,sigma}], gts:[[gt]], organs:[...]}  -> đo bằng eval_r2_conformal.py.
+  {preds:[{mu,sigma}], gts:[[gt]], organs:[...]}  -> đo bằng prediction_intervals.py.
 
-Baseline so sánh (CỔNG): student_kd.pkl (distill_student_nuinsseg.py) — eval_r2_conformal.py
+Baseline so sánh (CỔNG): student_kd.pkl (distill_student_nuinsseg.py) — prediction_intervals.py
 tự suy mu=sum(scores), sigma=sqrt(PB var) từ scores, nên KD và R2 so ĐƯỢC trên cùng conformal.
 
 Chạy trên vast:
-  python distill_student_r2.py --epochs 80 --student_ch 32 --out work/student_r2.pkl
-  python eval_r2_conformal.py --preds work/student_r2.pkl --seeds 20
+  python dsunet.py --epochs 80 --student_ch 32 --out work/student_r2.pkl
+  python prediction_intervals.py --preds work/student_r2.pkl --seeds 20
 """
 from __future__ import annotations
 import argparse, os, pickle, sys, time
@@ -39,7 +39,7 @@ for p in (f"{REPO}/kaggle/vast", f"{REPO}/kaggle/lib", REPO, os.path.dirname(__f
 from distill_student_nuinsseg import (  # noqa: E402
     build_index, find_root, DoubleConv, IMG_SIZE, _load_mask, assign_kfold,
 )
-from r2_losses import r2_loss, count_from_density  # noqa: E402
+from losses import r2_loss, count_from_density  # noqa: E402
 
 
 # ===================== Student: density + log_sigma =====================
@@ -58,7 +58,9 @@ class DensitySigmaUNet(nn.Module):
     """Encoder-decoder -> (density_map>=0, log_sigma scalar/ảnh).
 
     backbone:
-      'tinyunet' (mặc định) — TinyUNet DoubleConv, ch=32 => ~1.9M. GIỮ NGUYÊN (mọi thí nghiệm cũ).
+      'efficientnet_lite0' (MẶC ĐỊNH, cấu hình của paper) — 3.62M params, 0.98 GMACs @256.
+      'tinyunet' — TinyUNet DoubleConv, ch=32 => 1.94M, 10.5 GMACs. Model CŨ; giữ lại CHỈ để nạp
+          checkpoint cũ, KHÔNG phải cấu hình nào trong paper.
       '<timm name>' (vd 'fastvit_t8', 'efficientnet_lite0') — encoder hiện đại (features_only) + U-Net
           decoder + CÙNG 2 head (density, σ). Mục tiêu: đóng accuracy gap vs NuLite (cùng họ FastViT)
           mà GIỮ novelty UQ (Poisson-σ + detach_mu backbone-agnostic). Bước 1 redesign 2026-07-16.
@@ -66,7 +68,7 @@ class DensitySigmaUNet(nn.Module):
     sigma_mode:
       'poisson' (mặc định) — σ = √(max(μ,1)) · exp(log_s); anchor Poisson + head học dispersion.
       'nb' — σ = √(μ+α·μ²) Negative-Binomial (ablation A2). 'raw' — σ = exp(log_s) (ablation A2)."""
-    def __init__(self, ch=32, sigma_mode="poisson", backbone="tinyunet", head_k=1, head_d=1, attn="none"):
+    def __init__(self, ch=32, sigma_mode="poisson", backbone="efficientnet_lite0", head_k=1, head_d=1, attn="none"):
         super().__init__()
         self.sigma_mode = sigma_mode
         self.backbone = backbone
@@ -254,7 +256,7 @@ def build_teacher_density(samples, device, cache, use_gt=False):
 
 # ===================== Phase B: train =====================
 def train(data, device, epochs, ch, lr, train_idx, w_density, w_count, w_nll, beta, bs,
-          detach_mu=False, sigma_mode="poisson", backbone="tinyunet", head_k=1, head_d=1, attn="none",
+          detach_mu=False, sigma_mode="poisson", backbone="efficientnet_lite0", head_k=1, head_d=1, attn="none",
           preload=False):
     model = DensitySigmaUNet(ch, sigma_mode=sigma_mode, backbone=backbone, head_k=head_k, head_d=head_d, attn=attn).to(device)
     print(f"[B] DensitySigmaUNet backbone={backbone} ch={ch} params={sum(p.numel() for p in model.parameters())/1e6:.3f}M "
@@ -324,8 +326,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--epochs", type=int, default=80)
     ap.add_argument("--student_ch", type=int, default=32)
-    ap.add_argument("--backbone", default="tinyunet",
-                    help="tinyunet (mặc định ~1.9M, giữ nguyên) HOẶC tên timm (fastvit_t8, efficientnet_lite0...) "
+    ap.add_argument("--backbone", default="efficientnet_lite0",
+                    help="efficientnet_lite0 (mặc định = cấu hình paper, 3.62M) HOẶC tên timm khac / 'tinyunet' (model CU 1.9M) "
                          "-> encoder hiện đại + U-Net decoder, GIỮ Poisson-σ + detach_mu. Bước 1 redesign accuracy.")
     ap.add_argument("--lr", type=float, default=1e-3)
     ap.add_argument("--w_density", type=float, default=1.0)

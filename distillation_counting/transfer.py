@@ -1,5 +1,5 @@
 """
-eval_cross_dataset.py — CROSS-DATASET TRANSFER (train trên dataset A -> predict dataset B).
+transfer.py — CROSS-DATASET TRANSFER (train trên dataset A -> predict dataset B).
 
 Câu hỏi: bộ đếm huấn luyện trên dataset A (mặc định count-only) chuyển sang một dataset B khác
 (khác phòng lab, khác nhuộm, khác dải count) được tới đâu — độ chính xác điểm và (μ, σ) còn dùng
@@ -20,13 +20,13 @@ Chạy (mặc định --supervision count = chế độ của bài):
   # NuInsSeg -> CryoNuSeg (dataset OOD ngoài, qua folder ảnh + gt_counts.csv)
   python prep_cryonuseg_counts.py --img_dir "<...>/tissue images" \
       --mask_dir "<...>/Annotator 1 (biologist)/label masks modify" --out work/cryo
-  python eval_cross_dataset.py --train_dataset nuinsseg --detach_mu --seed 42 \
+  python transfer.py --train_dataset nuinsseg --detach_mu --seed 42 \
       --test_images_dir work/cryo/images --test_gt_csv work/cryo/gt_counts.csv \
       --out work/xfer_count_cryo_s42.pkl
   python eval_r2_grouped.py --preds work/xfer_count_cryo_s42.pkl --seeds 20
 
   # NuInsSeg <-> PanNuke (hai chiều, dataset built-in)
-  python eval_cross_dataset.py --train_dataset pannuke --test_dataset nuinsseg \
+  python transfer.py --train_dataset pannuke --test_dataset nuinsseg \
       --detach_mu --out work/xfer_pannuke2nuinsseg.pkl
   python eval_r2_grouped.py --preds work/xfer_pannuke2nuinsseg.pkl --seeds 20 --n_clusters 5
 """
@@ -45,7 +45,7 @@ for p in (f"{REPO}/kaggle/vast", f"{REPO}/kaggle/lib", REPO,
         sys.path.insert(0, p)
 
 from distill_student_nuinsseg import build_index, find_root  # noqa: E402
-from distill_student_r2 import (  # noqa: E402
+from dsunet import (  # noqa: E402
     train, predict_r2, build_pannuke_density, build_teacher_density,
 )
 
@@ -134,6 +134,11 @@ def main():
     ap.add_argument("--dump_feat", action="store_true")
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--out", default=f"{REPO}/work/xfer_preds.pkl")
+    ap.add_argument("--source_holdout_folds", default=None,
+                    help="fold PanNuke GIỮ LẠI (không train), predict ra pkl riêng để làm tập "
+                         "khởi động hiệu chuẩn ở MIỀN NGUỒN. Vd: --pannuke_folds 1,2 "
+                         "--source_holdout_folds 3")
+    ap.add_argument("--out_source", default=None, help="pkl cho fold giữ lại (mặc định: <out>.source.pkl)")
     args = ap.parse_args()
     wd_def, wc_def = (0.0, 1.0) if args.supervision == "count" else (1.0, 0.1)
     if args.w_density is None:
@@ -177,6 +182,23 @@ def main():
           f"| sigma mean={sg.mean():.2f} std={sg.std():.2f}")
     print(f"  -> chấm conformal (cal trên chính B): "
           f"python eval_r2_grouped.py --preds {args.out} --seeds 20")
+
+    if args.source_holdout_folds:
+        assert args.train_dataset == "pannuke", "--source_holdout_folds chỉ áp cho train_dataset=pannuke"
+        trained = {int(x) for x in args.pannuke_folds.split(",")}
+        held = {int(x) for x in args.source_holdout_folds.split(",")}
+        assert not (trained & held), f"fold giữ lại {held} trùng fold train {trained}"
+        args.pannuke_folds = args.source_holdout_folds
+        src_data = _load_dataset("pannuke", args, device)
+        print(f"[SOURCE-HOLDOUT] PanNuke fold {sorted(held)}: {len(src_data)} ảnh (không train)")
+        src = predict_r2(model, src_data, device)
+        out_src = args.out_source or (os.path.splitext(args.out)[0] + ".source.pkl")
+        pickle.dump(src, open(out_src, "wb"))
+        smu = np.array([p["mu"] for p in src["preds"]])
+        ssg = np.array([p["sigma"] for p in src["preds"]])
+        sgt = np.array([g[0] for g in src["gts"]])
+        print(f"[OUT] saved {out_src} (N={len(smu)}) | source MAE={np.abs(smu-sgt).mean():.2f} "
+              f"| r trung vị={np.median(np.abs(sgt-smu)/np.maximum(ssg,1e-6)):.2f}")
 
 
 if __name__ == "__main__":

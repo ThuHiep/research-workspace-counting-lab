@@ -1,12 +1,12 @@
 """
-eval_r2_conformal.py — Đo CỔNG cho R2: split conformal trên score chuẩn hoá r=|gt-mu|/sigma.
+prediction_intervals.py — Đo CỔNG cho R2: split conformal trên score chuẩn hoá r=|gt-mu|/sigma.
 
 Khác eval_coverage_transfer.py (đo transfer T->S/T->T): file này đo chế độ TRIỂN KHAI THẬT
 (S->S: recalibrate trên chính student) cho tối đa 2 model để SO TRỰC TIẾP KD vs R2 và in VERDICT
 cổng. Cùng một conformal + Winkler cho cả hai nên so công bằng.
 
 Suy (mu, sigma) mỗi ảnh:
-  - pred có 'mu'/'sigma' (R2, distill_student_r2.py)          -> dùng trực tiếp.
+  - pred có 'mu'/'sigma' (R2, dsunet.py)          -> dùng trực tiếp.
   - pred có 'scores'/'probs' (KD, distill_student_nuinsseg.py) -> mu = pb_count, sigma = sqrt(pb_var).
   => KD và R2 đi qua ĐÚNG một conformal on score |gt-mu|/sigma. (K=1 cho NuInsSeg.)
 
@@ -16,8 +16,8 @@ sigma heteroscedastic => khoảng RỘNG đúng ở ảnh/organ khó => kỳ v�
 & Winkler mà width tổng không nổ. Đây là cơ chế R2 (khác PBUD/CCAD).
 
 Dùng:
-  python eval_r2_conformal.py --preds work/student_r2.pkl --seeds 20
-  python eval_r2_conformal.py --preds work/student_kd.pkl work/student_r2.pkl \
+  python prediction_intervals.py --preds work/student_r2.pkl --seeds 20
+  python prediction_intervals.py --preds work/student_kd.pkl work/student_r2.pkl \
          --labels KD R2 --seeds 20 --out gate_r2.json
 """
 from __future__ import annotations
