@@ -114,7 +114,7 @@ def main():
                     help="loại tissue (áp CHO PHÍA PanNuke), vd 'colon'.")
     ap.add_argument("--supervision", choices=["count", "mask"], default="count",
                     help="count = count-only (w_density 0, w_count 1) — chế độ của bài. "
-                         "mask = giám sát mật độ dựng từ mặt nạ GT (w_density 1, w_count 0.1). "
+                         "mask = giám sát mật độ dựng từ mặt nạ GT (w_density 6553.6, w_count 0.1). "
                          "Đặt --w_density/--w_count tường minh sẽ ĐÈ lên lựa chọn này.")
     # train (mirror distill_student_r2 -> cùng công thức bảng chính)
     ap.add_argument("--epochs", type=int, default=80)
@@ -140,7 +140,7 @@ def main():
                          "--source_holdout_folds 3")
     ap.add_argument("--out_source", default=None, help="pkl cho fold giữ lại (mặc định: <out>.source.pkl)")
     args = ap.parse_args()
-    wd_def, wc_def = (0.0, 1.0) if args.supervision == "count" else (1.0, 0.1)
+    wd_def, wc_def = (0.0, 1.0) if args.supervision == "count" else (6553.6, 0.1)
     if args.w_density is None:
         args.w_density = wd_def
     if args.w_count is None:
